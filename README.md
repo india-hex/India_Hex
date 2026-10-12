@@ -1,4 +1,4 @@
-# India Hex: technical handover
+# India Hex
 
 A static, config-driven web map of India: **states, districts, Lok Sabha (PC) and Assembly (AC)
 constituencies** on satellite imagery, plus **H3 hexagons at H6, H7 and H8**. Hexagons and units
