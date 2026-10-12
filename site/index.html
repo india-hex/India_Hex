@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f3ee">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com; worker-src 'self' blob:; child-src blob:; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://server.arcgisonline.com https://tile.openstreetmap.org https://tiles.openfreemap.org; connect-src 'self' https://server.arcgisonline.com https://tile.openstreetmap.org https://tiles.openfreemap.org https://protomaps.github.io; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>India Hex</title>
+  <meta name="description" content="States, districts, Lok Sabha and Assembly constituencies of India with H3 hexagon data.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin>
+  <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="preload" href="config.json" as="fetch" crossorigin>
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="side" id="side">
+      <div class="sheet-handle" id="sheetHandle" aria-hidden="true"><span></span></div>
+      <header class="mast">
+        <a class="wordmark" href="#" id="home" title="All of India">India <em>Hex</em></a>
+        <div class="mast-actions">
+          <button class="icon" id="menuBtn" aria-label="Menu" aria-haspopup="true">
+            <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+          </button>
+          <div class="menu" id="menu" hidden></div>
+        </div>
+      </header>
+
+      <div class="search">
+        <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Search a place, constituency or variable" autocomplete="off" spellcheck="false" aria-label="Search">
+        <kbd>/</kbd>
+        <div class="search-results" id="searchResults" hidden role="listbox"></div>
+      </div>
+
+      <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+      <main class="panel" id="panel"></main>
+      <div class="pins" id="pins" hidden></div>
+    </aside>
+
+    <section class="stage" id="stage">
+      <div id="map" class="map"></div>
+      <div id="mapB" class="map map-b" hidden></div>
+      <div class="swipe" id="swipe" hidden><span class="swipe-grip"></span></div>
+      <div class="compare-bar" id="compareBar" hidden></div>
+
+      <section class="lens" id="lens">
+        <button class="lens-head" id="lensToggle" aria-expanded="true"><span>Layers</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="lens-body" id="lensBody"></div>
+      </section>
+
+      <div class="tools" id="tools"></div>
+      <div class="timeline" id="timeline" hidden></div>
+      <div class="bases" id="bases"></div>
+      <div class="toast" id="toast" hidden></div>
+      <div class="tip" id="tip" hidden></div>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/h3-js@4.1.0/dist/h3-js.umd.js" integrity="sha384-nKUDlg+fT0U/eEt4KWP9n034kLe/eVj6k7CVjbu6qfRhJdEyinlGajS9+9AU+UZ5" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/deck.gl@9.0.38/dist.min.js" integrity="sha384-tEG529toczQRv/bqd2PyHy5vTO49FMjQri0c1oB44gSkYiNouZz8L9yNTVx0YGl+" crossorigin="anonymous"></script>
+  <script type="module" src="js/main.js"></script>
+  <script src="js/sw-register.js"></script>
+</body>
+</html>

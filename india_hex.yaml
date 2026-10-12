@@ -1,0 +1,319 @@
+# ============================================================================================
+#  India Hex: configuration
+#
+#  Everything the site shows is controlled from here. After editing, run:
+#      python server.py            rebuilds only what changed, then serves http://localhost:8000
+#      python server.py --list     prints every variable found in the source data
+#      python server.py --publish  rebuilds and pushes the site to GitHub Pages
+#
+#  Display-only settings (colours, labels, basemaps, toggles, defaults) apply instantly: they go
+#  into site/config.json. Data settings (variables, years, resolutions) rebuild only the files
+#  they affect.
+# ============================================================================================
+
+site:
+  title: India Hex
+  tagline: Constituencies, districts and H3 hexagons of India
+  author: ""                 # shown in the About panel when set
+  github: ""                 # e.g. https://github.com/<user>/India_Hex (shown in the About panel when set)
+  data_credit: GHSL · NASA Black Marble · Esri Land Cover · Hansen GFC · OpenStreetMap · property portals
+
+# Where the source data lives.
+source:
+  root: D:/economy_index_data
+  processed: processed          # contains h6/ h7/ h8/
+  boundaries:
+    ac: processed/ac_wgs84.gpkg
+    ac_lookup: outputs/ntl/ac_lookup.csv
+    pc: processed/pc_wgs84.gpkg
+    district: processed/district_lgd_wgs84.gpkg
+
+# What the site opens with. Every one of these is also changeable in the UI and kept in the URL.
+defaults:
+  level: ac                  # state | district | pc | ac
+  hex: auto                  # off | auto | 6 | 7 | 8   (auto picks the resolution from the zoom)
+  scope: sel                 # sel (selected unit only) | view (everything in view)
+  variable: none             # a variable id from `python server.py --list`, or none
+  basemap: satellite
+  overlays: [ places
+  #roads ( roads, places, pois, buildings, esri_labels)
+   ]
+  scale: relative            # relative | india
+  opacity: 0.72
+  theme: light               # light | dark (UI chrome)
+  dim_outside_selection: false   # darken everything outside the selected place (off: the map keeps its brightness)
+
+hex:
+  resolutions: [6, 7, 8]
+  chunk_levels: 4            # cells grouped under an H3 parent this many levels coarser (max 7)
+  auto_zoom: {6: 0, 7: 6.6, 8: 9.4}   # 'auto' resolution: switch to res N from this zoom upwards
+  max_cells_selection: 160000          # larger selections drop one resolution
+  auto_max_cells: 90000                # 'auto' with a selection: finest resolution with at most this many cells
+  max_cells_view: 260000               # 'everything in view' is skipped above this
+  extrude_scale: 4000                  # metres at the top of the scale in 3D mode
+
+# --------------------------------------------------------------------------------------------
+# Boundaries and their styling. `palette` picks one of the palettes below.
+# --------------------------------------------------------------------------------------------
+boundaries:
+  palette: muted_earth
+  levels:
+    state:    {label: States,    one: State,                      short: State, label_minzoom: 3.5}
+    district: {label: Districts, one: District,                   short: Dist,  label_minzoom: 6.2}
+    pc:       {label: Lok Sabha, one: Parliamentary constituency, short: PC,    label_minzoom: 5.8}
+    ac:       {label: Assembly,  one: Assembly constituency,      short: AC,    label_minzoom: 7.6}
+  simplify:  {state: 0.002, district: 0.0015, pc: 0.0015, ac: 0.0008}   # national layers (degrees)
+  detail:    {state: 0.0008, district: 0.0003, pc: 0.0003, ac: 0.0001}  # per-unit outline on selection
+
+# Each palette has a `dark` variant (satellite / dark basemaps) and a `light` one.
+# Per level: [colour, opacity, width at zoom 8, width at zoom 12, dash ([] = solid)].
+palettes:
+  muted_earth:
+    dark:
+      state:    ["#f2e6cc", 0.90, 2.2, 3.4, []]
+      pc:       ["#c7bfe0", 0.70, 1.3, 2.2, []]
+      district: ["#e0c79a", 0.65, 1.0, 1.8, [3, 2]]
+      ac:       ["#a9d3c6", 0.50, 0.6, 1.3, []]
+      selection: "#f2c46d"
+      hex_line: "rgba(255,255,255,0.30)"
+      mask: "rgba(10,12,16,0.50)"
+      label: "#f7f3ea"
+      label_halo: "rgba(0,0,0,0.75)"
+    light:
+      state:    ["#5f523f", 0.85, 2.0, 3.2, []]
+      pc:       ["#6d6590", 0.70, 1.2, 2.0, []]
+      district: ["#97784b", 0.70, 1.0, 1.7, [3, 2]]
+      ac:       ["#4d7d74", 0.50, 0.6, 1.2, []]
+      selection: "#b7791f"
+      hex_line: "rgba(40,38,34,0.28)"
+      mask: "rgba(40,36,30,0.22)"
+      label: "#2b2924"
+      label_halo: "rgba(255,255,255,0.92)"
+  ivory:
+    dark:
+      state:    ["#fbf6ea", 0.92, 2.2, 3.4, []]
+      pc:       ["#fbf6ea", 0.62, 1.3, 2.2, []]
+      district: ["#fbf6ea", 0.55, 1.0, 1.8, [3, 2]]
+      ac:       ["#fbf6ea", 0.32, 0.6, 1.3, []]
+      selection: "#f3d48e"
+      hex_line: "rgba(255,255,255,0.30)"
+      mask: "rgba(10,12,16,0.50)"
+      label: "#f7f3ea"
+      label_halo: "rgba(0,0,0,0.75)"
+    light:
+      state:    ["#34322d", 0.85, 2.0, 3.2, []]
+      pc:       ["#34322d", 0.55, 1.2, 2.0, []]
+      district: ["#34322d", 0.50, 1.0, 1.7, [3, 2]]
+      ac:       ["#34322d", 0.30, 0.6, 1.2, []]
+      selection: "#c0882b"
+      hex_line: "rgba(40,38,34,0.28)"
+      mask: "rgba(40,36,30,0.22)"
+      label: "#2b2924"
+      label_halo: "rgba(255,255,255,0.92)"
+
+# --------------------------------------------------------------------------------------------
+# Basemaps (raster tiles, no API keys) and overlays (switchable on top of any basemap).
+# `dark: true` uses the dark palette variant for lines and labels.
+# --------------------------------------------------------------------------------------------
+basemaps:
+  - id: satellite
+    label: Satellite
+    dark: true
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 19
+    attribution: "Imagery © Esri, Maxar, Earthstar Geographics"
+  - id: streets
+    label: Streets
+    dark: false
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 19
+    attribution: "Tiles © Esri, HERE, Garmin, OpenStreetMap contributors"
+    overlays_off: [roads, places]        # already drawn into this basemap
+  - id: osm
+    label: OSM
+    dark: false
+    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"]
+    maxzoom: 19
+    attribution: "© OpenStreetMap contributors"
+    overlays_off: [roads, places, pois]
+  - id: light
+    label: Light
+    dark: false
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 16
+    attribution: "Tiles © Esri"
+  - id: dark
+    label: Dark
+    dark: true
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 16
+    attribution: "Tiles © Esri"
+  - id: terrain
+    label: Terrain
+    dark: false
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 19
+    attribution: "Tiles © Esri"
+    overlays_off: [roads, places]
+
+# Google-style overlays. roads/places/pois/buildings come from OpenFreeMap vector tiles (free,
+# no key), using the layers of its "liberty" style grouped by source layer.
+overlays:
+  vector_style: https://tiles.openfreemap.org/styles/liberty
+  groups:
+    roads:     {label: Roads,     source_layers: [transportation, transportation_name]}
+    places:    {label: Places,    source_layers: [place, water_name, waterway, aerodrome_label]}
+    pois:      {label: POIs,      source_layers: [poi]}
+    buildings: {label: Buildings, source_layers: [building]}
+  raster:
+    esri_labels:
+      label: Esri labels
+      tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"]
+      maxzoom: 19
+
+# --------------------------------------------------------------------------------------------
+# Variables. Every numeric column of every parquet file under processed/h{res}/ becomes a
+# variable. Columns ending in _YYYY are grouped into one series with a year slider.
+# --------------------------------------------------------------------------------------------
+variables:
+  # Known datasets: paths relative to processed/h{res}/ ({res} = 6, 7 or 8).
+  datasets:
+    population: {file: "population/h{res}_population_2010_2030_wide.parquet", group: People}
+    ntl:        {file: "ntl/h{res}_ntl_2012_2025_wide_with_geography.parquet", group: Economy}
+    built:      {file: "built_environment/h{res}_built_environment_2015_2020_2025_wide.parquet", group: Built environment}
+    landcover:  {file: "land_cover/h{res}_land_cover_classes_2017_2024_wide.parquet", group: Land cover}
+    forest:     {file: "land_cover/h{res}_forest_2012_2025_wide.parquet", group: Forest}
+    industrial: {file: "land_cover/h{res}_industrial_wide.parquet", group: Land cover}
+    poi:        {file: "commercial_poi/h{res}_poi_hexagon_AGGREGATED.parquet", group: Commerce, fill_missing: 0}
+    property:
+      file: "property/h{res}_property_hexagon_AGGREGATED.parquet"
+      group: Property
+      pivot: segment         # long table: one column per segment, named <segment>_<column>
+      segments: [residential_buy, residential_rent, commercial_buy, commercial_rent]
+
+  # Any other parquet under processed/h{res}/**/ is picked up automatically (its folder name
+  # becomes the group). These files are skipped: point-level tables, previews, and copies.
+  auto_discover: true
+  skip_files: ["*MAPPED*", "*preview*", "*land_summary*"]
+
+  # Columns never published (glob patterns on the column / series name).
+  exclude:
+    - "*pixel*"
+    - "*coverage*"
+    - "*cloud_nodata*"
+    - "*_p25_*"
+    - "*_p75_*"
+    - "*listings_approx_location*"
+    - "*listings_used*"
+    - "*distinct_locations*"
+    - "*listings_with_price*"
+    - "*listings_with_rate*"
+    - "*area_median_sqft*"
+    - "*rent*rate_median*"            # rent listings have no per-sqft rate
+
+  # Series published at H8 as well (H8 costs ~9 MB per series-year; H6/H7 together ~1.4 MB).
+  # Everything else is published at H6 + H7; the map falls back to H7 when H8 is chosen.
+  # Use [all] to publish everything at H8 (watch the size report against GitHub's 1 GB).
+  h8:
+    - population
+    - ntl_mean
+    - built_share_total
+    - avg_height_total_m
+    - landcover_forest_share
+    - landcover_agriculture_share
+    - landcover_built_share
+    - landcover_water_wetland_share
+    - forest_cover_share_canopy10
+    - all_poi_total
+    - commercial_total
+    - residential_buy_rate_median_inr_per_sqft
+  h8_years: all                 # all | latest | latest_and_steps (latest + every 5th year)
+
+  # Size guard for GitHub Pages (hard limit 1 GB for a published site).
+  budget_mb: 950
+
+  # Shown first in pickers and in every unit's "key figures", in this order.
+  featured:
+    - population
+    - ntl_mean
+    - built_share_total
+    - landcover_agriculture_share
+    - landcover_forest_share
+    - all_poi_total
+    - residential_buy_rate_median_inr_per_sqft
+    - avg_height_total_m
+
+  # Per-variable settings. Anything not given is inferred from the column name:
+  #   agg     sum | mean | median   how hexes combine into a unit (sum for counts/areas,
+  #                                  mean for shares/means/heights, median for prices/rates)
+  #   density true lets the UI show it per km² (default true for sum-type variables)
+  #   ramp    ylorrd | magma | viridis | greens | ylgn | blues | purples | cividis | rdbu | brbg | puor
+  #   format  int | dec1 | dec2 | pct (value is a 0-1 share) | inr
+  overrides:
+    population:          {label: Population, unit: people, ramp: ylorrd, format: int, default_year: 2025, note: "GHSL GHS-POP; model estimates on the 2011 Census; 2025 and 2030 are projections"}
+    ntl_mean:            {label: Night lights, unit: nW/cm²/sr, ramp: magma, format: dec2, note: "NASA Black Marble mean radiance of ~500 m pixels"}
+    built_share_total:   {label: Built-up share, ramp: ylorrd, format: pct, note: "GHSL built-up surface as a share of the cell"}
+    built_share_res:     {label: Built-up share (residential), ramp: ylorrd, format: pct}
+    built_share_nres:    {label: Built-up share (non-residential), ramp: ylorrd, format: pct}
+    built_s_total_m2:    {label: Built-up surface, unit: m², ramp: ylorrd, format: int}
+    built_s_res_m2:      {label: Built-up surface (residential), unit: m², ramp: ylorrd, format: int}
+    built_s_nres_m2:     {label: Built-up surface (non-residential), unit: m², ramp: ylorrd, format: int}
+    built_v_total_m3:    {label: Built volume, unit: m³, ramp: ylorrd, format: int}
+    built_v_res_m3:      {label: Built volume (residential), unit: m³, ramp: ylorrd, format: int}
+    built_v_nres_m3:     {label: Built volume (non-residential), unit: m³, ramp: ylorrd, format: int}
+    avg_height_total_m:  {label: Average building height, unit: m, ramp: blues, format: dec1}
+    avg_height_res_m:    {label: Average height (residential), unit: m, ramp: blues, format: dec1}
+    avg_height_nres_m:   {label: Average height (non-residential), unit: m, ramp: blues, format: dec1}
+    landcover_forest_share:        {label: Trees (land cover), ramp: greens, format: pct, note: "Esri 10 m land cover"}
+    landcover_agriculture_share:   {label: Crops (land cover), ramp: ylgn, format: pct, note: "Esri 10 m land cover"}
+    landcover_built_share:         {label: Built area (land cover), ramp: ylorrd, format: pct, note: "Esri 10 m land cover"}
+    landcover_open_natural_share:  {label: Open & natural land, ramp: ylgn, format: pct, note: "Esri 10 m land cover: rangeland, bare ground, snow"}
+    landcover_water_wetland_share: {label: Water & wetland, ramp: blues, format: pct, note: "Esri 10 m land cover"}
+    forest_cover_share_canopy10:   {label: Forest cover (canopy ≥10%), ramp: greens, format: pct, note: "Hansen Global Forest Change"}
+    forest_lost_share:             {label: Forest lost (cumulative), ramp: ylorrd, format: pct, note: "Hansen GFC loss since 2001"}
+    tree_canopy_avg_pct:           {label: Tree canopy 2000, unit: "%", ramp: greens, format: dec1, agg: mean}
+    permanent_water_share:         {label: Permanent water, ramp: blues, format: pct}
+    industrial_landuse_share_osm2026: {label: Industrial land use, ramp: purples, format: pct, note: "OpenStreetMap industrial landuse, 2026"}
+    is_industrial:       {label: Industrial cell (≥25%), ramp: purples, format: pct, agg: mean}
+    all_poi_total:       {label: All POIs, unit: POIs, ramp: purples, format: int, note: "OpenStreetMap points of interest"}
+    commercial_total:    {label: Commercial POIs, unit: POIs, ramp: purples, format: int}
+    residential_buy_rate_median_inr_per_sqft:  {label: Residential sale rate, unit: ₹/sqft, ramp: viridis, format: inr, agg: median, density: false}
+    residential_buy_price_median_inr:          {label: Residential sale price, unit: ₹, ramp: viridis, format: inr, agg: median, density: false}
+    residential_rent_price_median_inr:         {label: Residential rent, unit: ₹/month, ramp: viridis, format: inr, agg: median, density: false}
+    commercial_buy_rate_median_inr_per_sqft:   {label: Commercial sale rate, unit: ₹/sqft, ramp: viridis, format: inr, agg: median, density: false}
+    commercial_buy_price_median_inr:           {label: Commercial sale price, unit: ₹, ramp: viridis, format: inr, agg: median, density: false}
+    commercial_rent_price_median_inr:          {label: Commercial rent, unit: ₹/month, ramp: viridis, format: inr, agg: median, density: false}
+
+# --------------------------------------------------------------------------------------------
+# Features: switch any off to remove it from the UI entirely.
+# --------------------------------------------------------------------------------------------
+features:
+  search: true
+  timeline: true            # year slider + play for year series
+  change_mode: true         # "change between two years" view
+  density_toggle: true      # per km² for count-type variables
+  national_view: true       # distribution + rankings when nothing is selected
+  compare: true             # swipe compare (variable / year / basemap)
+  three_d: true             # extrude hexagons by value
+  pin_compare: true         # pin units and compare them in a table
+  export_png: true
+  export_csv: true
+  export_geojson: true
+  google_links: true        # open the same place in Google Maps / Google Earth
+  locate_me: true           # "which constituency am I in"
+  colourblind_ramps: true   # option to swap every ramp for cividis / PuOr
+
+# --------------------------------------------------------------------------------------------
+# Look and feel.
+# --------------------------------------------------------------------------------------------
+ui:
+  font_display: Instrument Serif
+  font_body: Inter
+  accent: "#b7791f"
+  sidebar_width: 392
+
+publish:
+  repo: ""                  # e.g. https://github.com/<user>/India_Hex.git
+  branch: gh-pages
+  git_name: India Hex          # commit author shown on GitHub (keeps personal names off the repo)
+  git_email: india-hex@users.noreply.github.com   # neutral address: no personal name or email in commits
