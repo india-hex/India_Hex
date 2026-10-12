@@ -193,7 +193,7 @@ def build_boundaries(cfg, units, bounds):
                 continue
             geom = json.loads(shapely.to_geojson(shapely.set_precision(r.geometry, 1e-4)))
             feats.append({"type": "Feature", "id": int(r.uid), "properties": {"uid": int(r.uid)}, "geometry": geom})
-        path = DATA / "boundaries" / f"{lvl}.geojson"
+        path = DATA / "boundaries" / f"{lvl}.json"  # .json, not .geojson: GitHub Pages only compresses the former
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump({"type": "FeatureCollection", "features": feats}, f, separators=(",", ":"))

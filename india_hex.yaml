@@ -46,7 +46,7 @@ defaults:
 hex:
   resolutions: [6, 7, 8]
   chunk_levels: 4            # cells grouped under an H3 parent this many levels coarser (max 7)
-  auto_zoom: {6: 0, 7: 6.6, 8: 9.4}   # 'auto' resolution: switch to res N from this zoom upwards
+  auto_zoom: {6: 4.6, 7: 6.6, 8: 9.4} # 'auto': res N from this zoom up (below the first: no hexes, unit colours only)
   max_cells_selection: 160000          # larger selections drop one resolution
   auto_max_cells: 90000                # 'auto' with a selection: finest resolution with at most this many cells
   max_cells_view: 260000               # 'everything in view' is skipped above this

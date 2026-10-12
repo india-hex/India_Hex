@@ -50,7 +50,7 @@ def build(cfg, force=False, only_config=False):
     units_sig = obj_sig([file_sig(p) for p in bsrc], file_sig(h8_ntl))
     bnd_sig = obj_sig(units_sig, cfg["boundaries"]["simplify"], cfg["boundaries"]["detail"])
     need_units = st.get("units") != units_sig or not (DATA / "units.json").exists()
-    need_bnd = st.get("boundaries") != bnd_sig or not (DATA / "boundaries" / "ac.geojson").exists()
+    need_bnd = st.get("boundaries") != bnd_sig or not (DATA / "boundaries" / "ac.json").exists()
 
     h8cells = None
     if need_units or need_bnd:
@@ -153,6 +153,9 @@ def build(cfg, force=False, only_config=False):
     if removed:
         log(f"  removed {removed} stale files")
 
+    # earlier layouts
+    for f in (DATA / "boundaries").glob("*.geojson"):
+        f.unlink()
     # old v1 layout
     for old in ("hex/h6/*.json", "hex/h7/*.json", "hex/h8/*.json"):
         for f in DATA.glob(old):
