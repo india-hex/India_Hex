@@ -15,7 +15,7 @@ site:
   title: India Hex
   tagline: Constituencies, districts and H3 hexagons of India
   author: ""                 # shown in the About panel when set
-  github: ""                 # e.g. https://github.com/<user>/India_Hex (shown in the About panel when set)
+  github: https://github.com/india-hex/India_Hex   # shown in the About panel
   data_credit: GHSL · NASA Black Marble · Esri Land Cover · Hansen GFC · OpenStreetMap · property portals
 
 # Where the source data lives.
@@ -313,7 +313,7 @@ ui:
   sidebar_width: 392
 
 publish:
-  repo: ""                  # e.g. https://github.com/<user>/India_Hex.git
+  repo: https://github.com/india-hex/India_Hex.git
   branch: gh-pages
   git_name: India Hex          # commit author shown on GitHub (keeps personal names off the repo)
   git_email: india-hex@users.noreply.github.com   # neutral address: no personal name or email in commits
