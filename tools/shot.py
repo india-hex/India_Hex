@@ -1,6 +1,6 @@
 """Drive the locally served site in headless Chrome: screenshots + console errors.
 
-Start the site first:  python serve.py            (port 8000; override with env PORT)
+Start the site first:  python server.py   (env PORT, default 8000), or set BASE to test a live URL
 usage: python tools/shot.py <out_dir> <name>=<url-hash> [<name>=<url-hash> ...]
 
   <url-hash> is the part after '#', e.g.  sakri=s=ac:MAHARASHTRA|5|Sakri (ST)&l=ac&h=7
@@ -20,6 +20,7 @@ out = Path(sys.argv[1]); out.mkdir(parents=True, exist_ok=True)
 shots = [a.split("=", 1) for a in sys.argv[2:]]
 W, H = int(os.environ.get("W", 1600)), int(os.environ.get("H", 900))
 PORT = int(os.environ.get("PORT", 8000))
+BASE = os.environ.get("BASE", f"http://127.0.0.1:{PORT}/")  # e.g. BASE=https://india-hex.github.io/India_Hex/
 
 with sync_playwright() as p:
     b = p.chromium.launch(channel="chrome", headless=True,
@@ -33,7 +34,7 @@ with sync_playwright() as p:
         pg.on("console", lambda m: logs.append(f"{m.type}: {m.text}") if m.type in ("error", "warning") else None)
         pg.on("pageerror", lambda e: logs.append(f"PAGEERROR: {e}"))
         pg.on("requestfailed", lambda r: logs.append(f"REQFAIL: {r.url[:120]} {r.failure}"))
-        pg.goto(f"http://127.0.0.1:{PORT}/#{spec}")
+        pg.goto(f"{BASE}#{spec}")
         pg.wait_for_timeout(9000)
         if js:
             for part in js.split(";;"):
