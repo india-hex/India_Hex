@@ -667,5 +667,6 @@ await updateCells();
 if (hash.hex && h3.isValidCell(hash.hex)) S.set({ hex: hash.hex });
 renderLens();
 renderTimeline();
-// warm the other boundary layers in the background
-['district', 'pc', 'ac'].forEach((l) => setTimeout(() => ensureGeo(l), 1500));
+// warm the other boundary layers once the first view is done, so they don't compete with it
+const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 1));
+setTimeout(() => idle(() => ['district', 'pc', 'ac'].forEach((l, i) => setTimeout(() => ensureGeo(l), i * 1500))), 6000);

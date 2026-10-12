@@ -1,5 +1,5 @@
-// Units (state / district / pc / ac): metadata from units.json, values per variable lazily from
-// data/units/v/<series>.json  ({"y": [years], "<level>": [[value per unit id] per year]}).
+// Units (state / district / pc / ac): metadata from units.json, values per variable and level lazily
+// from data/units/v/<series>/<level>.json  ({"y": [years], "v": [[value per unit id] per year]}).
 
 let VER = '';
 let U = null;
@@ -17,19 +17,20 @@ export const units = () => U;
 export const unit = (sel) => (sel ? U[sel.level][sel.id] : null);
 export const stateName = (i) => (i >= 0 ? U.state[i].name : '');
 
-export function unitFile(seriesId) {
-  if (!valueFiles.has(seriesId)) {
-    valueFiles.set(seriesId, fetch(`data/units/v/${seriesId}.json?v=${VER}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+function unitFile(seriesId, level) {
+  const key = `${seriesId}/${level}`;
+  if (!valueFiles.has(key)) {
+    valueFiles.set(key, fetch(`data/units/v/${key}.json?v=${VER}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   }
-  return valueFiles.get(seriesId);
+  return valueFiles.get(key);
 }
 
 /** Raw (untransformed) values of one series-year for every unit of a level, or null. */
 export async function rawUnitValues(seriesId, level, year) {
-  const f = await unitFile(seriesId);
+  const f = await unitFile(seriesId, level);
   if (!f) return null;
   const yi = f.y.indexOf(year ?? null);
-  return yi < 0 ? null : f[level][yi];
+  return yi < 0 ? null : f.v[yi];
 }
 
 /** Children of a unit at `level` (ACs of a PC, everything of a state, ACs of a district). */

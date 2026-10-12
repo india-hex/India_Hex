@@ -354,40 +354,56 @@ function about() {
     <button class="textbtn" data-act="back" style="margin-top:16px">Back</button>`;
 }
 
+let lastPlace = null;
+
+/**
+ * Progressive render: the hero appears at once; every section fills in as its own data arrives
+ * (it keeps its previous content meanwhile, so changing variables doesn't flicker).
+ */
 export async function renderPanel() {
   const t = ++tok;
   const st = CTX.S.get();
   const lens = lensOf(st);
   crumbs(st);
   renderPins(st);
-  let html;
-  if (st.panel === 'compare') html = await compareTable(st);
-  else if (st.panel === 'about') html = about();
-  else {
-    const [band, block, figs, lc, list] = await Promise.all([
-      st.hex ? hexBand(st) : '',
-      lensBlock(st, lens),
-      figures(st.sel),
-      landCover(st.sel),
-      listBlock(st, lens),
-    ]);
+  const panel = document.getElementById('panel');
+  if (st.panel === 'compare' || st.panel === 'about') {
+    const html = st.panel === 'compare' ? await compareTable(st) : about();
+    if (t === tok) { panel.innerHTML = html; lastPlace = null; }
+    return;
+  }
+  const place = JSON.stringify([st.sel, st.hex]);
+  if (place !== lastPlace || !document.getElementById('sec-figs')) {
+    lastPlace = place;
+    panel.innerHTML = `<div id="sec-band"></div><div id="sec-hero">${hero(st)}</div><div id="sec-block"></div>
+      <h2 class="h2">Key figures</h2><div class="figs" id="sec-figs"><div class="note">Loading…</div></div>
+      <div id="sec-lc"></div><div id="sec-list"></div>`;
+    panel.scrollTop = 0;
+  } else {
+    document.getElementById('sec-hero').innerHTML = hero(st);
+  }
+  const area = st.sel ? unit(st.sel).area : null;
+  const fill = (id, promise, wrap = (x) => x) => promise.then((html) => {
+    if (t !== tok) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    const focused = document.activeElement?.id === 'listFilter';
+    el.innerHTML = wrap(html);
+    if (focused) { const f = document.getElementById('listFilter'); f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
+  }).catch((e) => console.error(e));
+  fill('sec-band', st.hex ? hexBand(st) : Promise.resolve(''));
+  fill('sec-block', lensBlock(st, lens));
+  fill('sec-figs', figures(st.sel).then((figs) => {
     if (!st.sel) {
       const pop = figs.find((f) => f.s.id === 'population');
       CTX.rt.indiaPop = pop ? pop.v : null;
+      const h = document.getElementById('sec-hero');
+      if (h && t === tok) h.innerHTML = hero(st);
     }
-    const area = st.sel ? unit(st.sel).area : null;
-    html = `${band}${hero(st)}${block}
-      <h2 class="h2">Key figures</h2>
-      <div class="figs">${figs.map((f) => figHTML(f, st, area)).join('')}</div>
-      ${lc}${list}`;
-  }
-  if (t !== tok) return;
-  const panel = document.getElementById('panel');
-  const focused = document.activeElement?.id === 'listFilter';
-  const scroll = panel.scrollTop;
-  panel.innerHTML = html;
-  panel.scrollTop = scroll;
-  if (focused) { const f = document.getElementById('listFilter'); f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
+    return figs.map((f) => figHTML(f, st, area)).join('');
+  }));
+  fill('sec-lc', landCover(st.sel));
+  fill('sec-list', listBlock(st, lens));
 }
 
 function renderPins(st) {

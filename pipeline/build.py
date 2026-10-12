@@ -5,6 +5,7 @@ site/data/.build.json; outputs whose signature is unchanged are skipped. Editing
 settings in india_hex.yaml rewrites config.json and nothing else.
 """
 import json
+import shutil
 import time
 from collections import defaultdict
 
@@ -93,6 +94,8 @@ def build(cfg, force=False, only_config=False):
             orders[res], ids_by_res[res] = _decode_index(res, man, cfg.chunk_levels)
         return orders[res]
 
+    _split_old_unit_files()
+
     # ---- variables ------------------------------------------------------------------------------
     by_ds = defaultdict(list)
     for s in series:
@@ -116,7 +119,7 @@ def build(cfg, force=False, only_config=False):
                     expected.add(f"h{res}/v/{s.bin_name(y)}")
                 need_bin = res in s.res_years and (st["bins"].get(key) != ssig or not files_ok)
                 asig = obj_sig(ssig, s.agg, st["index"].get("8"))
-                need_agg = res == 8 and (st["agg"].get(s.id) != asig or not (DATA / "units" / "v" / f"{s.id}.json").exists())
+                need_agg = res == 8 and (st["agg"].get(s.id) != asig or not (DATA / "units" / "v" / s.id / "state.json").exists())
                 if need_bin or need_agg:
                     todo.append((s, key, ssig, need_bin, need_agg, asig))
             if not todo:
@@ -131,10 +134,7 @@ def build(cfg, force=False, only_config=False):
                     hexes.write_series(res, s, by_year, q)
                     st["q"][key], st["bins"][key] = q, ssig
                 if need_agg:
-                    agg = hexes.aggregate(s, by_year, ids_by_res[8], n_units)
-                    p = DATA / "units" / "v" / f"{s.id}.json"
-                    p.parent.mkdir(parents=True, exist_ok=True)
-                    p.write_text(json.dumps(agg, separators=(",", ":")))
+                    _write_unit_files(s.id, hexes.aggregate(s, by_year, ids_by_res[8], n_units))
                     st["agg"][s.id] = asig
             _save_state(st)
 
@@ -147,9 +147,9 @@ def build(cfg, force=False, only_config=False):
                 f.unlink(); removed += 1
     ids_ok = {s.id for s in series}
     udir = DATA / "units" / "v"
-    for f in udir.glob("*.json") if udir.exists() else []:
-        if f.stem not in ids_ok:
-            f.unlink(); removed += 1
+    for d in udir.iterdir() if udir.exists() else []:
+        if d.is_dir() and d.name not in ids_ok:
+            shutil.rmtree(d); removed += 1
     if removed:
         log(f"  removed {removed} stale files")
 
@@ -166,6 +166,23 @@ def build(cfg, force=False, only_config=False):
     budget = cfg["variables"].get("budget_mb", 950)
     log(f"done in {time.time() - t0:.0f}s · site is {size:.0f} MB" + (f"  ⚠ over the {budget} MB budget" if size > budget else ""))
     return series
+
+
+def _write_unit_files(sid, agg):
+    """units/v/<series>/<level>.json = {"y": [years], "v": [[value per unit id] per year]}.
+    One small file per level: the India view only needs the 36-row state file."""
+    d = DATA / "units" / "v" / sid
+    d.mkdir(parents=True, exist_ok=True)
+    for lvl in geo.LEVELS:
+        (d / f"{lvl}.json").write_text(json.dumps({"y": agg["y"], "v": agg[lvl]}, separators=(",", ":")))
+
+
+def _split_old_unit_files():
+    """Earlier builds wrote one file per series with every level; split them without recomputing."""
+    udir = DATA / "units" / "v"
+    for f in udir.glob("*.json") if udir.exists() else []:
+        _write_unit_files(f.stem, json.loads(f.read_text()))
+        f.unlink()
 
 
 def compute_breaks(series, st):
