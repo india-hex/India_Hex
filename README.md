@@ -134,7 +134,8 @@ changing joins.
 ```
 units.json                         {state|district|pc|ac: [{id,key,name,bbox,lp,h8,area,(no),(st),(pc),(d)}]}
 units/v/<series>.json              {"y":[years|null], "<level>": [[value per unit id] per year]}  (from H8)
-boundaries/<level>.geojson         simplified with coverage_simplify, top-level numeric id = unit id
+boundaries/<level>.json            GeoJSON simplified with coverage_simplify, top-level numeric id = unit id
+                                   (.json on purpose: GitHub Pages gzips .json but not .geojson, 6.8 MB vs 1.7 MB)
 detail/<level>/<id>.json           near-full-resolution geometry of one unit (fetched on selection)
 hex/h<r>/manifest.json             {"res","chunk_res","n","parents":[...],"start":[...n_chunks+1]}
 hex/h<r>/index.bin                 per chunk k, bytes [10*start[k], 10*start[k+1]):

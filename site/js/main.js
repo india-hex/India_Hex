@@ -93,7 +93,7 @@ function afterMove(fn) {
 const geoLoading = {};
 function ensureGeo(level) {
   if (!geoLoading[level]) {
-    geoLoading[level] = fetch(`data/boundaries/${level}.geojson?v=${cfg.version}`).then((r) => r.json()).then((fc) => {
+    geoLoading[level] = fetch(`data/boundaries/${level}.json?v=${cfg.version}`).then((r) => r.json()).then((fc) => {
       ctx.geo[level] = fc;
       ctx.feat[level] = new Map(fc.features.map((f) => [f.id, f]));
       views().forEach((v) => v.setBoundaryData(level, fc));
@@ -112,10 +112,11 @@ function viewBBox(pad = 0.08) {
   return [Math.max(w - dx, 60), Math.max(s - dy, 0), Math.min(e + dx, 105), Math.min(n + dy, 40)];
 }
 
+/** Resolution for 'auto' in view scope, or null when zoomed out past the first threshold. */
 function autoResForView() {
   const z = view.map.getZoom();
-  let res = cfg.hex.resolutions[0];
-  for (const [r, minz] of Object.entries(cfg.hex.auto_zoom)) if (z >= minz && cfg.hex.resolutions.includes(+r)) res = Math.max(res, +r);
+  let res = null;
+  for (const [r, minz] of Object.entries(cfg.hex.auto_zoom)) if (z >= minz && cfg.hex.resolutions.includes(+r)) res = Math.max(res ?? 0, +r);
   return res;
 }
 function autoResForUnit(u) {
@@ -133,8 +134,10 @@ async function updateCells() {
   const useView = st.scope === 'view' || !st.sel;
   let res; let cs = null;
   const fallback = (r) => { let x = r; while (x > cfg.hex.resolutions[0] && !resAvailable(lens, x)) x--; if (x !== r) rt.notice = `${lens.label}${lens.year ? ` ${lens.year}` : ''} is published down to H${x}`; return x; };
-  if (useView) {
-    res = fallback(st.res === 'auto' ? autoResForView() : st.res);
+  const viewRes = useView ? (st.res === 'auto' ? autoResForView() : st.res) : null;
+  if (useView && viewRes == null) rt.notice = 'zoom in for hexagons';
+  if (useView && viewRes != null) {
+    res = fallback(viewRes);
     const bb = viewBBox();
     // estimate from the chunks that actually exist (sea and neighbours have none)
     const m = await manifest(res);
@@ -663,6 +666,7 @@ if (st0.sel) { showSelection(); if (!hash.view) fit(U[st0.sel.level][st0.sel.id]
 if (st0.compare) await setCompare(true);
 if (st0.threeD) { view.map.dragRotate.enable(); view.map.setPitch(52); }
 st0Ready = true;
+renderPanel(); // sidebar first; hexagons follow
 await updateCells();
 if (hash.hex && h3.isValidCell(hash.hex)) S.set({ hex: hash.hex });
 renderLens();
