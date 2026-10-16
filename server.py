@@ -7,6 +7,9 @@
   python server.py --force         rebuild everything from scratch
   python server.py --list          list every variable found in the source data
   python server.py --publish       rebuild, then push site/ to GitHub Pages (india_hex.yaml: publish.repo)
+  python server.py --deploy        rebuild, commit + push the code, then publish the site: the one
+                                   command after any change to code, india_hex.yaml or the data
+  python server.py --deploy -m "what changed"   (optional commit message)
   python server.py --port 8080
 
 Needs: duckdb geopandas shapely>=2.1 h3>=4 pandas numpy pyyaml
@@ -145,6 +148,24 @@ def _noreply_email():
         return ""
 
 
+def push_source(message):
+    """Commit everything tracked/untracked (per .gitignore) and push main, after syncing with GitHub."""
+    git = lambda *a, **kw: subprocess.run(["git", *a], cwd=ROOT, text=True, **kw)
+    if git("rev-parse", "--is-inside-work-tree", capture_output=True).returncode != 0:
+        print("Not a git repository; skipping the code push.")
+        return
+    git("add", "-A", check=True)
+    if git("diff", "--cached", "--quiet").returncode != 0:
+        git("commit", "-q", "-m", message, check=True)
+        print(f"Committed: {message}")
+    else:
+        print("No code changes to commit.")
+    if git("pull", "-q", "--rebase").returncode != 0:
+        sys.exit("Couldn't sync with GitHub (someone changed the same lines?). Resolve it, then run --deploy again.")
+    git("push", "-q", check=True)
+    print("Code pushed to GitHub.")
+
+
 def publish(cfg):
     """Push site/ as a single orphan commit to the gh-pages branch (no data history piles up)."""
     repo = (cfg.get("publish") or {}).get("repo")
@@ -186,6 +207,8 @@ def main():
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--publish", action="store_true")
+    ap.add_argument("--deploy", action="store_true")
+    ap.add_argument("-m", "--message", default="Update India Hex")
     a = ap.parse_args()
 
     if a.list:
@@ -193,6 +216,9 @@ def main():
     cfg = load_config()
     if not a.no_build:
         build(cfg, force=a.force)
+    if a.deploy:
+        push_source(a.message)
+        return publish(cfg)
     if a.publish:
         return publish(cfg)
     if a.build_only:

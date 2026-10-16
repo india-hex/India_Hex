@@ -68,7 +68,7 @@ boundaries, variables and features.
 pip install duckdb geopandas shapely h3 pandas numpy pyyaml
 python server.py            # build and preview at http://localhost:8000
 python server.py --list     # list every variable found in the source data
-python server.py --publish  # publish to GitHub Pages
+python server.py --deploy   # after any change: rebuild, push the code and update the live site
 ```
 
 Building needs the source data (H3 parquet files and boundary files), which isn't included in this

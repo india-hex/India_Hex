@@ -51,13 +51,20 @@
       <div class="swipe" id="swipe" hidden><span class="swipe-grip"></span></div>
       <div class="compare-bar" id="compareBar" hidden></div>
 
+      <section class="lensbar" id="lensbar" aria-label="Colour the map by">
+        <div class="lb-row" id="lbRow"></div>
+        <div class="picker" id="picker" hidden><input id="pickerQ" placeholder="Find a variable" aria-label="Find a variable"><div id="pickerList"></div></div>
+        <div class="legend" id="legend"></div>
+        <div class="timeline" id="timeline" hidden></div>
+      </section>
+
+
       <section class="lens" id="lens">
         <button class="lens-head" id="lensToggle" aria-expanded="true"><span>Layers</span><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="lens-body" id="lensBody"></div>
       </section>
 
       <div class="tools" id="tools"></div>
-      <div class="timeline" id="timeline" hidden></div>
       <div class="bases" id="bases"></div>
       <div class="toast" id="toast" hidden></div>
       <div class="tip" id="tip" hidden></div>
