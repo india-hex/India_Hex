@@ -40,7 +40,7 @@ defaults:
    ]
   scale: relative            # relative | india
   opacity: 0.72
-  theme: light               # light | dark (UI chrome)
+  theme: dark               # light | dark (UI chrome)
   dim_outside_selection: false   # darken everything outside the selected place (off: the map keeps its brightness)
 
 hex:
