@@ -56,6 +56,7 @@ export function initPanel(ctx) {
 // ------------------------------------------------------------------------------------------------
 const U = () => units();
 const LEVEL = (id) => CTX.cfg.boundaries.levels[id];
+const h3IsHere = (st) => !!st.here && !!st.hex;
 const PLURAL = { state: 'states & UTs', district: 'districts', pc: 'Lok Sabha constituencies', ac: 'assembly constituencies' };
 
 function crumbs(st) {
@@ -310,6 +311,7 @@ async function hexBand(st) {
       <div class="fv">${fmtValue(v, lens)}</div>${s.density && Number.isFinite(v) ? `<div class="fd">${fmtValue(v / info.area, { ...lens, density: true, format: 'dec2' })} per km²</div>` : ''}</button>`;
   }).join('');
   return `<section class="band"><button class="icon close" data-act="closehex" title="Close">${ICON.x}</button>
+    ${st.here && h3IsHere(st) ? `<div class="kicker"><b>You are here</b> · accurate to ${st.here.acc < 1000 ? `${Math.round(st.here.acc)} m` : `${(st.here.acc / 1000).toFixed(1)} km`}</div>` : ''}
     <div class="kicker">H${info.res} hexagon · ${info.area.toFixed(2)} km² · ${esc(stateName(info.s))}</div>
     <h2 class="title mono">${info.h}</h2><div class="meta">${links.join('')}</div>
     <div class="acts"><button class="icon" data-act="copyhex" title="Copy H3 id">${ICON.link}</button>${googleLinks(info.lng, info.lat, { 6: 11, 7: 13, 8: 15 }[info.res])}</div>

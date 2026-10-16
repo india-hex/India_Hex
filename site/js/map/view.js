@@ -7,6 +7,7 @@ import { groupLayers } from './overlays.js';
 const EMPTY = { type: 'FeatureCollection', features: [] };
 const LEVELS = ['state', 'district', 'pc', 'ac'];
 const FALLBACK_GLYPHS = 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf';
+const BASEMAP_FALLBACK = ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'];
 
 function signedArea(ring) {
   let a = 0;
@@ -44,13 +45,13 @@ export class MapView {
       minZoom: 3,
       maxZoom: 18.5,
       maxPitch: 70,
-      dragRotate: false,
-      pitchWithRotate: false,
+      // tilt and rotate are always free: right-drag / ctrl-drag on desktop, two fingers on touch
+      dragRotate: true,
+      pitchWithRotate: true,
       attributionControl: interactive ? { compact: true } : false,
       preserveDrawingBuffer: true, // PNG export
       fadeDuration: 150,
     });
-    this.map.touchZoomRotate.disableRotation();
     this.overlay = new deck.MapboxOverlay({ interleaved: true, layers: [] });
     this.map.addControl(this.overlay);
     this.ready = new Promise((resolve) => this.map.on('load', () => { this._setup(); resolve(); }));
@@ -61,7 +62,7 @@ export class MapView {
     const m = this.map;
     const anchor = (id) => m.addLayer({ id, type: 'background', layout: { visibility: 'none' }, paint: {} });
     for (const l of LEVELS) m.addSource(`b-${l}`, { type: 'geojson', data: EMPTY, tolerance: 0.3 });
-    for (const s of ['mask', 'sel', 'hexsel', 'labels']) m.addSource(s, { type: 'geojson', data: EMPTY });
+    for (const s of ['mask', 'sel', 'hexsel', 'labels', 'here']) m.addSource(s, { type: 'geojson', data: EMPTY });
 
     anchor('z-base');
     for (const l of LEVELS) {
@@ -82,6 +83,11 @@ export class MapView {
     m.addLayer({ id: 'sel-casing', type: 'line', source: 'sel', layout: { 'line-join': 'round' }, paint: { 'line-color': 'rgba(0,0,0,0.45)', 'line-width': 6, 'line-blur': 3 } });
     m.addLayer({ id: 'sel-line', type: 'line', source: 'sel', layout: { 'line-join': 'round' }, paint: { 'line-width': 2.6 } });
     m.addLayer({ id: 'hexsel-line', type: 'line', source: 'hexsel', paint: { 'line-color': '#7dd3fc', 'line-width': 3 } });
+    // "you are here": accuracy circle, the H7 cell around you (dashed) and the dot
+    m.addLayer({ id: 'here-acc', type: 'fill', source: 'here', filter: ['==', ['get', 'k'], 'acc'], paint: { 'fill-color': '#2f7de1', 'fill-opacity': 0.12 } });
+    m.addLayer({ id: 'here-acc-line', type: 'line', source: 'here', filter: ['==', ['get', 'k'], 'acc'], paint: { 'line-color': '#2f7de1', 'line-width': 1, 'line-opacity': 0.6 } });
+    m.addLayer({ id: 'here-h7', type: 'line', source: 'here', filter: ['==', ['get', 'k'], 'h7'], paint: { 'line-color': '#7dd3fc', 'line-width': 1.6, 'line-dasharray': [2, 1.5] } });
+    m.addLayer({ id: 'here-dot', type: 'circle', source: 'here', filter: ['==', ['get', 'k'], 'dot'], paint: { 'circle-radius': 7, 'circle-color': '#2f7de1', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2.5 } });
     m.addLayer({
       id: 'unit-labels', type: 'symbol', source: 'labels',
       layout: {
@@ -112,15 +118,51 @@ export class MapView {
   }
 
   // ---- basemap / theme / overlays --------------------------------------------------------------
+  /**
+   * Raster basemap (`tiles`) or the vector style (`vector: true`: OpenFreeMap liberty, whose
+   * background/land/roads go under the data and whose labels go on top).
+   */
   setBasemap(bm) {
     const m = this.map;
     const style = m.getStyle();
-    for (const l of style.layers) if (l.id.startsWith('bm-')) m.removeLayer(l.id);
+    for (const l of style.layers) if (l.id.startsWith('bm-') || l.id.startsWith('bmv-')) m.removeLayer(l.id);
     for (const s of Object.keys(style.sources)) if (s.startsWith('bm-')) m.removeSource(s);
-    m.addSource('bm-0', { type: 'raster', tiles: bm.tiles, tileSize: 256, maxzoom: bm.maxzoom || 19, attribution: bm.attribution || '' });
-    m.addLayer({ id: 'bm-0', type: 'raster', source: 'bm-0', paint: { 'raster-fade-duration': 150 } }, 'z-base');
+    if (bm.vector && this.vs?.source) {
+      for (const L of this.vs.style.layers) {
+        if (L.source && L.source !== this.vs.sourceId) continue; // skip the low-zoom raster relief
+        const layout = { ...(L.layout || {}) };
+        if (JSON.stringify(layout['text-field'] || '').includes('name')) layout['text-field'] = ['coalesce', ['get', 'name:en'], ['get', 'name_en'], ['get', 'name:latin'], ['get', 'name']];
+        const layer = { ...L, id: `bmv-${L.id}`, layout, ...(L.source ? { source: 'ov' } : {}) };
+        try { m.addLayer(layer, L.type === 'symbol' ? 'z-symbols' : 'z-base'); } catch (e) { /* unsupported layer */ }
+      }
+    } else {
+      const tiles = bm.tiles || BASEMAP_FALLBACK;
+      m.addSource('bm-0', { type: 'raster', tiles, tileSize: 256, maxzoom: bm.maxzoom || 19, attribution: bm.attribution || '' });
+      m.addLayer({ id: 'bm-0', type: 'raster', source: 'bm-0', paint: { 'raster-fade-duration': 150 } }, 'z-base');
+    }
     this.dark = !!bm.dark;
     this.applyPalette();
+  }
+
+  /** Dot + accuracy circle + the H7 cell around a position (null clears). */
+  setHere(here) {
+    if (!here) { this.map.getSource('here').setData(EMPTY); return; }
+    const { lat, lng, acc, h7 } = here;
+    const r = Math.max(acc || 0, 15);
+    const ring = [];
+    for (let i = 0; i <= 64; i++) {
+      const a = (i / 64) * 2 * Math.PI;
+      ring.push([lng + (r / (111320 * Math.cos((lat * Math.PI) / 180))) * Math.cos(a), lat + (r / 110540) * Math.sin(a)]);
+    }
+    const feats = [
+      { type: 'Feature', properties: { k: 'acc' }, geometry: { type: 'Polygon', coordinates: [ring] } },
+      { type: 'Feature', properties: { k: 'dot' }, geometry: { type: 'Point', coordinates: [lng, lat] } },
+    ];
+    if (h7) {
+      const b = h3.cellToBoundary(h7, true); b.push(b[0]);
+      feats.push({ type: 'Feature', properties: { k: 'h7' }, geometry: { type: 'Polygon', coordinates: [b] } });
+    }
+    this.map.getSource('here').setData({ type: 'FeatureCollection', features: feats });
   }
 
   get pal() { return this.cfg.palette[this.dark ? 'dark' : 'light']; }

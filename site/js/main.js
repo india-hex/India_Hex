@@ -14,7 +14,7 @@ import { rampFor, scaleFromValues, spread, colourOf, position, rgba, fmtValue } 
 import { initPanel, renderPanel } from './ui/panel.js';
 import { initControls, renderLens, updateLegend, renderTimeline, defaultCompareValue } from './ui/controls.js';
 import { initSearch } from './ui/search.js';
-import * as EX from './ui/exporter.js';
+const EX = () => import('./ui/exporter.js'); // loaded on first export only
 
 const $ = (s) => document.querySelector(s);
 const INDIA = [68.0, 6.5, 97.5, 35.8];
@@ -34,7 +34,28 @@ const DEFAULTS = {
   basemap: D.basemap, overlays: D.overlays || [], var: D.variable || 'none', year: null, mode: 'value', from: null,
   density: false, scale: D.scale === 'india' ? 'india' : 'relative', threeD: false, compare: null, view: null,
 };
-const hash = readHash();
+const hash = sanitize(readHash());
+
+/** Drop URL values this build doesn't know (old or hand-edited links) so they fall back to defaults. */
+function sanitize(h) {
+  const ok = {
+    level: (v) => !!cfg.boundaries.levels[v],
+    res: (v) => v === 'off' || v === 'auto' || cfg.hex.resolutions.includes(v),
+    scope: (v) => v === 'sel' || v === 'view',
+    var: (v) => v === 'none' || cfg.variables.some((s) => s.id === v),
+    basemap: (v) => cfg.basemaps.some((b) => b.id === v),
+    mode: (v) => v === 'value' || v === 'change',
+    scale: (v) => v === 'relative' || v === 'india',
+    year: (v) => Number.isFinite(v), from: (v) => Number.isFinite(v),
+    compare: (v) => !!v && ['year', 'variable', 'basemap'].includes(v.kind),
+    view: (v) => Array.isArray(v) && v.length === 3 && v.every(Number.isFinite),
+    hex: (v) => typeof v === 'string' && h3.isValidCell(v),
+  };
+  const out = { ...h };
+  for (const [k, test] of Object.entries(ok)) if (k in out && !test(out[k])) delete out[k];
+  if (out.overlays) out.overlays = out.overlays.filter((o) => cfg.overlays.groups?.[o] || cfg.overlays.raster?.[o]);
+  return out;
+}
 let pins = [];
 try { pins = JSON.parse(localStorage.getItem('indiahex.pins') || '[]'); } catch { /* private mode */ }
 let theme = D.theme || 'light';
@@ -47,6 +68,7 @@ if (hash.sel) {
 }
 const S = createStore({
   ...DEFAULTS, ...hash, sel: sel0,
+  here: null,
   opacity: D.opacity ?? 0.72, theme, mask: !!D.dim_outside_selection, labels: true, stateLines: true, hexLines: true, lineScale: 1, cbSafe: false,
   pinned: pins, panel: 'place', tab: 'ac', filter: '', limit: 50, comparePos: 0.5,
 });
@@ -160,8 +182,9 @@ async function updateCells() {
   toast('');
   ctx.cs = cs;
   rt.shownRes = cs ? cs.res : null;
-  rt.hexHint = cs ? `H${cs.res} · ${cs.n.toLocaleString('en-IN')} cells` : rt.notice;
-  if (cs && rt.notice) rt.hexHint = `H${cs.res} · ${cs.n.toLocaleString('en-IN')} · ${rt.notice}`;
+  if (cs && !cs.n && st.sel) rt.notice = `no H${cs.res} cell has its centre in ${unit(st.sel).name}; try a finer level`;
+  rt.hexHint = cs && cs.n ? `H${cs.res} · ${cs.n.toLocaleString('en-IN')} cells` : rt.notice;
+  if (cs && cs.n && rt.notice) rt.hexHint = `H${cs.res} · ${cs.n.toLocaleString('en-IN')} · ${rt.notice}`;
   await recolour();
 }
 let cellTimer;
@@ -421,16 +444,17 @@ ctx.act = {
       toast('Preparing image…', { spin: true });
       const lens = lensOf(st);
       const place = st.sel ? unit(st.sel).name : 'India';
-      await EX.png(ctx, { title: lens.none ? place : `${place}: ${lens.title}`, subtitle: `${lens.none ? 'Boundaries' : lens.unitLabel || ''}${ctx.cs ? ` · H${ctx.cs.res} hexagons` : ''} · ${new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}` });
+      await (await EX()).png(ctx, { title: lens.none ? place : `${place}: ${lens.title}`, subtitle: `${lens.none ? 'Boundaries' : lens.unitLabel || ''}${ctx.cs ? ` · H${ctx.cs.res} hexagons` : ''} · ${new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}` });
       toast('');
     } else if (id === 'locate') locate();
+    else if (id === 'north') m.easeTo({ bearing: 0, pitch: st.threeD ? (cfg.hex.pitch_3d ?? 52) : 0, duration: 600 });
   },
   run(action, data) {
     const st = S.get();
     if (action === 'zoom' && st.sel) fit(unit(st.sel).bbox);
     else if (action === 'copy') navigator.clipboard?.writeText(location.href).then(() => toast('Link copied', { ttl: 1800 }));
     else if (action === 'copyhex') navigator.clipboard?.writeText(st.hex).then(() => toast('H3 id copied', { ttl: 1800 }));
-    else if (action === 'closehex') S.set({ hex: null });
+    else if (action === 'closehex') S.set({ hex: null, here: null });
     else if (action === 'more') S.set({ limit: 100000 });
     else if (action === 'pin' && st.sel) {
       const key = `${st.sel.level}:${st.sel.id}`;
@@ -441,11 +465,11 @@ ctx.act = {
     else if (action === 'about') S.set({ panel: 'about' });
     else if (action === 'csv' && rt.list) {
       const { level, rows, lens } = rt.list;
-      EX.csv(`${st.sel ? unit(st.sel).name : 'India'}_${level}_${lens.id}`, ['rank', 'name', 'number', 'state', 'key', `${lens.title} (${lens.unitLabel})`],
-        rows.map((r, i) => [i + 1, r.u.name, r.u.no ?? '', U.state[r.u.st]?.name ?? r.u.name, r.u.key, Number.isFinite(r.v) ? r.v : '']));
+      EX().then((m) => m.csv(`${st.sel ? unit(st.sel).name : 'India'}_${level}_${lens.id}`, ['rank', 'name', 'number', 'state', 'key', `${lens.title} (${lens.unitLabel})`],
+        rows.map((r, i) => [i + 1, r.u.name, r.u.no ?? '', U.state[r.u.st]?.name ?? r.u.name, r.u.key, Number.isFinite(r.v) ? r.v : ''])));
     } else if (action === 'csvcompare' && rt.compareRows) {
       const { pins: ps, rows } = rt.compareRows;
-      EX.csv('pinned_places', ['variable', 'year', ...ps.map((p) => unit(p).name)], rows.map((r) => [r.s.label, r.y ?? '', ...r.vals.map((v) => v ?? '')]));
+      EX().then((m) => m.csv('pinned_places', ['variable', 'year', ...ps.map((p) => unit(p).name)], rows.map((r) => [r.s.label, r.y ?? '', ...r.vals.map((v) => v ?? '')])));
     } else if (action === 'geojson') downloadHexes();
   },
 };
@@ -467,22 +491,47 @@ function downloadHexes() {
         geometry: { type: 'Polygon', coordinates: [ring] },
       });
     }
-    EX.geojson(`${st.sel ? unit(st.sel).key : 'view'}_h${cs.res}`, { type: 'FeatureCollection', features: feats });
+    EX().then((m) => m.geojson(`${st.sel ? unit(st.sel).key : 'view'}_h${cs.res}`, { type: 'FeatureCollection', features: feats }));
   });
 }
 
+/**
+ * Find me: dot + accuracy circle, your H8 hexagon highlighted with the H7 cell around it, and the
+ * hexagon card (AC / PC / district / state + values) in the sidebar. The boundary selection is
+ * left alone. GPS first; if it times out, a quicker network-based fix.
+ */
+let locating = false;
 function locate() {
-  if (!navigator.geolocation) { toast('Location is not available in this browser', { ttl: 3000 }); return; }
+  if (!navigator.geolocation) { toast('Location is not available in this browser', { ttl: 3500 }); return; }
+  if (!window.isSecureContext) { toast('Location needs a secure (https) page', { ttl: 3500 }); return; }
+  if (locating) return;
+  locating = true;
   toast('Finding you…', { spin: true });
-  navigator.geolocation.getCurrentPosition(async (p) => {
-    const { latitude: lat, longitude: lng } = p.coords;
-    const c = await findCell(h3.latLngToCell(lat, lng, 8));
-    if (!c) { toast('You seem to be outside India', { ttl: 3000 }); return; }
-    const lvl = c.a >= 0 ? 'ac' : 'district';
-    const id = lvl === 'ac' ? c.a : c.d;
-    toast(`You are in ${U[lvl][id].name}`, { ttl: 4000 });
-    select(lvl, id);
-  }, () => toast('Location permission was denied', { ttl: 3000 }), { enableHighAccuracy: true, timeout: 10000 });
+  manifest(8).catch(() => {}); // warm the lookup while the browser finds the position
+  const done = () => { locating = false; };
+  const onPos = async (p) => {
+    const { latitude: lat, longitude: lng, accuracy } = p.coords;
+    const h8 = h3.latLngToCell(lat, lng, 8);
+    const c = await findCell(h8).catch(() => null);
+    done();
+    if (!c) { toast('You seem to be outside India', { ttl: 3500 }); return; }
+    const h7 = h3.cellToParent(h8, 7);
+    S.set({ sel: null, hex: h8, here: { lat, lng, acc: accuracy, h7 }, panel: 'place' });
+    const name = c.a >= 0 ? U.ac[c.a].name : c.d >= 0 ? U.district[c.d].name : U.state[c.s]?.name;
+    toast(`You are in ${name}${accuracy > 1500 ? ` (accurate to about ${Math.round(accuracy / 1000)} km)` : ''}`, { ttl: 4500 });
+    view.map.flyTo({ center: [lng, lat], zoom: Math.max(view.map.getZoom(), accuracy > 3000 ? 11 : 13.5), duration: 1400, padding: padding() });
+    if (isMobile()) $('#side').classList.remove('peek');
+  };
+  const onErr = (e, retried) => {
+    if (e.code === 3 && !retried) { // GPS timed out: try a faster, coarser fix
+      navigator.geolocation.getCurrentPosition(onPos, (e2) => onErr(e2, true), { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+      return;
+    }
+    done();
+    const msg = { 1: 'Location is blocked. Allow it for this site in the browser settings.', 2: "Your position isn't available right now.", 3: 'Finding your position took too long. Try again.' }[e.code] || "Couldn't get your location.";
+    toast(msg, { ttl: 5000 });
+  };
+  navigator.geolocation.getCurrentPosition(onPos, (e) => onErr(e, false), { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
 }
 
 // ---- map interaction ------------------------------------------------------------------------------
@@ -623,6 +672,7 @@ S.on(['level', 'stateLines', 'labels'], async (st, prev, changed) => {
 S.on(['sel'], () => { showSelection(); mirror(); });
 S.on(['mask'], (st) => views().forEach((v) => v.setSelection(st.sel ? rt.selFeat : null, st.mask)));
 S.on(['hex'], (st) => views().forEach((v) => v.setHexSelection(st.hex)));
+S.on(['here'], (st) => views().forEach((v) => v.setHere(st.here)));
 S.on(['res', 'scope', 'sel'], () => updateCellsSoon(st0Ready ? 50 : 0));
 S.on(['var', 'year', 'mode', 'from', 'density', 'scale', 'cbSafe', 'hexLines', 'threeD', 'opacity'], (st) => {
   const lens = lensOf(st);
@@ -632,8 +682,7 @@ S.on(['var', 'year', 'mode', 'from', 'density', 'scale', 'cbSafe', 'hexLines', '
 S.on(['opacity'], (st) => views().forEach((v) => v.setFillOpacity(st.opacity)));
 S.on(['lineScale'], (st) => views().forEach((v) => v.setLineScale(st.lineScale)));
 S.on(['threeD'], (st) => {
-  view.map.dragRotate[st.threeD ? 'enable' : 'disable']();
-  view.map.easeTo({ pitch: st.threeD ? 52 : 0, bearing: st.threeD ? -12 : 0, duration: 900 });
+  view.map.easeTo({ pitch: st.threeD ? (cfg.hex.pitch_3d ?? 52) : 0, duration: 900 });
 });
 S.on(['compare'], async (st, prev) => {
   if (!!st.compare !== !!prev.compare) await setCompare(!!st.compare);
@@ -642,7 +691,8 @@ S.on(['compare'], async (st, prev) => {
 S.on(['comparePos'], positionSwipe);
 S.on(['pinned'], (st) => { try { localStorage.setItem('indiahex.pins', JSON.stringify(st.pinned)); } catch { /* ignore */ } });
 S.on(['sel', 'hex', 'panel', 'tab', 'filter', 'limit', 'pinned', 'level'], () => renderPanel());
-S.on(null, (st) => writeHash({ ...st, sel: st.sel ? { level: st.sel.level, key: unit(st.sel).key } : null, view: st.sel ? null : st.view }, DEFAULTS));
+// your own position (Find me) is never written into shareable links
+S.on(null, (st) => writeHash({ ...st, sel: st.sel ? { level: st.sel.level, key: unit(st.sel).key } : null, view: st.sel || st.here ? null : st.view, hex: st.here ? null : st.hex }, DEFAULTS));
 }
 
 // ---- start --------------------------------------------------------------------------------------------
@@ -664,8 +714,9 @@ wireMenu();
 subscribe();
 if (st0.sel) { showSelection(); if (!hash.view) fit(U[st0.sel.level][st0.sel.id].bbox, { duration: 0 }); }
 if (st0.compare) await setCompare(true);
-if (st0.threeD) { view.map.dragRotate.enable(); view.map.setPitch(52); }
+if (st0.threeD) view.map.setPitch(cfg.hex.pitch_3d ?? 52);
 st0Ready = true;
+if (isMobile() && !st0.sel) $('#side').classList.add('peek'); // phones open on the map with a short sheet
 renderPanel(); // sidebar first; hexagons follow
 await updateCells();
 if (hash.hex && h3.isValidCell(hash.hex)) S.set({ hex: hash.hex });

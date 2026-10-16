@@ -30,7 +30,7 @@ source:
 
 # What the site opens with. Every one of these is also changeable in the UI and kept in the URL.
 defaults:
-  level: ac                  # state | district | pc | ac
+  level: pc                  # state | district | pc | ac
   hex: auto                  # off | auto | 6 | 7 | 8   (auto picks the resolution from the zoom)
   scope: sel                 # sel (selected unit only) | view (everything in view)
   variable: none             # a variable id from `python server.py --list`, or none
@@ -50,7 +50,8 @@ hex:
   max_cells_selection: 160000          # larger selections drop one resolution
   auto_max_cells: 90000                # 'auto' with a selection: finest resolution with at most this many cells
   max_cells_view: 260000               # 'everything in view' is skipped above this
-  extrude_scale: 4000                  # metres at the top of the scale in 3D mode
+  extrude_scale: 8000                  # metres at the top of the scale in 3D mode
+  pitch_3d: 52                         # tilt (degrees) when 3D is switched on
 
 # --------------------------------------------------------------------------------------------
 # Boundaries and their styling. `palette` picks one of the palettes below.
@@ -116,38 +117,20 @@ palettes:
 # `dark: true` uses the dark palette variant for lines and labels.
 # --------------------------------------------------------------------------------------------
 basemaps:
+  # Shown as tabs in this order (show: false keeps a style available in the YAML but off the map).
+  # `vector: true` uses the OpenFreeMap style (crisp at every zoom, no key); others are raster tiles.
+  - id: map
+    label: Map
+    vector: true
+    dark: false
+    attribution: "© OpenFreeMap © OpenMapTiles © OpenStreetMap contributors"
+    overlays_off: [roads, places, pois, buildings]   # already part of this style
   - id: satellite
     label: Satellite
     dark: true
     tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"]
     maxzoom: 19
     attribution: "Imagery © Esri, Maxar, Earthstar Geographics"
-  - id: streets
-    label: Streets
-    dark: false
-    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"]
-    maxzoom: 19
-    attribution: "Tiles © Esri, HERE, Garmin, OpenStreetMap contributors"
-    overlays_off: [roads, places]        # already drawn into this basemap
-  - id: osm
-    label: OSM
-    dark: false
-    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"]
-    maxzoom: 19
-    attribution: "© OpenStreetMap contributors"
-    overlays_off: [roads, places, pois]
-  - id: light
-    label: Light
-    dark: false
-    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"]
-    maxzoom: 16
-    attribution: "Tiles © Esri"
-  - id: dark
-    label: Dark
-    dark: true
-    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"]
-    maxzoom: 16
-    attribution: "Tiles © Esri"
   - id: terrain
     label: Terrain
     dark: false
@@ -155,6 +138,37 @@ basemaps:
     maxzoom: 19
     attribution: "Tiles © Esri"
     overlays_off: [roads, places]
+  # Extras: set show: true to add them as tabs.
+  - id: streets
+    label: Streets
+    show: false
+    dark: false
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 19
+    attribution: "Tiles © Esri, HERE, Garmin, OpenStreetMap contributors"
+    overlays_off: [roads, places]
+  - id: osm
+    label: OSM
+    show: false
+    dark: false
+    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"]
+    maxzoom: 19
+    attribution: "© OpenStreetMap contributors"
+    overlays_off: [roads, places, pois]
+  - id: light
+    label: Light
+    show: false
+    dark: false
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 16
+    attribution: "Tiles © Esri"
+  - id: dark
+    label: Dark
+    show: false
+    dark: true
+    tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"]
+    maxzoom: 16
+    attribution: "Tiles © Esri"
 
 # Google-style overlays. roads/places/pois/buildings come from OpenFreeMap vector tiles (free,
 # no key), using the layers of its "liberty" style grouped by source layer.
