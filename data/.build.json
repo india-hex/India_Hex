@@ -1,0 +1,5552 @@
+{
+ "bins": {
+  "8/population": "67c3a48a06a3ce50",
+  "7/population": "c35393ce5c5554f8",
+  "6/population": "2b54c72797b418f6",
+  "8/ntl_mean": "15300e9afc93067a",
+  "7/ntl_mean": "6b5320cf298511b8",
+  "6/ntl_mean": "90059fb9eff10e1c",
+  "8/built_share_total": "6f89a4a926e5583a",
+  "8/avg_height_total_m": "e477078a814a3b31",
+  "7/built_share_total": "e312a48724ee6115",
+  "7/avg_height_total_m": "e6ed02b2e1b50b37",
+  "7/built_s_total_m2": "26af8529c6b13126",
+  "7/built_s_nres_m2": "2ad6a59f54f00678",
+  "7/built_s_res_m2": "54e3db9adb22bbb9",
+  "7/built_share_nres": "5a238096f66410c8",
+  "7/built_share_res": "20bde73e0118791e",
+  "7/built_v_total_m3": "0ef890bd93bb6ff3",
+  "7/built_v_nres_m3": "77e6390401eb6e42",
+  "7/built_v_res_m3": "913e1fe76c513d4b",
+  "7/avg_height_nres_m": "d344921a4a7d8dd6",
+  "7/avg_height_res_m": "67498f7f13126aa8",
+  "6/built_share_total": "bd409ca02158e0bd",
+  "6/avg_height_total_m": "275fc4e1f388cb06",
+  "6/built_s_total_m2": "fea1eef55c58cb66",
+  "6/built_s_nres_m2": "f5a3cfa849937fb3",
+  "6/built_s_res_m2": "4b726a42623f6bde",
+  "6/built_share_nres": "c4bf1dc5e4f38868",
+  "6/built_share_res": "cace63319b6d81ff",
+  "6/built_v_total_m3": "d506d3fbb21bdb6c",
+  "6/built_v_nres_m3": "4155dd6fd8de53ef",
+  "6/built_v_res_m3": "590b456a8c992f44",
+  "6/avg_height_nres_m": "b11c2414d03e10f1",
+  "6/avg_height_res_m": "8139210fc9b73f05",
+  "8/landcover_agriculture_share": "0988bb1684ef240b",
+  "8/landcover_forest_share": "544c5074a03e42af",
+  "8/landcover_built_share": "28e38a3e236742d8",
+  "8/landcover_water_wetland_share": "c48624f91da803ca",
+  "7/landcover_agriculture_share": "e2990a8a827b2bdf",
+  "7/landcover_forest_share": "63b29d97a8c45d5f",
+  "7/landcover_built_share": "4fe24aa8821aa7b5",
+  "7/landcover_open_natural_share": "5a37da22a6fb0729",
+  "7/landcover_water_wetland_share": "ee265919b4a4862a",
+  "6/landcover_agriculture_share": "7440724f92d06f19",
+  "6/landcover_forest_share": "12218f4a114b1f27",
+  "6/landcover_built_share": "b12bfb75914e0500",
+  "6/landcover_open_natural_share": "0977bafdfa91c485",
+  "6/landcover_water_wetland_share": "21ef6f52fb0390f0",
+  "8/all_poi_total": "a85e8eba8343aa1a",
+  "8/commercial_total": "585872e998b1b28a",
+  "7/all_poi_total": "6393ee1f8f95e6f3",
+  "7/retail": "e2b4be77103952f5",
+  "7/food_drink": "f176e040946853bc",
+  "7/finance": "3e8b615cc71b5f6f",
+  "7/offices": "2ceab90d730ff6db",
+  "7/lodging": "df5ead23d0e59696",
+  "7/fuel_auto": "d575863a4f45d578",
+  "7/markets": "3fcf276b4eb13bec",
+  "7/industry_logistics": "209cf292e8831495",
+  "7/crafts": "de4b518bac606203",
+  "7/leisure_entertainment": "a9dcc9d4f7d95a6c",
+  "7/health": "d7cadaaa02da49a9",
+  "7/education": "36e79b4d255ce5a0",
+  "7/transport": "c872dca91894a96c",
+  "7/tourism": "9dd38e89e7eb4517",
+  "7/government_public": "e9e079ce4b5ae325",
+  "7/worship": "8f6cd3890e167eee",
+  "7/commercial_total": "ff54a2f281fcc078",
+  "6/all_poi_total": "0f0a4c3a01f84ead",
+  "6/retail": "7e98fdf565bef28c",
+  "6/food_drink": "51f62622cfbfc40a",
+  "6/finance": "89677b167e17c6ec",
+  "6/offices": "9ad8047bc65dfda3",
+  "6/lodging": "073add4c5fdf5ebe",
+  "6/fuel_auto": "1376041e2537cd22",
+  "6/markets": "6c042bc04c432d66",
+  "6/industry_logistics": "9eceb2f96a788a84",
+  "6/crafts": "6287ef58b79c51bc",
+  "6/leisure_entertainment": "c7f941e4e7684187",
+  "6/health": "916f5883d351a75d",
+  "6/education": "a8eea1f26b440ed0",
+  "6/transport": "76cf089f8bbce2f4",
+  "6/tourism": "6726cbc5c319391f",
+  "6/government_public": "6e795686df129f21",
+  "6/worship": "3274c85984da7c62",
+  "6/commercial_total": "0906a7ccfd70b1e3",
+  "8/residential_buy_rate_median_inr_per_sqft": "627e48ad10302fc4",
+  "7/residential_buy_rate_median_inr_per_sqft": "16ccb0eda1961fa7",
+  "7/residential_buy_listings_total": "f8f6f4612950e359",
+  "7/residential_buy_price_median_inr": "14550cd224883d0b",
+  "7/residential_rent_listings_total": "0f47fb28a621e5eb",
+  "7/residential_rent_price_median_inr": "2bc6569aaeaaf304",
+  "7/commercial_buy_listings_total": "e33ab08d7b865422",
+  "7/commercial_buy_price_median_inr": "c8c00c55472bcb20",
+  "7/commercial_buy_rate_median_inr_per_sqft": "278a5b5a3a81ee86",
+  "7/commercial_rent_listings_total": "801b7327b4d58f20",
+  "7/commercial_rent_price_median_inr": "9e8bdd5fa67bfbd8",
+  "6/residential_buy_rate_median_inr_per_sqft": "685f4267c87bda0a",
+  "6/residential_buy_listings_total": "281fde9ec3e7d516",
+  "6/residential_buy_price_median_inr": "d5c1af9d7e78268c",
+  "6/residential_rent_listings_total": "6fa72b0afba751b1",
+  "6/residential_rent_price_median_inr": "5b8b1e028d2e4c07",
+  "6/commercial_buy_listings_total": "c89b110f125de9b9",
+  "6/commercial_buy_price_median_inr": "4549d50a9dfe6ca6",
+  "6/commercial_buy_rate_median_inr_per_sqft": "83d3576d51bd16a7",
+  "6/commercial_rent_listings_total": "848a2921669fc455",
+  "6/commercial_rent_price_median_inr": "20de80e922477a2a",
+  "8/forest_cover_share_canopy10": "170177210a70e960",
+  "7/tree_canopy_avg_pct": "5e5f64a2d69dcc60",
+  "7/permanent_water_share": "5941c7d5403a5c29",
+  "7/forest_cover_share_canopy10": "1d6a59cefab34183",
+  "7/forest_lost_share": "f92ed2bf2cd4338d",
+  "6/tree_canopy_avg_pct": "48cf038fd4aadabb",
+  "6/permanent_water_share": "8e9ed0507b974b81",
+  "6/forest_cover_share_canopy10": "85008ee316199994",
+  "6/forest_lost_share": "7eb53deea987e12b",
+  "7/industrial_landuse_share_osm2026": "7a2b683cc481511b",
+  "7/is_industrial": "cb4b5eda1cad5fce",
+  "6/industrial_landuse_share_osm2026": "483655b6d35ca974",
+  "6/is_industrial": "93909a185a08624a"
+ },
+ "q": {
+  "8/population": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.00754866806923475,
+   "offset": 0
+  },
+  "7/population": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.01524003838925262,
+   "offset": 0
+  },
+  "6/population": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.03157452313227567,
+   "offset": 0
+  },
+  "8/ntl_mean": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.0007937175952234431,
+   "offset": 0
+  },
+  "7/ntl_mean": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.00028905350616452387,
+   "offset": 0
+  },
+  "6/ntl_mean": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.00016541932637679005,
+   "offset": 0
+  },
+  "8/built_share_total": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "8/avg_height_total_m": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 9.149250957610256e-05,
+   "offset": 0
+  },
+  "7/built_share_total": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/avg_height_total_m": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 8.095306673575617e-05,
+   "offset": 0
+  },
+  "7/built_s_total_m2": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.02774449764860545,
+   "offset": 0
+  },
+  "7/built_s_nres_m2": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.018697052188361738,
+   "offset": 0
+  },
+  "7/built_s_res_m2": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.027713373502014846,
+   "offset": 0
+  },
+  "7/built_share_nres": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/built_share_res": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/built_v_total_m3": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.10661911545757438,
+   "offset": 0
+  },
+  "7/built_v_nres_m3": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.07561343657144003,
+   "offset": 0
+  },
+  "7/built_v_res_m3": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.09158468422147495,
+   "offset": 0
+  },
+  "7/avg_height_nres_m": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.00010268187899507261,
+   "offset": 0
+  },
+  "7/avg_height_res_m": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 8.095306673575617e-05,
+   "offset": 0
+  },
+  "6/built_share_total": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/avg_height_total_m": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 7.224868351062037e-05,
+   "offset": 0
+  },
+  "6/built_s_total_m2": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.06512044958301803,
+   "offset": 0
+  },
+  "6/built_s_nres_m2": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.03187423464067851,
+   "offset": 0
+  },
+  "6/built_s_res_m2": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.06501611573064292,
+   "offset": 0
+  },
+  "6/built_share_nres": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/built_share_res": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/built_v_total_m3": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.2266119816986141,
+   "offset": 0
+  },
+  "6/built_v_nres_m3": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.1205929971877666,
+   "offset": 0
+  },
+  "6/built_v_res_m3": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.21562531020798895,
+   "offset": 0
+  },
+  "6/avg_height_nres_m": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 7.744292536395696e-05,
+   "offset": 0
+  },
+  "6/avg_height_res_m": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 7.221119521693787e-05,
+   "offset": 0
+  },
+  "8/landcover_agriculture_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "8/landcover_forest_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "8/landcover_built_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "8/landcover_water_wetland_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/landcover_agriculture_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/landcover_forest_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/landcover_built_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/landcover_open_natural_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/landcover_water_wetland_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/landcover_agriculture_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/landcover_forest_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/landcover_built_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/landcover_open_natural_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/landcover_water_wetland_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "8/all_poi_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "8/commercial_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/all_poi_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/retail": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/food_drink": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/finance": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/offices": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/lodging": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/fuel_auto": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/markets": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/industry_logistics": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/crafts": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/leisure_entertainment": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/health": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/education": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/transport": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/tourism": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/government_public": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/worship": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/commercial_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/all_poi_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/retail": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/food_drink": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/finance": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/offices": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/lodging": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/fuel_auto": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/markets": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/industry_logistics": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/crafts": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/leisure_entertainment": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/health": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/education": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/transport": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/tourism": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/government_public": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/worship": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/commercial_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "8/residential_buy_rate_median_inr_per_sqft": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.10789922501091762,
+   "offset": 0
+  },
+  "7/residential_buy_rate_median_inr_per_sqft": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.10789922501091762,
+   "offset": 0
+  },
+  "7/residential_buy_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/residential_buy_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.8406450798702376,
+   "offset": 0
+  },
+  "7/residential_rent_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/residential_rent_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.20186096614464175,
+   "offset": 0
+  },
+  "7/commercial_buy_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/commercial_buy_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 1.4476272169765307,
+   "offset": 0
+  },
+  "7/commercial_buy_rate_median_inr_per_sqft": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.05910396115329668,
+   "offset": 0
+  },
+  "7/commercial_rent_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "7/commercial_rent_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 1.2103810701805053,
+   "offset": 0
+  },
+  "6/residential_buy_rate_median_inr_per_sqft": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.07629703664891511,
+   "offset": 0
+  },
+  "6/residential_buy_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/residential_buy_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.5394961250545881,
+   "offset": 0
+  },
+  "6/residential_rent_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/residential_rent_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.14276172516497157,
+   "offset": 0
+  },
+  "6/commercial_buy_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/commercial_buy_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 1.0292930198821884,
+   "offset": 0
+  },
+  "6/commercial_buy_rate_median_inr_per_sqft": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.02053431608283871,
+   "offset": 0
+  },
+  "6/commercial_rent_listings_total": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0
+  },
+  "6/commercial_rent_price_median_inr": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.34120730880150607,
+   "offset": 0
+  },
+  "8/forest_cover_share_canopy10": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/tree_canopy_avg_pct": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.00015040828084363187,
+   "offset": 0
+  },
+  "7/permanent_water_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/forest_cover_share_canopy10": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/forest_lost_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/tree_canopy_avg_pct": {
+   "dtype": "u16",
+   "t": "sqrt",
+   "scale": 0.00014962610401450475,
+   "offset": 0
+  },
+  "6/permanent_water_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/forest_cover_share_canopy10": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/forest_lost_share": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/industrial_landuse_share_osm2026": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "7/is_industrial": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/industrial_landuse_share_osm2026": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  },
+  "6/is_industrial": {
+   "dtype": "u8",
+   "t": "linear",
+   "scale": 0.004,
+   "offset": 0
+  }
+ },
+ "agg": {
+  "population": "7bdee3d97e2e9795",
+  "ntl_mean": "ede23dd88dc1b827",
+  "built_share_total": "f6e12e2c8b15faf6",
+  "avg_height_total_m": "06248c2edb9829fc",
+  "built_s_total_m2": "2bd90c8a7e65b04f",
+  "built_s_nres_m2": "d479d7793729df3b",
+  "built_s_res_m2": "0f859767507224b8",
+  "built_share_nres": "32f53819d2152de0",
+  "built_share_res": "36a3bfd00c4857ea",
+  "built_v_total_m3": "a54e3436bb54c671",
+  "built_v_nres_m3": "60bf2cf61da862a1",
+  "built_v_res_m3": "44b06e2d25bf6624",
+  "avg_height_nres_m": "f7beabafa9b8f580",
+  "avg_height_res_m": "f279fba68123fdb2",
+  "landcover_agriculture_share": "1e764d37404b0021",
+  "landcover_forest_share": "5b49530553c94cd3",
+  "landcover_built_share": "fe651f8cf7359eba",
+  "landcover_open_natural_share": "70e60e9aa02d2621",
+  "landcover_water_wetland_share": "68c99d45b2a1798e",
+  "all_poi_total": "b3872eb992cdaba5",
+  "retail": "98838a8f9f38d242",
+  "food_drink": "5767dd9f81c45357",
+  "finance": "8a1cc80b28efa386",
+  "offices": "ba306f5c08901b2f",
+  "lodging": "3407596abfd4365b",
+  "fuel_auto": "17749147495a5bf8",
+  "markets": "2f44563702d8928c",
+  "industry_logistics": "4854c504b82dcf81",
+  "crafts": "07bb217fa6937364",
+  "leisure_entertainment": "8b031830ea494e29",
+  "health": "49aadcb200e1f4e2",
+  "education": "27e36b7dd265010f",
+  "transport": "cb53fd42eb78be7b",
+  "tourism": "708d7f80d44534a4",
+  "government_public": "774c184d0563da90",
+  "worship": "2cbf763b50ba493d",
+  "commercial_total": "e1492d9ee3748f59",
+  "residential_buy_rate_median_inr_per_sqft": "50cd2c6206deb2a4",
+  "residential_buy_listings_total": "ea4caeb89e4c66d4",
+  "residential_buy_price_median_inr": "cc6a165f60e0403e",
+  "residential_rent_listings_total": "2b112fba0a8f9d29",
+  "residential_rent_price_median_inr": "49aa0943cbe84038",
+  "commercial_buy_listings_total": "575c91ed11a6f7bb",
+  "commercial_buy_price_median_inr": "5494f0d3409465c5",
+  "commercial_buy_rate_median_inr_per_sqft": "c03121270aac1f4f",
+  "commercial_rent_listings_total": "14586c799b2f95a4",
+  "commercial_rent_price_median_inr": "c9cedc5832d3440a",
+  "tree_canopy_avg_pct": "d946ca73b0ceead4",
+  "permanent_water_share": "632cf73de5965086",
+  "forest_cover_share_canopy10": "19fb78eafab0fbc2",
+  "forest_lost_share": "be6dfd5b5d80ac76",
+  "industrial_landuse_share_osm2026": "f69c1a1d77426b8b",
+  "is_industrial": "aed8cc763c153f2e"
+ },
+ "index": {
+  "8": "95628aeff748fc10",
+  "7": "7c24667a2aaece51",
+  "6": "e7a13f26fefb2945"
+ },
+ "units": "73c486b7c718f6cc",
+ "boundaries": "19c9d5e32d19743a",
+ "breaks": {
+  "6/population_2010.bin": {
+   "sig": "2b54c72797b418f6",
+   "b": [
+    631.68,
+    2038.7,
+    3519.9,
+    5078.5,
+    6990.5,
+    9785.8,
+    15140.0,
+    28606.0
+   ]
+  },
+  "6/population_2015.bin": {
+   "sig": "2b54c72797b418f6",
+   "b": [
+    696.76,
+    2261.1,
+    3865.1,
+    5552.6,
+    7577.9,
+    10589.0,
+    16288.0,
+    30554.0
+   ]
+  },
+  "6/population_2020.bin": {
+   "sig": "2b54c72797b418f6",
+   "b": [
+    800.37,
+    2568.2,
+    4317.4,
+    6121.8,
+    8280.6,
+    11572.0,
+    17687.0,
+    32300.0
+   ]
+  },
+  "6/population_2025.bin": {
+   "sig": "2b54c72797b418f6",
+   "b": [
+    831.03,
+    2710.9,
+    4578.4,
+    6482.7,
+    8776.2,
+    12185.0,
+    18554.0,
+    33561.0
+   ]
+  },
+  "6/population_2030.bin": {
+   "sig": "2b54c72797b418f6",
+   "b": [
+    884.66,
+    2874.4,
+    4838.4,
+    6820.8,
+    9207.4,
+    12720.0,
+    19283.0,
+    34798.0
+   ]
+  },
+  "7/population_2010.bin": {
+   "sig": "c35393ce5c5554f8",
+   "b": [
+    45.17,
+    153.14,
+    319.57,
+    545.83,
+    848.19,
+    1298.0,
+    2104.3,
+    3998.1
+   ]
+  },
+  "7/population_2015.bin": {
+   "sig": "c35393ce5c5554f8",
+   "b": [
+    48.507,
+    174.99,
+    371.08,
+    627.73,
+    959.0,
+    1441.2,
+    2290.0,
+    4266.5
+   ]
+  },
+  "7/population_2020.bin": {
+   "sig": "c35393ce5c5554f8",
+   "b": [
+    51.306,
+    209.17,
+    445.52,
+    736.72,
+    1106.8,
+    1636.0,
+    2538.5,
+    4582.8
+   ]
+  },
+  "7/population_2025.bin": {
+   "sig": "c35393ce5c5554f8",
+   "b": [
+    51.306,
+    221.7,
+    479.61,
+    794.91,
+    1193.6,
+    1756.5,
+    2696.0,
+    4827.4
+   ]
+  },
+  "7/population_2030.bin": {
+   "sig": "c35393ce5c5554f8",
+   "b": [
+    53.736,
+    243.54,
+    521.89,
+    853.53,
+    1268.5,
+    1850.9,
+    2819.2,
+    5017.7
+   ]
+  },
+  "8/population_2010.bin": {
+   "sig": "67c3a48a06a3ce50",
+   "b": [
+    3.7344,
+    10.982,
+    23.049,
+    44.127,
+    82.465,
+    156.08,
+    307.23,
+    696.84
+   ]
+  },
+  "8/population_2015.bin": {
+   "sig": "67c3a48a06a3ce50",
+   "b": [
+    3.9714,
+    12.268,
+    27.129,
+    53.836,
+    101.1,
+    185.65,
+    347.64,
+    749.2
+   ]
+  },
+  "8/population_2020.bin": {
+   "sig": "67c3a48a06a3ce50",
+   "b": [
+    4.0016,
+    13.184,
+    31.882,
+    67.825,
+    129.07,
+    228.39,
+    404.7,
+    818.5
+   ]
+  },
+  "8/population_2025.bin": {
+   "sig": "67c3a48a06a3ce50",
+   "b": [
+    4.0016,
+    13.293,
+    33.348,
+    73.924,
+    143.33,
+    253.21,
+    441.33,
+    871.15
+   ]
+  },
+  "8/population_2030.bin": {
+   "sig": "67c3a48a06a3ce50",
+   "b": [
+    4.0927,
+    13.962,
+    37.018,
+    84.119,
+    160.06,
+    274.54,
+    466.42,
+    903.99
+   ]
+  },
+  "6/ntl_mean_2012.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.012915,
+    0.034509,
+    0.066763,
+    0.11298,
+    0.18555,
+    0.30361,
+    0.51185,
+    0.98115
+   ]
+  },
+  "6/ntl_mean_2013.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.011455,
+    0.029199,
+    0.056191,
+    0.096097,
+    0.1588,
+    0.26774,
+    0.47719,
+    0.9833
+   ]
+  },
+  "6/ntl_mean_2014.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.014823,
+    0.039076,
+    0.075221,
+    0.12775,
+    0.21178,
+    0.35365,
+    0.59345,
+    1.0751
+   ]
+  },
+  "6/ntl_mean_2015.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.013523,
+    0.035375,
+    0.069352,
+    0.12067,
+    0.19963,
+    0.33176,
+    0.56495,
+    1.0617
+   ]
+  },
+  "6/ntl_mean_2016.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.014107,
+    0.037195,
+    0.072257,
+    0.12485,
+    0.21056,
+    0.35654,
+    0.61013,
+    1.1285
+   ]
+  },
+  "6/ntl_mean_2017.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.013523,
+    0.036757,
+    0.071636,
+    0.12496,
+    0.21484,
+    0.37137,
+    0.652,
+    1.1912
+   ]
+  },
+  "6/ntl_mean_2018.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.015557,
+    0.043719,
+    0.085147,
+    0.1469,
+    0.24924,
+    0.42392,
+    0.71928,
+    1.2686
+   ]
+  },
+  "6/ntl_mean_2019.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.016224,
+    0.045254,
+    0.088756,
+    0.15305,
+    0.25656,
+    0.42845,
+    0.7302,
+    1.3119
+   ]
+  },
+  "6/ntl_mean_2020.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.014742,
+    0.039931,
+    0.077968,
+    0.13593,
+    0.2287,
+    0.38665,
+    0.67346,
+    1.2731
+   ]
+  },
+  "6/ntl_mean_2021.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.01823,
+    0.052717,
+    0.10544,
+    0.18512,
+    0.30929,
+    0.51233,
+    0.83378,
+    1.4514
+   ]
+  },
+  "6/ntl_mean_2022.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.02808,
+    0.090938,
+    0.18512,
+    0.31669,
+    0.50102,
+    0.74304,
+    1.0424,
+    1.6691
+   ]
+  },
+  "6/ntl_mean_2023.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.033097,
+    0.11635,
+    0.23862,
+    0.39742,
+    0.60035,
+    0.83408,
+    1.1391,
+    1.8284
+   ]
+  },
+  "6/ntl_mean_2024.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.032557,
+    0.11506,
+    0.2391,
+    0.41067,
+    0.63203,
+    0.89467,
+    1.2408,
+    2.0398
+   ]
+  },
+  "6/ntl_mean_2025.bin": {
+   "sig": "90059fb9eff10e1c",
+   "b": [
+    0.033351,
+    0.12033,
+    0.25111,
+    0.4278,
+    0.66576,
+    0.95145,
+    1.3431,
+    2.2426
+   ]
+  },
+  "7/ntl_mean_2012.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.035192,
+    0.068582,
+    0.11951,
+    0.19355,
+    0.30544,
+    0.47686,
+    0.73304,
+    1.2546
+   ]
+  },
+  "7/ntl_mean_2013.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.02948,
+    0.06324,
+    0.1082,
+    0.17567,
+    0.28164,
+    0.45282,
+    0.73205,
+    1.3122
+   ]
+  },
+  "7/ntl_mean_2014.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.03909,
+    0.076361,
+    0.13391,
+    0.219,
+    0.34907,
+    0.54117,
+    0.79415,
+    1.3102
+   ]
+  },
+  "7/ntl_mean_2015.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.037619,
+    0.072731,
+    0.12847,
+    0.21017,
+    0.33421,
+    0.52011,
+    0.78491,
+    1.3262
+   ]
+  },
+  "7/ntl_mean_2016.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.038181,
+    0.074456,
+    0.13202,
+    0.21819,
+    0.35113,
+    0.55357,
+    0.83168,
+    1.4025
+   ]
+  },
+  "7/ntl_mean_2017.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.038634,
+    0.075723,
+    0.13519,
+    0.22609,
+    0.37092,
+    0.58896,
+    0.88131,
+    1.4626
+   ]
+  },
+  "7/ntl_mean_2018.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.041292,
+    0.084054,
+    0.15025,
+    0.2518,
+    0.4066,
+    0.636,
+    0.92706,
+    1.5177
+   ]
+  },
+  "7/ntl_mean_2019.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.042119,
+    0.086417,
+    0.15454,
+    0.25559,
+    0.41104,
+    0.63739,
+    0.93822,
+    1.5701
+   ]
+  },
+  "7/ntl_mean_2020.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.039319,
+    0.078614,
+    0.1399,
+    0.23218,
+    0.3741,
+    0.59162,
+    0.90163,
+    1.5774
+   ]
+  },
+  "7/ntl_mean_2021.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.045014,
+    0.099086,
+    0.1803,
+    0.30289,
+    0.48407,
+    0.72219,
+    1.0212,
+    1.7017
+   ]
+  },
+  "7/ntl_mean_2022.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.064262,
+    0.15568,
+    0.2903,
+    0.47208,
+    0.67295,
+    0.86576,
+    1.1426,
+    1.8035
+   ]
+  },
+  "7/ntl_mean_2023.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.076361,
+    0.19278,
+    0.35628,
+    0.55443,
+    0.73304,
+    0.92039,
+    1.2059,
+    1.9146
+   ]
+  },
+  "7/ntl_mean_2024.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.07661,
+    0.19789,
+    0.37516,
+    0.58719,
+    0.78081,
+    0.9939,
+    1.3235,
+    2.1647
+   ]
+  },
+  "7/ntl_mean_2025.bin": {
+   "sig": "6b5320cf298511b8",
+   "b": [
+    0.078776,
+    0.20438,
+    0.38694,
+    0.60954,
+    0.81698,
+    1.0565,
+    1.4307,
+    2.3843
+   ]
+  },
+  "8/ntl_mean_2012.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.15561,
+    0.2629,
+    0.38427,
+    0.54957,
+    0.67356,
+    0.83026,
+    1.1211,
+    1.967
+   ]
+  },
+  "8/ntl_mean_2015.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.16258,
+    0.27359,
+    0.40825,
+    0.57697,
+    0.69721,
+    0.8565,
+    1.1465,
+    2.005
+   ]
+  },
+  "8/ntl_mean_2020.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.171,
+    0.29131,
+    0.44558,
+    0.62873,
+    0.78041,
+    0.98751,
+    1.3558,
+    2.4573
+   ]
+  },
+  "8/ntl_mean_2025.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.27276,
+    0.53206,
+    0.66965,
+    0.80301,
+    0.97807,
+    1.2295,
+    1.6636,
+    2.8207
+   ]
+  },
+  "6/built_share_total_2015.bin": {
+   "sig": "bd409ca02158e0bd",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024
+   ]
+  },
+  "6/built_share_total_2020.bin": {
+   "sig": "bd409ca02158e0bd",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02,
+    0.028
+   ]
+  },
+  "6/built_share_total_2025.bin": {
+   "sig": "bd409ca02158e0bd",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.02,
+    0.032
+   ]
+  },
+  "7/built_share_total_2015.bin": {
+   "sig": "e312a48724ee6115",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/built_share_total_2020.bin": {
+   "sig": "e312a48724ee6115",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.02,
+    0.032
+   ]
+  },
+  "7/built_share_total_2025.bin": {
+   "sig": "e312a48724ee6115",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.036
+   ]
+  },
+  "8/built_share_total_2015.bin": {
+   "sig": "6f89a4a926e5583a",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028,
+    0.048
+   ]
+  },
+  "8/built_share_total_2020.bin": {
+   "sig": "6f89a4a926e5583a",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.02,
+    0.032,
+    0.052
+   ]
+  },
+  "8/built_share_total_2025.bin": {
+   "sig": "6f89a4a926e5583a",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.036,
+    0.056
+   ]
+  },
+  "6/landcover_agriculture_share_2017.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.064,
+    0.24,
+    0.448,
+    0.62,
+    0.752,
+    0.844,
+    0.908,
+    0.952
+   ]
+  },
+  "6/landcover_agriculture_share_2018.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.068,
+    0.248,
+    0.456,
+    0.632,
+    0.76,
+    0.848,
+    0.912,
+    0.952
+   ]
+  },
+  "6/landcover_agriculture_share_2019.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.068,
+    0.252,
+    0.456,
+    0.628,
+    0.756,
+    0.844,
+    0.908,
+    0.952
+   ]
+  },
+  "6/landcover_agriculture_share_2020.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.068,
+    0.248,
+    0.452,
+    0.624,
+    0.748,
+    0.836,
+    0.904,
+    0.948
+   ]
+  },
+  "6/landcover_agriculture_share_2021.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.072,
+    0.256,
+    0.464,
+    0.632,
+    0.756,
+    0.84,
+    0.904,
+    0.948
+   ]
+  },
+  "6/landcover_agriculture_share_2022.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.068,
+    0.244,
+    0.444,
+    0.612,
+    0.736,
+    0.832,
+    0.896,
+    0.94
+   ]
+  },
+  "6/landcover_agriculture_share_2023.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.072,
+    0.252,
+    0.452,
+    0.62,
+    0.744,
+    0.836,
+    0.9,
+    0.944
+   ]
+  },
+  "6/landcover_agriculture_share_2024.bin": {
+   "sig": "7440724f92d06f19",
+   "b": [
+    0.072,
+    0.252,
+    0.452,
+    0.616,
+    0.744,
+    0.832,
+    0.9,
+    0.944
+   ]
+  },
+  "7/landcover_agriculture_share_2017.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.096,
+    0.328,
+    0.564,
+    0.74,
+    0.844,
+    0.908,
+    0.948,
+    0.98
+   ]
+  },
+  "7/landcover_agriculture_share_2018.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.104,
+    0.34,
+    0.58,
+    0.752,
+    0.852,
+    0.912,
+    0.948,
+    0.98
+   ]
+  },
+  "7/landcover_agriculture_share_2019.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.104,
+    0.336,
+    0.576,
+    0.748,
+    0.848,
+    0.908,
+    0.948,
+    0.98
+   ]
+  },
+  "7/landcover_agriculture_share_2020.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.104,
+    0.336,
+    0.572,
+    0.74,
+    0.84,
+    0.9,
+    0.944,
+    0.976
+   ]
+  },
+  "7/landcover_agriculture_share_2021.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.108,
+    0.348,
+    0.584,
+    0.744,
+    0.84,
+    0.9,
+    0.944,
+    0.976
+   ]
+  },
+  "7/landcover_agriculture_share_2022.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.1,
+    0.324,
+    0.552,
+    0.724,
+    0.828,
+    0.892,
+    0.936,
+    0.972
+   ]
+  },
+  "7/landcover_agriculture_share_2023.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.1,
+    0.328,
+    0.56,
+    0.728,
+    0.832,
+    0.896,
+    0.94,
+    0.972
+   ]
+  },
+  "7/landcover_agriculture_share_2024.bin": {
+   "sig": "e2990a8a827b2bdf",
+   "b": [
+    0.1,
+    0.328,
+    0.556,
+    0.724,
+    0.828,
+    0.896,
+    0.936,
+    0.972
+   ]
+  },
+  "8/landcover_agriculture_share_2017.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.172,
+    0.5,
+    0.724,
+    0.848,
+    0.924,
+    0.976,
+    1.0
+   ]
+  },
+  "8/landcover_agriculture_share_2019.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.184,
+    0.516,
+    0.736,
+    0.852,
+    0.928,
+    0.976,
+    1.0
+   ]
+  },
+  "8/landcover_agriculture_share_2024.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.172,
+    0.484,
+    0.704,
+    0.828,
+    0.908,
+    0.964,
+    0.996,
+    1.0
+   ]
+  },
+  "6/landcover_forest_share_2017.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.008,
+    0.016,
+    0.044,
+    0.1,
+    0.212,
+    0.396,
+    0.62,
+    0.864
+   ]
+  },
+  "6/landcover_forest_share_2018.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.008,
+    0.016,
+    0.044,
+    0.104,
+    0.224,
+    0.408,
+    0.628,
+    0.868
+   ]
+  },
+  "6/landcover_forest_share_2019.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.004,
+    0.016,
+    0.044,
+    0.104,
+    0.22,
+    0.4,
+    0.62,
+    0.864
+   ]
+  },
+  "6/landcover_forest_share_2020.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.004,
+    0.016,
+    0.036,
+    0.092,
+    0.2,
+    0.384,
+    0.608,
+    0.856
+   ]
+  },
+  "6/landcover_forest_share_2021.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.004,
+    0.016,
+    0.04,
+    0.096,
+    0.208,
+    0.388,
+    0.604,
+    0.848
+   ]
+  },
+  "6/landcover_forest_share_2022.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.004,
+    0.016,
+    0.036,
+    0.088,
+    0.204,
+    0.384,
+    0.604,
+    0.856
+   ]
+  },
+  "6/landcover_forest_share_2023.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.004,
+    0.016,
+    0.036,
+    0.088,
+    0.196,
+    0.376,
+    0.596,
+    0.844
+   ]
+  },
+  "6/landcover_forest_share_2024.bin": {
+   "sig": "12218f4a114b1f27",
+   "b": [
+    0.004,
+    0.016,
+    0.036,
+    0.088,
+    0.192,
+    0.36,
+    0.576,
+    0.844
+   ]
+  },
+  "7/landcover_forest_share_2017.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.024,
+    0.064,
+    0.144,
+    0.304,
+    0.532,
+    0.772,
+    0.952
+   ]
+  },
+  "7/landcover_forest_share_2018.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.024,
+    0.068,
+    0.164,
+    0.328,
+    0.552,
+    0.78,
+    0.952
+   ]
+  },
+  "7/landcover_forest_share_2019.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.024,
+    0.068,
+    0.16,
+    0.324,
+    0.544,
+    0.776,
+    0.948
+   ]
+  },
+  "7/landcover_forest_share_2020.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.02,
+    0.056,
+    0.14,
+    0.3,
+    0.524,
+    0.764,
+    0.948
+   ]
+  },
+  "7/landcover_forest_share_2021.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.024,
+    0.06,
+    0.148,
+    0.308,
+    0.528,
+    0.76,
+    0.944
+   ]
+  },
+  "7/landcover_forest_share_2022.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.024,
+    0.06,
+    0.144,
+    0.304,
+    0.528,
+    0.764,
+    0.948
+   ]
+  },
+  "7/landcover_forest_share_2023.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.02,
+    0.06,
+    0.14,
+    0.296,
+    0.516,
+    0.752,
+    0.94
+   ]
+  },
+  "7/landcover_forest_share_2024.bin": {
+   "sig": "63b29d97a8c45d5f",
+   "b": [
+    0.008,
+    0.02,
+    0.056,
+    0.136,
+    0.284,
+    0.496,
+    0.736,
+    0.94
+   ]
+  },
+  "8/landcover_forest_share_2017.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.016,
+    0.048,
+    0.132,
+    0.288,
+    0.524,
+    0.764,
+    0.94,
+    1.0
+   ]
+  },
+  "8/landcover_forest_share_2019.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.016,
+    0.056,
+    0.148,
+    0.32,
+    0.548,
+    0.78,
+    0.944,
+    1.0
+   ]
+  },
+  "8/landcover_forest_share_2024.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.012,
+    0.048,
+    0.124,
+    0.276,
+    0.496,
+    0.74,
+    0.928,
+    1.0
+   ]
+  },
+  "6/all_poi_total.bin": {
+   "sig": "0f0a4c3a01f84ead",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    6.0,
+    15.0
+   ]
+  },
+  "7/all_poi_total.bin": {
+   "sig": "6393ee1f8f95e6f3",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    11.0
+   ]
+  },
+  "8/all_poi_total.bin": {
+   "sig": "a85e8eba8343aa1a",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    8.0
+   ]
+  },
+  "6/residential_buy_rate_median_inr_per_sqft.bin": {
+   "sig": "685f4267c87bda0a",
+   "b": [
+    2520.4,
+    3170.5,
+    3753.6,
+    4305.4,
+    4980.8,
+    5682.4,
+    6815.1,
+    9052.1
+   ]
+  },
+  "7/residential_buy_rate_median_inr_per_sqft.bin": {
+   "sig": "16ccb0eda1961fa7",
+   "b": [
+    2852.6,
+    3573.2,
+    4233.2,
+    4873.5,
+    5542.9,
+    6427.1,
+    7752.1,
+    10178.0
+   ]
+  },
+  "8/residential_buy_rate_median_inr_per_sqft.bin": {
+   "sig": "627e48ad10302fc4",
+   "b": [
+    3270.3,
+    4107.8,
+    4903.7,
+    5623.5,
+    6427.1,
+    7507.0,
+    9056.8,
+    12351.0
+   ]
+  },
+  "6/avg_height_total_m_2015.bin": {
+   "sig": "275fc4e1f388cb06",
+   "b": [
+    2.5003,
+    2.5005,
+    2.5008,
+    2.501,
+    2.5037,
+    2.8299,
+    3.2221,
+    3.9309
+   ]
+  },
+  "6/avg_height_total_m_2020.bin": {
+   "sig": "275fc4e1f388cb06",
+   "b": [
+    2.5003,
+    2.5005,
+    2.5005,
+    2.5008,
+    2.5033,
+    2.7808,
+    3.1327,
+    3.7873
+   ]
+  },
+  "6/avg_height_total_m_2025.bin": {
+   "sig": "275fc4e1f388cb06",
+   "b": [
+    2.5003,
+    2.5005,
+    2.5005,
+    2.5008,
+    2.5053,
+    2.7606,
+    3.0876,
+    3.7073
+   ]
+  },
+  "7/avg_height_total_m_2015.bin": {
+   "sig": "e6ed02b2e1b50b37",
+   "b": [
+    2.4999,
+    2.5001,
+    2.5004,
+    2.5006,
+    2.5009,
+    2.5014,
+    2.5045,
+    3.4214
+   ]
+  },
+  "7/avg_height_total_m_2020.bin": {
+   "sig": "e6ed02b2e1b50b37",
+   "b": [
+    2.5001,
+    2.5001,
+    2.5004,
+    2.5006,
+    2.5006,
+    2.5011,
+    2.5037,
+    3.333
+   ]
+  },
+  "7/avg_height_total_m_2025.bin": {
+   "sig": "e6ed02b2e1b50b37",
+   "b": [
+    2.5001,
+    2.5001,
+    2.5004,
+    2.5006,
+    2.5006,
+    2.5011,
+    2.5052,
+    3.3056
+   ]
+  },
+  "8/avg_height_total_m_2015.bin": {
+   "sig": "e477078a814a3b31",
+   "b": [
+    2.4975,
+    2.4998,
+    2.5001,
+    2.5004,
+    2.501,
+    2.5018,
+    2.5045,
+    2.5224
+   ]
+  },
+  "8/avg_height_total_m_2020.bin": {
+   "sig": "e477078a814a3b31",
+   "b": [
+    2.4981,
+    2.4998,
+    2.5001,
+    2.5004,
+    2.5007,
+    2.5016,
+    2.5036,
+    2.5204
+   ]
+  },
+  "8/avg_height_total_m_2025.bin": {
+   "sig": "e477078a814a3b31",
+   "b": [
+    2.4984,
+    2.5001,
+    2.5001,
+    2.5004,
+    2.5007,
+    2.5016,
+    2.5036,
+    2.5262
+   ]
+  },
+  "6/built_s_total_m2_2015.bin": {
+   "sig": "fea1eef55c58cb66",
+   "b": [
+    20357.0,
+    68224.0,
+    122200.0,
+    175690.0,
+    238030.0,
+    323490.0,
+    470210.0,
+    766810.0
+   ]
+  },
+  "6/built_s_total_m2_2020.bin": {
+   "sig": "fea1eef55c58cb66",
+   "b": [
+    26608.0,
+    89811.0,
+    154910.0,
+    221120.0,
+    300930.0,
+    416500.0,
+    597920.0,
+    915130.0
+   ]
+  },
+  "6/built_s_total_m2_2025.bin": {
+   "sig": "fea1eef55c58cb66",
+   "b": [
+    29489.0,
+    101420.0,
+    175660.0,
+    251040.0,
+    342810.0,
+    477200.0,
+    681720.0,
+    1034300.0
+   ]
+  },
+  "7/built_s_total_m2_2015.bin": {
+   "sig": "26af8529c6b13126",
+   "b": [
+    1686.1,
+    6017.7,
+    12347.0,
+    20838.0,
+    31796.0,
+    46736.0,
+    69983.0,
+    118320.0
+   ]
+  },
+  "7/built_s_total_m2_2020.bin": {
+   "sig": "26af8529c6b13126",
+   "b": [
+    1973.0,
+    8040.7,
+    17156.0,
+    28624.0,
+    42735.0,
+    61453.0,
+    89303.0,
+    141960.0
+   ]
+  },
+  "7/built_s_total_m2_2025.bin": {
+   "sig": "26af8529c6b13126",
+   "b": [
+    2070.3,
+    8982.3,
+    19740.0,
+    33075.0,
+    49363.0,
+    71059.0,
+    103080.0,
+    162380.0
+   ]
+  },
+  "6/built_s_nres_m2_2015.bin": {
+   "sig": "f5a3cfa849937fb3",
+   "b": [
+    214.04,
+    753.94,
+    1783.7,
+    3609.5,
+    6773.8,
+    13096.0,
+    29267.0,
+    92295.0
+   ]
+  },
+  "6/built_s_nres_m2_2020.bin": {
+   "sig": "f5a3cfa849937fb3",
+   "b": [
+    293.09,
+    1061.2,
+    2687.2,
+    5189.2,
+    9086.2,
+    16755.0,
+    34781.0,
+    105580.0
+   ]
+  },
+  "6/built_s_nres_m2_2025.bin": {
+   "sig": "f5a3cfa849937fb3",
+   "b": [
+    298.45,
+    1067.4,
+    2715.9,
+    5440.1,
+    10162.0,
+    18715.0,
+    38401.0,
+    116760.0
+   ]
+  },
+  "7/built_s_nres_m2_2015.bin": {
+   "sig": "2ad6a59f54f00678",
+   "b": [
+    131.79,
+    482.64,
+    1112.6,
+    2176.1,
+    3897.4,
+    6926.7,
+    14106.0,
+    43844.0
+   ]
+  },
+  "7/built_s_nres_m2_2020.bin": {
+   "sig": "2ad6a59f54f00678",
+   "b": [
+    169.83,
+    636.17,
+    1484.9,
+    2925.8,
+    5061.2,
+    8743.0,
+    17227.0,
+    49587.0
+   ]
+  },
+  "7/built_s_nres_m2_2025.bin": {
+   "sig": "2ad6a59f54f00678",
+   "b": [
+    174.24,
+    641.84,
+    1505.2,
+    2984.7,
+    5366.3,
+    9697.8,
+    19178.0,
+    54593.0
+   ]
+  },
+  "6/built_s_res_m2_2015.bin": {
+   "sig": "4b726a42623f6bde",
+   "b": [
+    20366.0,
+    68176.0,
+    121990.0,
+    175310.0,
+    237270.0,
+    322010.0,
+    466570.0,
+    756630.0
+   ]
+  },
+  "6/built_s_res_m2_2020.bin": {
+   "sig": "4b726a42623f6bde",
+   "b": [
+    26589.0,
+    89700.0,
+    154620.0,
+    220660.0,
+    299830.0,
+    414210.0,
+    593480.0,
+    904660.0
+   ]
+  },
+  "6/built_s_res_m2_2025.bin": {
+   "sig": "4b726a42623f6bde",
+   "b": [
+    29483.0,
+    101240.0,
+    175420.0,
+    250430.0,
+    341750.0,
+    474870.0,
+    677480.0,
+    1022200.0
+   ]
+  },
+  "7/built_s_res_m2_2015.bin": {
+   "sig": "54e3db9adb22bbb9",
+   "b": [
+    1684.6,
+    6008.5,
+    12325.0,
+    20800.0,
+    31715.0,
+    46583.0,
+    69695.0,
+    117330.0
+   ]
+  },
+  "7/built_s_res_m2_2020.bin": {
+   "sig": "54e3db9adb22bbb9",
+   "b": [
+    1971.1,
+    8027.7,
+    17125.0,
+    28569.0,
+    42616.0,
+    61233.0,
+    88871.0,
+    140910.0
+   ]
+  },
+  "7/built_s_res_m2_2025.bin": {
+   "sig": "54e3db9adb22bbb9",
+   "b": [
+    2068.2,
+    8972.7,
+    19703.0,
+    33009.0,
+    49240.0,
+    70796.0,
+    102580.0,
+    161140.0
+   ]
+  },
+  "6/built_share_nres_2015.bin": {
+   "sig": "c4bf1dc5e4f38868",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/built_share_nres_2020.bin": {
+   "sig": "c4bf1dc5e4f38868",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/built_share_nres_2025.bin": {
+   "sig": "c4bf1dc5e4f38868",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "7/built_share_nres_2015.bin": {
+   "sig": "5a238096f66410c8",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02,
+    0.036
+   ]
+  },
+  "7/built_share_nres_2020.bin": {
+   "sig": "5a238096f66410c8",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02,
+    0.036
+   ]
+  },
+  "7/built_share_nres_2025.bin": {
+   "sig": "5a238096f66410c8",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02,
+    0.036
+   ]
+  },
+  "6/built_share_res_2015.bin": {
+   "sig": "cace63319b6d81ff",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024
+   ]
+  },
+  "6/built_share_res_2020.bin": {
+   "sig": "cace63319b6d81ff",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02,
+    0.028
+   ]
+  },
+  "6/built_share_res_2025.bin": {
+   "sig": "cace63319b6d81ff",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.02,
+    0.032
+   ]
+  },
+  "7/built_share_res_2015.bin": {
+   "sig": "20bde73e0118791e",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/built_share_res_2020.bin": {
+   "sig": "20bde73e0118791e",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.02,
+    0.032
+   ]
+  },
+  "7/built_share_res_2025.bin": {
+   "sig": "20bde73e0118791e",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.036
+   ]
+  },
+  "6/built_v_total_m3_2015.bin": {
+   "sig": "d506d3fbb21bdb6c",
+   "b": [
+    51148.0,
+    172730.0,
+    318390.0,
+    476040.0,
+    667010.0,
+    938510.0,
+    1431100.0,
+    2581700.0
+   ]
+  },
+  "6/built_v_total_m3_2020.bin": {
+   "sig": "d506d3fbb21bdb6c",
+   "b": [
+    66621.0,
+    228630.0,
+    409540.0,
+    600290.0,
+    839410.0,
+    1179700.0,
+    1762200.0,
+    2943600.0
+   ]
+  },
+  "6/built_v_total_m3_2025.bin": {
+   "sig": "d506d3fbb21bdb6c",
+   "b": [
+    73948.0,
+    258820.0,
+    464650.0,
+    683780.0,
+    955270.0,
+    1345700.0,
+    1999600.0,
+    3253000.0
+   ]
+  },
+  "7/built_v_total_m3_2015.bin": {
+   "sig": "0ef890bd93bb6ff3",
+   "b": [
+    4216.0,
+    15086.0,
+    30986.0,
+    52498.0,
+    80736.0,
+    121180.0,
+    192490.0,
+    359040.0
+   ]
+  },
+  "7/built_v_total_m3_2020.bin": {
+   "sig": "0ef890bd93bb6ff3",
+   "b": [
+    4936.7,
+    20169.0,
+    43137.0,
+    72189.0,
+    109030.0,
+    160800.0,
+    244110.0,
+    417320.0
+   ]
+  },
+  "7/built_v_total_m3_2025.bin": {
+   "sig": "0ef890bd93bb6ff3",
+   "b": [
+    5179.4,
+    22568.0,
+    49845.0,
+    83793.0,
+    126660.0,
+    187010.0,
+    281700.0,
+    470140.0
+   ]
+  },
+  "6/built_v_nres_m3_2015.bin": {
+   "sig": "4155dd6fd8de53ef",
+   "b": [
+    575.9,
+    2100.0,
+    5011.0,
+    10357.0,
+    21190.0,
+    45922.0,
+    143070.0,
+    660270.0
+   ]
+  },
+  "6/built_v_nres_m3_2020.bin": {
+   "sig": "4155dd6fd8de53ef",
+   "b": [
+    796.3,
+    3010.7,
+    7476.2,
+    14659.0,
+    27717.0,
+    56726.0,
+    162430.0,
+    731190.0
+   ]
+  },
+  "6/built_v_nres_m3_2025.bin": {
+   "sig": "4155dd6fd8de53ef",
+   "b": [
+    803.12,
+    3023.9,
+    7580.9,
+    15679.0,
+    31027.0,
+    62978.0,
+    177400.0,
+    776110.0
+   ]
+  },
+  "7/built_v_nres_m3_2015.bin": {
+   "sig": "77e6390401eb6e42",
+   "b": [
+    365.96,
+    1361.6,
+    3216.0,
+    6552.6,
+    12574.0,
+    25769.0,
+    70760.0,
+    325690.0
+   ]
+  },
+  "7/built_v_nres_m3_2020.bin": {
+   "sig": "77e6390401eb6e42",
+   "b": [
+    484.15,
+    1818.7,
+    4397.4,
+    8805.2,
+    16079.0,
+    31279.0,
+    80015.0,
+    350970.0
+   ]
+  },
+  "7/built_v_nres_m3_2025.bin": {
+   "sig": "77e6390401eb6e42",
+   "b": [
+    490.83,
+    1831.6,
+    4437.6,
+    8993.9,
+    17330.0,
+    34571.0,
+    87358.0,
+    375920.0
+   ]
+  },
+  "6/built_v_res_m3_2015.bin": {
+   "sig": "590b456a8c992f44",
+   "b": [
+    51065.0,
+    172470.0,
+    317860.0,
+    475210.0,
+    664680.0,
+    932740.0,
+    1417700.0,
+    2533000.0
+   ]
+  },
+  "6/built_v_res_m3_2020.bin": {
+   "sig": "590b456a8c992f44",
+   "b": [
+    66617.0,
+    228320.0,
+    408740.0,
+    598560.0,
+    835810.0,
+    1171700.0,
+    1745700.0,
+    2891400.0
+   ]
+  },
+  "6/built_v_res_m3_2025.bin": {
+   "sig": "590b456a8c992f44",
+   "b": [
+    73932.0,
+    258520.0,
+    463490.0,
+    682020.0,
+    951580.0,
+    1338100.0,
+    1981200.0,
+    3196000.0
+   ]
+  },
+  "7/built_v_res_m3_2015.bin": {
+   "sig": "913e1fe76c513d4b",
+   "b": [
+    4216.4,
+    15061.0,
+    30953.0,
+    52382.0,
+    80554.0,
+    120800.0,
+    191650.0,
+    355910.0
+   ]
+  },
+  "7/built_v_res_m3_2020.bin": {
+   "sig": "913e1fe76c513d4b",
+   "b": [
+    4934.4,
+    20152.0,
+    43069.0,
+    72057.0,
+    108770.0,
+    160250.0,
+    242960.0,
+    413710.0
+   ]
+  },
+  "7/built_v_res_m3_2025.bin": {
+   "sig": "913e1fe76c513d4b",
+   "b": [
+    5181.9,
+    22560.0,
+    49733.0,
+    83651.0,
+    126340.0,
+    186470.0,
+    280420.0,
+    465790.0
+   ]
+  },
+  "6/avg_height_nres_m_2015.bin": {
+   "sig": "b11c2414d03e10f1",
+   "b": [
+    2.4993,
+    2.5,
+    2.5008,
+    2.504,
+    2.643,
+    4.034,
+    6.0492,
+    8.3129
+   ]
+  },
+  "6/avg_height_nres_m_2020.bin": {
+   "sig": "b11c2414d03e10f1",
+   "b": [
+    2.4996,
+    2.5,
+    2.5005,
+    2.5025,
+    2.5932,
+    3.8307,
+    5.8288,
+    8.1383
+   ]
+  },
+  "6/avg_height_nres_m_2025.bin": {
+   "sig": "b11c2414d03e10f1",
+   "b": [
+    2.4996,
+    2.5,
+    2.5005,
+    2.5025,
+    2.5903,
+    3.7926,
+    5.7287,
+    8.0385
+   ]
+  },
+  "7/avg_height_nres_m_2015.bin": {
+   "sig": "d344921a4a7d8dd6",
+   "b": [
+    2.4992,
+    2.5002,
+    2.5012,
+    2.5054,
+    2.6924,
+    4.2836,
+    6.5852,
+    9.0413
+   ]
+  },
+  "7/avg_height_nres_m_2020.bin": {
+   "sig": "d344921a4a7d8dd6",
+   "b": [
+    2.4992,
+    2.5002,
+    2.5008,
+    2.5038,
+    2.6364,
+    4.1097,
+    6.4159,
+    8.9435
+   ]
+  },
+  "7/avg_height_nres_m_2025.bin": {
+   "sig": "d344921a4a7d8dd6",
+   "b": [
+    2.4995,
+    2.5002,
+    2.5008,
+    2.5038,
+    2.6337,
+    4.0683,
+    6.3205,
+    8.8566
+   ]
+  },
+  "6/avg_height_res_m_2015.bin": {
+   "sig": "8139210fc9b73f05",
+   "b": [
+    2.5002,
+    2.5004,
+    2.5007,
+    2.5009,
+    2.5036,
+    2.8255,
+    3.212,
+    3.9081
+   ]
+  },
+  "6/avg_height_res_m_2020.bin": {
+   "sig": "8139210fc9b73f05",
+   "b": [
+    2.5002,
+    2.5004,
+    2.5007,
+    2.5009,
+    2.5034,
+    2.7762,
+    3.1228,
+    3.762
+   ]
+  },
+  "6/avg_height_res_m_2025.bin": {
+   "sig": "8139210fc9b73f05",
+   "b": [
+    2.5002,
+    2.5004,
+    2.5007,
+    2.5009,
+    2.5052,
+    2.757,
+    3.0798,
+    3.6848
+   ]
+  },
+  "7/avg_height_res_m_2015.bin": {
+   "sig": "67498f7f13126aa8",
+   "b": [
+    2.4999,
+    2.5001,
+    2.5004,
+    2.5006,
+    2.5009,
+    2.5014,
+    2.5045,
+    3.41
+   ]
+  },
+  "7/avg_height_res_m_2020.bin": {
+   "sig": "67498f7f13126aa8",
+   "b": [
+    2.5001,
+    2.5001,
+    2.5004,
+    2.5006,
+    2.5006,
+    2.5011,
+    2.5037,
+    3.3218
+   ]
+  },
+  "7/avg_height_res_m_2025.bin": {
+   "sig": "67498f7f13126aa8",
+   "b": [
+    2.5001,
+    2.5001,
+    2.5004,
+    2.5006,
+    2.5006,
+    2.5011,
+    2.5052,
+    3.2954
+   ]
+  },
+  "6/landcover_built_share_2017.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.008,
+    0.016,
+    0.02,
+    0.028,
+    0.04,
+    0.056,
+    0.08,
+    0.136
+   ]
+  },
+  "6/landcover_built_share_2018.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.008,
+    0.016,
+    0.024,
+    0.032,
+    0.044,
+    0.06,
+    0.088,
+    0.148
+   ]
+  },
+  "6/landcover_built_share_2019.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.008,
+    0.016,
+    0.024,
+    0.032,
+    0.044,
+    0.064,
+    0.092,
+    0.156
+   ]
+  },
+  "6/landcover_built_share_2020.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.008,
+    0.016,
+    0.024,
+    0.036,
+    0.048,
+    0.064,
+    0.096,
+    0.164
+   ]
+  },
+  "6/landcover_built_share_2021.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.008,
+    0.016,
+    0.024,
+    0.036,
+    0.048,
+    0.068,
+    0.096,
+    0.168
+   ]
+  },
+  "6/landcover_built_share_2022.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.008,
+    0.02,
+    0.028,
+    0.036,
+    0.052,
+    0.068,
+    0.1,
+    0.172
+   ]
+  },
+  "6/landcover_built_share_2023.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.012,
+    0.02,
+    0.028,
+    0.04,
+    0.052,
+    0.072,
+    0.104,
+    0.176
+   ]
+  },
+  "6/landcover_built_share_2024.bin": {
+   "sig": "b12bfb75914e0500",
+   "b": [
+    0.012,
+    0.02,
+    0.028,
+    0.04,
+    0.056,
+    0.076,
+    0.108,
+    0.184
+   ]
+  },
+  "7/landcover_built_share_2017.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.016,
+    0.024,
+    0.036,
+    0.048,
+    0.068,
+    0.1,
+    0.172
+   ]
+  },
+  "7/landcover_built_share_2018.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.016,
+    0.028,
+    0.04,
+    0.052,
+    0.076,
+    0.108,
+    0.184
+   ]
+  },
+  "7/landcover_built_share_2019.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.016,
+    0.028,
+    0.04,
+    0.056,
+    0.076,
+    0.112,
+    0.196
+   ]
+  },
+  "7/landcover_built_share_2020.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.02,
+    0.028,
+    0.044,
+    0.06,
+    0.08,
+    0.12,
+    0.2
+   ]
+  },
+  "7/landcover_built_share_2021.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.02,
+    0.028,
+    0.044,
+    0.06,
+    0.084,
+    0.12,
+    0.208
+   ]
+  },
+  "7/landcover_built_share_2022.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.02,
+    0.032,
+    0.044,
+    0.06,
+    0.084,
+    0.124,
+    0.212
+   ]
+  },
+  "7/landcover_built_share_2023.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.02,
+    0.032,
+    0.048,
+    0.064,
+    0.088,
+    0.128,
+    0.216
+   ]
+  },
+  "7/landcover_built_share_2024.bin": {
+   "sig": "4fe24aa8821aa7b5",
+   "b": [
+    0.008,
+    0.02,
+    0.032,
+    0.048,
+    0.064,
+    0.092,
+    0.132,
+    0.228
+   ]
+  },
+  "8/landcover_built_share_2017.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.02,
+    0.036,
+    0.06,
+    0.092,
+    0.132,
+    0.2,
+    0.344
+   ]
+  },
+  "8/landcover_built_share_2019.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.024,
+    0.04,
+    0.068,
+    0.1,
+    0.148,
+    0.22,
+    0.368
+   ]
+  },
+  "8/landcover_built_share_2024.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.024,
+    0.044,
+    0.072,
+    0.108,
+    0.16,
+    0.236,
+    0.4
+   ]
+  },
+  "6/landcover_open_natural_share_2017.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.012,
+    0.036,
+    0.08,
+    0.14,
+    0.228,
+    0.356,
+    0.556,
+    0.956
+   ]
+  },
+  "6/landcover_open_natural_share_2018.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.016,
+    0.044,
+    0.092,
+    0.164,
+    0.26,
+    0.4,
+    0.61111,
+    0.972
+   ]
+  },
+  "6/landcover_open_natural_share_2019.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.016,
+    0.044,
+    0.096,
+    0.172,
+    0.276,
+    0.416,
+    0.624,
+    0.968
+   ]
+  },
+  "6/landcover_open_natural_share_2020.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.012,
+    0.04,
+    0.084,
+    0.148,
+    0.24,
+    0.368,
+    0.568,
+    0.952
+   ]
+  },
+  "6/landcover_open_natural_share_2021.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.012,
+    0.04,
+    0.08,
+    0.144,
+    0.232,
+    0.364,
+    0.564,
+    0.956
+   ]
+  },
+  "6/landcover_open_natural_share_2022.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.012,
+    0.04,
+    0.08,
+    0.144,
+    0.232,
+    0.36,
+    0.552,
+    0.94
+   ]
+  },
+  "6/landcover_open_natural_share_2023.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.012,
+    0.036,
+    0.076,
+    0.136,
+    0.22,
+    0.336,
+    0.512,
+    0.89333
+   ]
+  },
+  "6/landcover_open_natural_share_2024.bin": {
+   "sig": "0977bafdfa91c485",
+   "b": [
+    0.012,
+    0.036,
+    0.076,
+    0.14,
+    0.228,
+    0.352,
+    0.54,
+    0.908
+   ]
+  },
+  "7/landcover_open_natural_share_2017.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.012,
+    0.04,
+    0.096,
+    0.18,
+    0.308,
+    0.5,
+    0.78,
+    1.0
+   ]
+  },
+  "7/landcover_open_natural_share_2018.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.016,
+    0.052,
+    0.12,
+    0.22,
+    0.364,
+    0.568,
+    0.848,
+    1.0
+   ]
+  },
+  "7/landcover_open_natural_share_2019.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.016,
+    0.056,
+    0.124,
+    0.232,
+    0.384,
+    0.592,
+    0.86,
+    1.0
+   ]
+  },
+  "7/landcover_open_natural_share_2020.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.016,
+    0.048,
+    0.108,
+    0.204,
+    0.336,
+    0.528,
+    0.8,
+    1.0
+   ]
+  },
+  "7/landcover_open_natural_share_2021.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.016,
+    0.048,
+    0.104,
+    0.196,
+    0.328,
+    0.52,
+    0.796,
+    1.0
+   ]
+  },
+  "7/landcover_open_natural_share_2022.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.016,
+    0.044,
+    0.104,
+    0.192,
+    0.324,
+    0.508,
+    0.78,
+    1.0
+   ]
+  },
+  "7/landcover_open_natural_share_2023.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.016,
+    0.044,
+    0.1,
+    0.18,
+    0.3,
+    0.472,
+    0.724,
+    0.996
+   ]
+  },
+  "7/landcover_open_natural_share_2024.bin": {
+   "sig": "5a37da22a6fb0729",
+   "b": [
+    0.016,
+    0.044,
+    0.1,
+    0.192,
+    0.32,
+    0.5,
+    0.76,
+    1.0
+   ]
+  },
+  "6/landcover_water_wetland_share_2017.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.036,
+    0.088
+   ]
+  },
+  "6/landcover_water_wetland_share_2018.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.02,
+    0.036,
+    0.088
+   ]
+  },
+  "6/landcover_water_wetland_share_2019.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.02,
+    0.04,
+    0.092
+   ]
+  },
+  "6/landcover_water_wetland_share_2020.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.04,
+    0.092
+   ]
+  },
+  "6/landcover_water_wetland_share_2021.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.04,
+    0.096
+   ]
+  },
+  "6/landcover_water_wetland_share_2022.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.04,
+    0.088
+   ]
+  },
+  "6/landcover_water_wetland_share_2023.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.04,
+    0.088
+   ]
+  },
+  "6/landcover_water_wetland_share_2024.bin": {
+   "sig": "21ef6f52fb0390f0",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024,
+    0.036,
+    0.088
+   ]
+  },
+  "7/landcover_water_wetland_share_2017.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.024,
+    0.04,
+    0.068,
+    0.184
+   ]
+  },
+  "7/landcover_water_wetland_share_2018.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.024,
+    0.04,
+    0.072,
+    0.188
+   ]
+  },
+  "7/landcover_water_wetland_share_2019.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.024,
+    0.04,
+    0.072,
+    0.196
+   ]
+  },
+  "7/landcover_water_wetland_share_2020.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.024,
+    0.04,
+    0.068,
+    0.176
+   ]
+  },
+  "7/landcover_water_wetland_share_2021.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.024,
+    0.04,
+    0.072,
+    0.184
+   ]
+  },
+  "7/landcover_water_wetland_share_2022.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.024,
+    0.04,
+    0.068,
+    0.168
+   ]
+  },
+  "7/landcover_water_wetland_share_2023.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.024,
+    0.036,
+    0.068,
+    0.172
+   ]
+  },
+  "7/landcover_water_wetland_share_2024.bin": {
+   "sig": "ee265919b4a4862a",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.024,
+    0.036,
+    0.068,
+    0.172
+   ]
+  },
+  "8/landcover_water_wetland_share_2017.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.012,
+    0.02,
+    0.032,
+    0.06,
+    0.108,
+    0.208,
+    0.576
+   ]
+  },
+  "8/landcover_water_wetland_share_2019.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.012,
+    0.02,
+    0.032,
+    0.06,
+    0.112,
+    0.22,
+    0.612
+   ]
+  },
+  "8/landcover_water_wetland_share_2024.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.032,
+    0.056,
+    0.1,
+    0.196,
+    0.548
+   ]
+  },
+  "6/tree_canopy_avg_pct_2000.bin": {
+   "sig": "48cf038fd4aadabb",
+   "b": [
+    0.0087173,
+    0.031597,
+    0.073345,
+    0.1626,
+    0.41241,
+    1.5974,
+    8.7418,
+    35.444
+   ]
+  },
+  "7/tree_canopy_avg_pct_2000.bin": {
+   "sig": "5e5f64a2d69dcc60",
+   "b": [
+    0.0089504,
+    0.029194,
+    0.068729,
+    0.15458,
+    0.39037,
+    1.5398,
+    9.5304,
+    40.309
+   ]
+  },
+  "6/permanent_water_share.bin": {
+   "sig": "8e9ed0507b974b81",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.032,
+    0.090222
+   ]
+  },
+  "7/permanent_water_share.bin": {
+   "sig": "5941c7d5403a5c29",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.024,
+    0.052,
+    0.164
+   ]
+  },
+  "6/forest_cover_share_canopy10_2012.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.516,
+    0.8
+   ]
+  },
+  "6/forest_cover_share_canopy10_2013.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.516,
+    0.79911
+   ]
+  },
+  "6/forest_cover_share_canopy10_2014.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.512,
+    0.792
+   ]
+  },
+  "6/forest_cover_share_canopy10_2015.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.512,
+    0.788
+   ]
+  },
+  "6/forest_cover_share_canopy10_2016.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.512,
+    0.784
+   ]
+  },
+  "6/forest_cover_share_canopy10_2017.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.512,
+    0.776
+   ]
+  },
+  "6/forest_cover_share_canopy10_2018.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.508,
+    0.772
+   ]
+  },
+  "6/forest_cover_share_canopy10_2019.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.508,
+    0.768
+   ]
+  },
+  "6/forest_cover_share_canopy10_2020.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.508,
+    0.764
+   ]
+  },
+  "6/forest_cover_share_canopy10_2021.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.508,
+    0.76
+   ]
+  },
+  "6/forest_cover_share_canopy10_2022.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.504,
+    0.756
+   ]
+  },
+  "6/forest_cover_share_canopy10_2023.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.504,
+    0.752
+   ]
+  },
+  "6/forest_cover_share_canopy10_2024.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.276,
+    0.504,
+    0.748
+   ]
+  },
+  "6/forest_cover_share_canopy10_2025.bin": {
+   "sig": "85008ee316199994",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.04,
+    0.116,
+    0.272,
+    0.5,
+    0.744
+   ]
+  },
+  "7/forest_cover_share_canopy10_2012.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.6,
+    0.868
+   ]
+  },
+  "7/forest_cover_share_canopy10_2013.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.596,
+    0.864
+   ]
+  },
+  "7/forest_cover_share_canopy10_2014.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.596,
+    0.86
+   ]
+  },
+  "7/forest_cover_share_canopy10_2015.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.592,
+    0.856
+   ]
+  },
+  "7/forest_cover_share_canopy10_2016.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.592,
+    0.852
+   ]
+  },
+  "7/forest_cover_share_canopy10_2017.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.588,
+    0.844
+   ]
+  },
+  "7/forest_cover_share_canopy10_2018.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.588,
+    0.84
+   ]
+  },
+  "7/forest_cover_share_canopy10_2019.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.324,
+    0.584,
+    0.836
+   ]
+  },
+  "7/forest_cover_share_canopy10_2020.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.32,
+    0.58,
+    0.828
+   ]
+  },
+  "7/forest_cover_share_canopy10_2021.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.32,
+    0.58,
+    0.824
+   ]
+  },
+  "7/forest_cover_share_canopy10_2022.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.32,
+    0.576,
+    0.824
+   ]
+  },
+  "7/forest_cover_share_canopy10_2023.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.32,
+    0.572,
+    0.82
+   ]
+  },
+  "7/forest_cover_share_canopy10_2024.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.32,
+    0.572,
+    0.816
+   ]
+  },
+  "7/forest_cover_share_canopy10_2025.bin": {
+   "sig": "1d6a59cefab34183",
+   "b": [
+    0.004,
+    0.008,
+    0.016,
+    0.044,
+    0.132,
+    0.32,
+    0.568,
+    0.812
+   ]
+  },
+  "8/forest_cover_share_canopy10_2012.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.188,
+    0.424,
+    0.716,
+    0.936
+   ]
+  },
+  "8/forest_cover_share_canopy10_2015.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.188,
+    0.42,
+    0.708,
+    0.924
+   ]
+  },
+  "8/forest_cover_share_canopy10_2020.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.416,
+    0.688,
+    0.908
+   ]
+  },
+  "8/forest_cover_share_canopy10_2025.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.408,
+    0.664,
+    0.896
+   ]
+  },
+  "6/forest_lost_share_2012.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012
+   ]
+  },
+  "6/forest_lost_share_2013.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.016
+   ]
+  },
+  "6/forest_lost_share_2014.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/forest_lost_share_2015.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/forest_lost_share_2016.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024
+   ]
+  },
+  "6/forest_lost_share_2017.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "6/forest_lost_share_2018.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/forest_lost_share_2019.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/forest_lost_share_2020.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/forest_lost_share_2021.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/forest_lost_share_2022.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016
+   ]
+  },
+  "6/forest_lost_share_2023.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016
+   ]
+  },
+  "6/forest_lost_share_2024.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016
+   ]
+  },
+  "6/forest_lost_share_2025.bin": {
+   "sig": "7eb53deea987e12b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016
+   ]
+  },
+  "7/forest_lost_share_2012.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.016
+   ]
+  },
+  "7/forest_lost_share_2013.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "7/forest_lost_share_2014.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/forest_lost_share_2015.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/forest_lost_share_2016.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02,
+    0.036
+   ]
+  },
+  "7/forest_lost_share_2017.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.02,
+    0.036
+   ]
+  },
+  "7/forest_lost_share_2018.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/forest_lost_share_2019.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/forest_lost_share_2020.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/forest_lost_share_2021.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028
+   ]
+  },
+  "7/forest_lost_share_2022.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024
+   ]
+  },
+  "7/forest_lost_share_2023.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.024
+   ]
+  },
+  "7/forest_lost_share_2024.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "7/forest_lost_share_2025.bin": {
+   "sig": "f92ed2bf2cd4338d",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02
+   ]
+  },
+  "6/industrial_landuse_share_osm2026.bin": {
+   "sig": "483655b6d35ca974",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.02,
+    0.036,
+    0.072
+   ]
+  },
+  "7/industrial_landuse_share_osm2026.bin": {
+   "sig": "7a2b683cc481511b",
+   "b": [
+    0.004,
+    0.008,
+    0.012,
+    0.016,
+    0.028,
+    0.048,
+    0.092,
+    0.196
+   ]
+  },
+  "6/is_industrial.bin": {
+   "sig": "93909a185a08624a",
+   "b": [
+    1.0
+   ]
+  },
+  "7/is_industrial.bin": {
+   "sig": "cb4b5eda1cad5fce",
+   "b": [
+    1.0
+   ]
+  },
+  "6/retail.bin": {
+   "sig": "7e98fdf565bef28c",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    7.0,
+    16.0,
+    54.0
+   ]
+  },
+  "7/retail.bin": {
+   "sig": "e2b4be77103952f5",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    6.0,
+    11.0,
+    25.0
+   ]
+  },
+  "6/food_drink.bin": {
+   "sig": "51f62622cfbfc40a",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    7.0,
+    17.0
+   ]
+  },
+  "7/food_drink.bin": {
+   "sig": "f176e040946853bc",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    10.0
+   ]
+  },
+  "6/finance.bin": {
+   "sig": "89677b167e17c6ec",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    8.0,
+    17.778
+   ]
+  },
+  "7/finance.bin": {
+   "sig": "3e8b615cc71b5f6f",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    10.0
+   ]
+  },
+  "6/offices.bin": {
+   "sig": "9ad8047bc65dfda3",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    6.0,
+    13.0
+   ]
+  },
+  "7/offices.bin": {
+   "sig": "2ceab90d730ff6db",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    6.0
+   ]
+  },
+  "6/lodging.bin": {
+   "sig": "073add4c5fdf5ebe",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    6.0,
+    12.0
+   ]
+  },
+  "7/lodging.bin": {
+   "sig": "df5ead23d0e59696",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    7.0
+   ]
+  },
+  "6/fuel_auto.bin": {
+   "sig": "1376041e2537cd22",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    7.0
+   ]
+  },
+  "7/fuel_auto.bin": {
+   "sig": "d575863a4f45d578",
+   "b": [
+    1.0,
+    2.0,
+    4.0
+   ]
+  },
+  "6/markets.bin": {
+   "sig": "6c042bc04c432d66",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ]
+  },
+  "7/markets.bin": {
+   "sig": "3fcf276b4eb13bec",
+   "b": [
+    1.0,
+    2.0
+   ]
+  },
+  "6/industry_logistics.bin": {
+   "sig": "9eceb2f96a788a84",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    7.0,
+    15.0
+   ]
+  },
+  "7/industry_logistics.bin": {
+   "sig": "209cf292e8831495",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    8.0
+   ]
+  },
+  "6/crafts.bin": {
+   "sig": "6287ef58b79c51bc",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    9.0
+   ]
+  },
+  "7/crafts.bin": {
+   "sig": "de4b518bac606203",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ]
+  },
+  "6/leisure_entertainment.bin": {
+   "sig": "c7f941e4e7684187",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    7.0
+   ]
+  },
+  "7/leisure_entertainment.bin": {
+   "sig": "a9dcc9d4f7d95a6c",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ]
+  },
+  "6/health.bin": {
+   "sig": "916f5883d351a75d",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0
+   ]
+  },
+  "7/health.bin": {
+   "sig": "d7cadaaa02da49a9",
+   "b": [
+    1.0,
+    2.0,
+    3.0
+   ]
+  },
+  "6/education.bin": {
+   "sig": "a8eea1f26b440ed0",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    6.0,
+    14.0
+   ]
+  },
+  "7/education.bin": {
+   "sig": "36e79b4d255ce5a0",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    6.0
+   ]
+  },
+  "6/transport.bin": {
+   "sig": "76cf089f8bbce2f4",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0
+   ]
+  },
+  "7/transport.bin": {
+   "sig": "c872dca91894a96c",
+   "b": [
+    1.0,
+    2.0,
+    5.0
+   ]
+  },
+  "6/tourism.bin": {
+   "sig": "6726cbc5c319391f",
+   "b": [
+    1.0,
+    2.0,
+    4.0
+   ]
+  },
+  "7/tourism.bin": {
+   "sig": "9dd38e89e7eb4517",
+   "b": [
+    1.0,
+    2.0,
+    3.0
+   ]
+  },
+  "6/government_public.bin": {
+   "sig": "6e795686df129f21",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    8.0,
+    18.0
+   ]
+  },
+  "7/government_public.bin": {
+   "sig": "e9e079ce4b5ae325",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    7.0
+   ]
+  },
+  "6/worship.bin": {
+   "sig": "3274c85984da7c62",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    13.0
+   ]
+  },
+  "7/worship.bin": {
+   "sig": "8f6cd3890e167eee",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    7.0
+   ]
+  },
+  "6/commercial_total.bin": {
+   "sig": "0906a7ccfd70b1e3",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    10.0,
+    32.0
+   ]
+  },
+  "7/commercial_total.bin": {
+   "sig": "ff54a2f281fcc078",
+   "b": [
+    1.0,
+    2.0,
+    4.0,
+    8.0,
+    21.0
+   ]
+  },
+  "8/commercial_total.bin": {
+   "sig": "585872e998b1b28a",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    11.0
+   ]
+  },
+  "6/residential_buy_listings_total.bin": {
+   "sig": "281fde9ec3e7d516",
+   "b": [
+    2.0,
+    3.0,
+    4.0,
+    6.0,
+    11.0,
+    22.0,
+    54.0,
+    220.56
+   ]
+  },
+  "7/residential_buy_listings_total.bin": {
+   "sig": "f8f6f4612950e359",
+   "b": [
+    2.0,
+    3.0,
+    5.0,
+    7.0,
+    12.0,
+    22.0,
+    47.778,
+    141.0
+   ]
+  },
+  "6/residential_buy_price_median_inr.bin": {
+   "sig": "d5c1af9d7e78268c",
+   "b": [
+    2550100.0,
+    3500500.0,
+    4499900.0,
+    5272900.0,
+    6350300.0,
+    7499300.0,
+    9499600.0,
+    14250000.0
+   ]
+  },
+  "7/residential_buy_price_median_inr.bin": {
+   "sig": "14550cd224883d0b",
+   "b": [
+    2776100.0,
+    3800400.0,
+    4700300.0,
+    5675800.0,
+    6800000.0,
+    8198100.0,
+    10502000.0,
+    15998000.0
+   ]
+  },
+  "6/residential_rent_listings_total.bin": {
+   "sig": "6fa72b0afba751b1",
+   "b": [
+    2.0,
+    3.0,
+    4.0,
+    7.0,
+    13.0,
+    23.0,
+    56.0,
+    232.0
+   ]
+  },
+  "7/residential_rent_listings_total.bin": {
+   "sig": "0f47fb28a621e5eb",
+   "b": [
+    2.0,
+    3.0,
+    5.0,
+    7.0,
+    12.0,
+    22.0,
+    51.0,
+    159.44
+   ]
+  },
+  "6/residential_rent_price_median_inr.bin": {
+   "sig": "5b8b1e028d2e4c07",
+   "b": [
+    6506.1,
+    8012.3,
+    9986.6,
+    11010.0,
+    13011.0,
+    15004.0,
+    18009.0,
+    25021.0
+   ]
+  },
+  "7/residential_rent_price_median_inr.bin": {
+   "sig": "2bc6569aaeaaf304",
+   "b": [
+    6487.1,
+    8510.1,
+    9984.2,
+    12014.0,
+    13993.0,
+    16019.0,
+    20024.0,
+    28004.0
+   ]
+  },
+  "6/commercial_buy_listings_total.bin": {
+   "sig": "c89b110f125de9b9",
+   "b": [
+    2.0,
+    3.0,
+    4.0,
+    6.0,
+    9.0,
+    16.0,
+    39.556
+   ]
+  },
+  "7/commercial_buy_listings_total.bin": {
+   "sig": "e33ab08d7b865422",
+   "b": [
+    2.0,
+    3.0,
+    4.0,
+    6.0,
+    8.0,
+    13.0,
+    24.0
+   ]
+  },
+  "6/commercial_buy_price_median_inr.bin": {
+   "sig": "4549d50a9dfe6ca6",
+   "b": [
+    1899500.0,
+    3200200.0,
+    4500200.0,
+    6225100.0,
+    8430400.0,
+    11932000.0,
+    16696000.0,
+    31003000.0
+   ]
+  },
+  "7/commercial_buy_price_median_inr.bin": {
+   "sig": "c8c00c55472bcb20",
+   "b": [
+    2000300.0,
+    3396600.0,
+    4944200.0,
+    6728800.0,
+    8996900.0,
+    12497000.0,
+    18003000.0,
+    32449000.0
+   ]
+  },
+  "6/commercial_buy_rate_median_inr_per_sqft.bin": {
+   "sig": "83d3576d51bd16a7",
+   "b": [
+    2778.5,
+    4168.0,
+    5404.1,
+    6665.8,
+    8334.9,
+    10032.0,
+    13002.0,
+    18880.0
+   ]
+  },
+  "7/commercial_buy_rate_median_inr_per_sqft.bin": {
+   "sig": "278a5b5a3a81ee86",
+   "b": [
+    3183.7,
+    4798.3,
+    6310.0,
+    8044.9,
+    10001.0,
+    12505.0,
+    15960.0,
+    22225.0
+   ]
+  },
+  "6/commercial_rent_listings_total.bin": {
+   "sig": "848a2921669fc455",
+   "b": [
+    2.0,
+    3.0,
+    4.0,
+    7.0,
+    11.0,
+    24.0,
+    90.778
+   ]
+  },
+  "7/commercial_rent_listings_total.bin": {
+   "sig": "801b7327b4d58f20",
+   "b": [
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    8.0,
+    13.0,
+    30.0,
+    90.0
+   ]
+  },
+  "6/commercial_rent_price_median_inr.bin": {
+   "sig": "20de80e922477a2a",
+   "b": [
+    16989.0,
+    24957.0,
+    34962.0,
+    45042.0,
+    54948.0,
+    75070.0,
+    105070.0,
+    200100.0
+   ]
+  },
+  "7/commercial_rent_price_median_inr.bin": {
+   "sig": "9e8bdd5fa67bfbd8",
+   "b": [
+    14945.0,
+    22164.0,
+    29958.0,
+    39885.0,
+    50140.0,
+    67721.0,
+    99799.0,
+    175390.0
+   ]
+  },
+  "8/ntl_mean_2013.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.15499,
+    0.25966,
+    0.37741,
+    0.54722,
+    0.68533,
+    0.86239,
+    1.1928,
+    2.1725
+   ]
+  },
+  "8/ntl_mean_2014.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.16644,
+    0.27692,
+    0.41743,
+    0.58302,
+    0.69588,
+    0.84771,
+    1.1228,
+    1.9205
+   ]
+  },
+  "8/ntl_mean_2016.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.16774,
+    0.28112,
+    0.42464,
+    0.60011,
+    0.7321,
+    0.90869,
+    1.2225,
+    2.1236
+   ]
+  },
+  "8/ntl_mean_2017.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.17035,
+    0.2896,
+    0.44452,
+    0.62245,
+    0.75952,
+    0.94846,
+    1.2721,
+    2.1772
+   ]
+  },
+  "8/ntl_mean_2018.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.17298,
+    0.29994,
+    0.46594,
+    0.64138,
+    0.78181,
+    0.97336,
+    1.3009,
+    2.2077
+   ]
+  },
+  "8/ntl_mean_2019.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.1743,
+    0.30255,
+    0.46702,
+    0.6452,
+    0.79167,
+    0.98909,
+    1.3337,
+    2.3079
+   ]
+  },
+  "8/ntl_mean_2021.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.18099,
+    0.3348,
+    0.52975,
+    0.67616,
+    0.82017,
+    1.0225,
+    1.3762,
+    2.3661
+   ]
+  },
+  "8/ntl_mean_2022.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.23673,
+    0.42671,
+    0.60875,
+    0.71723,
+    0.84917,
+    1.0386,
+    1.3632,
+    2.2148
+   ]
+  },
+  "8/ntl_mean_2023.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.26209,
+    0.46269,
+    0.62496,
+    0.72938,
+    0.86239,
+    1.0565,
+    1.3855,
+    2.2623
+   ]
+  },
+  "8/ntl_mean_2024.bin": {
+   "sig": "15300e9afc93067a",
+   "b": [
+    0.27028,
+    0.51142,
+    0.65287,
+    0.77341,
+    0.92694,
+    1.1482,
+    1.5312,
+    2.5604
+   ]
+  },
+  "8/landcover_agriculture_share_2018.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.188,
+    0.52,
+    0.74,
+    0.856,
+    0.928,
+    0.98,
+    1.0
+   ]
+  },
+  "8/landcover_agriculture_share_2020.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.184,
+    0.508,
+    0.724,
+    0.84,
+    0.916,
+    0.972,
+    1.0
+   ]
+  },
+  "8/landcover_agriculture_share_2021.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.188,
+    0.516,
+    0.724,
+    0.844,
+    0.92,
+    0.972,
+    1.0
+   ]
+  },
+  "8/landcover_agriculture_share_2022.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.172,
+    0.484,
+    0.704,
+    0.828,
+    0.908,
+    0.964,
+    0.996,
+    1.0
+   ]
+  },
+  "8/landcover_agriculture_share_2023.bin": {
+   "sig": "0988bb1684ef240b",
+   "b": [
+    0.176,
+    0.492,
+    0.708,
+    0.828,
+    0.908,
+    0.964,
+    0.996,
+    1.0
+   ]
+  },
+  "8/landcover_forest_share_2018.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.016,
+    0.056,
+    0.152,
+    0.324,
+    0.556,
+    0.784,
+    0.944,
+    1.0
+   ]
+  },
+  "8/landcover_forest_share_2020.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.016,
+    0.048,
+    0.132,
+    0.292,
+    0.524,
+    0.768,
+    0.944,
+    1.0
+   ]
+  },
+  "8/landcover_forest_share_2021.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.016,
+    0.052,
+    0.136,
+    0.3,
+    0.528,
+    0.764,
+    0.936,
+    1.0
+   ]
+  },
+  "8/landcover_forest_share_2022.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.016,
+    0.052,
+    0.136,
+    0.3,
+    0.536,
+    0.772,
+    0.944,
+    1.0
+   ]
+  },
+  "8/landcover_forest_share_2023.bin": {
+   "sig": "544c5074a03e42af",
+   "b": [
+    0.016,
+    0.052,
+    0.132,
+    0.296,
+    0.52,
+    0.756,
+    0.932,
+    1.0
+   ]
+  },
+  "8/landcover_built_share_2018.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.02,
+    0.04,
+    0.064,
+    0.096,
+    0.144,
+    0.212,
+    0.364
+   ]
+  },
+  "8/landcover_built_share_2020.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.024,
+    0.04,
+    0.068,
+    0.1,
+    0.148,
+    0.22,
+    0.372
+   ]
+  },
+  "8/landcover_built_share_2021.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.024,
+    0.044,
+    0.068,
+    0.104,
+    0.152,
+    0.224,
+    0.376
+   ]
+  },
+  "8/landcover_built_share_2022.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.024,
+    0.044,
+    0.068,
+    0.104,
+    0.152,
+    0.224,
+    0.38
+   ]
+  },
+  "8/landcover_built_share_2023.bin": {
+   "sig": "28e38a3e236742d8",
+   "b": [
+    0.008,
+    0.024,
+    0.044,
+    0.072,
+    0.104,
+    0.156,
+    0.228,
+    0.384
+   ]
+  },
+  "8/landcover_water_wetland_share_2018.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.012,
+    0.02,
+    0.036,
+    0.06,
+    0.112,
+    0.22,
+    0.608
+   ]
+  },
+  "8/landcover_water_wetland_share_2020.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.012,
+    0.02,
+    0.032,
+    0.056,
+    0.1,
+    0.2,
+    0.544
+   ]
+  },
+  "8/landcover_water_wetland_share_2021.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.012,
+    0.02,
+    0.036,
+    0.064,
+    0.112,
+    0.216,
+    0.58
+   ]
+  },
+  "8/landcover_water_wetland_share_2022.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.012,
+    0.02,
+    0.032,
+    0.056,
+    0.1,
+    0.192,
+    0.516
+   ]
+  },
+  "8/landcover_water_wetland_share_2023.bin": {
+   "sig": "c48624f91da803ca",
+   "b": [
+    0.004,
+    0.012,
+    0.02,
+    0.032,
+    0.056,
+    0.1,
+    0.2,
+    0.556
+   ]
+  },
+  "8/forest_cover_share_canopy10_2013.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.188,
+    0.424,
+    0.716,
+    0.932
+   ]
+  },
+  "8/forest_cover_share_canopy10_2014.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.188,
+    0.42,
+    0.712,
+    0.928
+   ]
+  },
+  "8/forest_cover_share_canopy10_2016.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.188,
+    0.42,
+    0.704,
+    0.92
+   ]
+  },
+  "8/forest_cover_share_canopy10_2017.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.42,
+    0.7,
+    0.916
+   ]
+  },
+  "8/forest_cover_share_canopy10_2018.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.416,
+    0.696,
+    0.912
+   ]
+  },
+  "8/forest_cover_share_canopy10_2019.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.416,
+    0.692,
+    0.912
+   ]
+  },
+  "8/forest_cover_share_canopy10_2021.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.412,
+    0.684,
+    0.904
+   ]
+  },
+  "8/forest_cover_share_canopy10_2022.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.412,
+    0.68,
+    0.904
+   ]
+  },
+  "8/forest_cover_share_canopy10_2023.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.408,
+    0.672,
+    0.9
+   ]
+  },
+  "8/forest_cover_share_canopy10_2024.bin": {
+   "sig": "170177210a70e960",
+   "b": [
+    0.004,
+    0.012,
+    0.024,
+    0.064,
+    0.184,
+    0.408,
+    0.668,
+    0.9
+   ]
+  }
+ }
+}
