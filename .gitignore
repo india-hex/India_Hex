@@ -12,3 +12,4 @@ __pycache__/
 # Source shapefile copies and personal notes stay local
 India_AC_Map/
 maps_proj_README.md
+design/data_check*.csv
