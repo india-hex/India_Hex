@@ -1,5 +1,5 @@
 // Service worker: cache the app shell and immutable data (versioned URLs) for fast repeat visits.
-const SHELL = 'indiahex-shell-v3';
+const SHELL = 'indiahex-shell-v4';
 const DATA = 'indiahex-data-v3';
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(SHELL).then((c) => c.addAll(['./', 'index.html', 'css/app.css', 'favicon.svg'])).then(() => self.skipWaiting()));
