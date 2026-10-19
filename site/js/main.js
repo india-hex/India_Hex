@@ -702,8 +702,10 @@ const st0 = S.get();
 view.setBasemap(cfg.basemaps.find((b) => b.id === st0.basemap) || cfg.basemaps[0]);
 view.setOverlays(effectiveOverlays(st0, st0.basemap));
 view.setFillOpacity(st0.opacity);
-await ensureGeo('state');
-await ensureGeo(st0.level);
+// boundaries stream in; the controls and sidebar don't wait for them
+ensureGeo('state');
+toast('Loading boundaries…', { spin: true });
+ensureGeo(st0.level).then(() => { if ($('#toast').textContent.startsWith('Loading boundaries')) toast(''); recolour(); });
 view.setLevel(st0.level, st0.stateLines);
 view.setLabels(U[st0.level], cfg.boundaries.levels[st0.level].label_minzoom, st0.labels);
 initPanel(ctx);

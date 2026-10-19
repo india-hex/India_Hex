@@ -63,7 +63,7 @@ boundaries:
     district: {label: Districts, one: District,                   short: Dist,  label_minzoom: 6.2}
     pc:       {label: Lok Sabha, one: Parliamentary constituency, short: PC,    label_minzoom: 5.8}
     ac:       {label: Assembly,  one: Assembly constituency,      short: AC,    label_minzoom: 7.6}
-  simplify:  {state: 0.002, district: 0.0015, pc: 0.0015, ac: 0.0008}   # national layers (degrees)
+  simplify:  {state: 0.004, district: 0.003, pc: 0.003, ac: 0.0008}     # national layers (degrees); the selected place loads its detailed outline
   detail:    {state: 0.0008, district: 0.0003, pc: 0.0003, ac: 0.0001}  # per-unit outline on selection
 
 # Each palette has a `dark` variant (satellite / dark basemaps) and a `light` one.
