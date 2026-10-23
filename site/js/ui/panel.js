@@ -1,7 +1,7 @@
 // Sidebar: breadcrumb, place hero, the current lens for this place (value, rank, distribution),
 // key figures, land cover, rankings of the units inside it, the clicked hexagon, pinned-unit
 // comparison and the About view. Pure rendering from state + data; actions go through ctx.act.
-import { esc, fmtValue, compact, rampFor, scaleFromValues, colourOf, legendNum } from '../scales.js';
+import { esc, fmtValue, compact, rampFor, scaleFromValues, colourOf, legendNum, periodLabel } from '../scales.js';
 import { units, unit, stateName, childrenOf, rawUnitValues } from '../data/units.js';
 import { lensOf, seriesById, unitValues } from '../lens.js';
 import { fmtCoord } from './statusbar.js';
@@ -106,12 +106,12 @@ function figHTML(f, st, area) {
     if (f.s.agg === 'sum' && f.v0 > 0) { d = ((f.v - f.v0) / f.v0) * 100; txt = `${Math.abs(d).toFixed(Math.abs(d) < 10 ? 1 : 0)}%`; }
     else if (f.s.format === 'pct') { d = (f.v - f.v0) * 100; txt = `${Math.abs(d).toFixed(1)} pp`; }
     else { d = f.v - f.v0; txt = fmtValue(Math.abs(d), lens); }
-    if (Math.abs(d) > 1e-9) delta = `<div class="fd"><span class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${txt}</span> since ${f.first}</div>`;
+    if (Math.abs(d) > 1e-9) delta = `<div class="fd"><span class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${txt}</span> since ${periodLabel(f.first)}</div>`;
   }
   const dens = f.s.density && area && f.v != null ? `<div class="fd">${fmtValue(f.v / area, { ...lens, density: true, format: 'dec2' })} per km²</div>` : '';
   const unitTxt = f.s.unit && !['people', 'POIs'].includes(f.s.unit) && f.s.format !== 'inr' && f.s.format !== 'pct' ? `<small>${esc(f.s.unit)}</small>` : '';
   return `<button class="fig${st.var === f.s.id ? ' on' : ''}" data-var="${f.s.id}" title="Colour the map by ${esc(f.s.label)}">
-    <div class="fl">${esc(f.s.label)}${f.last ? ` · ${f.last}` : ''}</div>
+    <div class="fl">${esc(f.s.label)}${f.last ? ` · ${periodLabel(f.last)}` : ''}</div>
     <div class="fv">${f.s.agg === 'sum' && f.v >= 1e5 ? compact(f.v) : fmtValue(f.v, lens)}${unitTxt}</div>${delta || dens}</button>`;
 }
 
@@ -317,7 +317,7 @@ async function hexBand(st) {
   if (info.d >= 0) links.push(`<span>District</span><button data-sel="district:${info.d}">${esc(U().district[info.d].name)}</button>`);
   const figs = info.figs.map(({ s, v, year }) => {
     const lens = lensOf({ ...st, var: s.id, mode: 'value', density: false, year });
-    return `<button class="fig${st.var === s.id ? ' on' : ''}" data-var="${s.id}"><div class="fl">${esc(s.label)}${year ? ` · ${year}` : ''}</div>
+    return `<button class="fig${st.var === s.id ? ' on' : ''}" data-var="${s.id}"><div class="fl">${esc(s.label)}${year ? ` · ${periodLabel(year)}` : ''}</div>
       <div class="fv">${fmtValue(v, lens)}</div>${s.density && Number.isFinite(v) ? `<div class="fd">${fmtValue(v / info.area, { ...lens, density: true, format: 'dec2' })} per km²</div>` : ''}</button>`;
   }).join('');
   return `<section class="band"><button class="icon close" data-act="closehex" title="Close">${ICON.x}</button>
@@ -344,7 +344,7 @@ async function compareTable(st) {
   const body = rows.map(({ s, y, vals }) => {
     const lens = lensOf({ ...st, var: s.id, mode: 'value', density: false });
     const best = Math.max(...vals.filter(Number.isFinite));
-    return `<tr><td>${esc(s.label)}${y ? ` <span style="color:var(--ink-3)">${y}</span>` : ''}</td>${vals.map((v) => `<td class="${v === best && pins.length > 1 ? 'best' : ''}">${fmtValue(v, lens, { short: true })}</td>`).join('')}</tr>`;
+    return `<tr><td>${esc(s.label)}${y ? ` <span style="color:var(--ink-3)">${periodLabel(y)}</span>` : ''}</td>${vals.map((v) => `<td class="${v === best && pins.length > 1 ? 'best' : ''}">${fmtValue(v, lens, { short: true })}</td>`).join('')}</tr>`;
   }).join('');
   return `<div class="kicker">Side by side</div><h1 class="title small">Pinned places</h1>
     <table class="ctable"><thead><tr><th></th>${head}</tr></thead><tbody>${body}</tbody></table>

@@ -143,10 +143,14 @@ class SeriesReader:
         path = self.cfg.hex_file(series.file, self.res)
         col = series.cols[year]
         if series.pivot:
-            seg, c = col
-            r = duckdb.sql(f"SELECT h3_index, {c} AS v FROM '{path}' WHERE {series.pivot} = '{seg}'").fetchnumpy()
+            seg, c = col[0], col[1]
+            where = f"{series.pivot} = '{seg}'"
+            if series.period:  # long over time too: one period per read
+                where += "".join(f" AND {name} = " + (f"'{val}'" if isinstance(val, str) else f"{val}") for name, val in zip(series.period, col[2]))
+            r = duckdb.sql(f"SELECT h3_index, {c} AS v FROM '{path}' WHERE {where}").fetchnumpy()
             pos = self.al.positions(h3_to_u64(r["h3_index"]))
-            vals = np.asarray(r["v"], dtype="float64")
+            vals = r["v"]  # NULLs arrive masked: keep them missing (NaN), never as numbers
+            vals = np.ma.filled(vals.astype("float64"), np.nan) if np.ma.isMaskedArray(vals) else np.asarray(vals, dtype="float64")
         else:
             pos = self._positions(path)
             vals = duckdb.sql(f"SELECT {col} AS v FROM '{path}'").fetchnumpy()["v"]

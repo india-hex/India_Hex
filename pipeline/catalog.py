@@ -29,6 +29,7 @@ class Series:
     file: str                       # template relative to processed/h{res}/
     cols: dict                      # year (int) or None -> source column (or (segment, column) when pivoted)
     pivot: str | None = None
+    period: list | None = None      # long table over time: columns that identify the period
     fill_missing: float | None = None
     label: str = ""
     unit: str = ""
@@ -56,7 +57,7 @@ class Series:
 
     def to_client(self):
         d = asdict(self)
-        d.pop("cols"), d.pop("file"), d.pop("pivot"), d.pop("fill_missing"), d.pop("dataset")
+        d.pop("cols"), d.pop("file"), d.pop("pivot"), d.pop("fill_missing"), d.pop("dataset"), d.pop("period")
         d["years"] = self.years
         d["res_years"] = {str(r): ys for r, ys in self.res_years.items()}
         return d
@@ -159,10 +160,19 @@ def discover(cfg, verbose=False):
         if "h3_index" not in allcols:
             continue
         pivot = ds.get("pivot")
+        period = ds.get("period")
         if pivot:
             segs = ds.get("segments") or [r[0] for r in con.sql(
                 f"SELECT DISTINCT {pivot} FROM '{res_paths[8]}' ORDER BY 1").fetchall()]
-            groups = {f"{s}_{c}": {None: (s, c)} for s in segs for c in cols}
+            if period:
+                # one row per cell, segment and period: each period becomes a "year" of the series.
+                # A date column ('YYYY-MM-DD') is coded YYYYMM (202603 = Mar 2026); a number stays as is.
+                cols = [c for c in cols if c not in period and c not in (ds.get("ignore") or [])]
+                plist = con.sql(f"SELECT DISTINCT {', '.join(period)} FROM '{res_paths[8]}' ORDER BY ALL").fetchall()
+                code = lambda p: int(p[0][:4]) * 100 + int(p[0][5:7]) if isinstance(p[0], str) else int(p[0])
+                groups = {f"{s}_{c}": {code(p): (s, c, tuple(p)) for p in plist} for s in segs for c in cols}
+            else:
+                groups = {f"{s}_{c}": {None: (s, c)} for s in segs for c in cols}
         else:
             if ds.get("auto"):
                 p6 = res_paths.get(min(res_paths))
@@ -173,12 +183,12 @@ def discover(cfg, verbose=False):
                     continue
             groups = _group_years(cols)
         for sid, colmap in groups.items():
-            if _excluded(sid, excl) or any(_excluded(c if isinstance(c, str) else "_".join(c), excl) for c in colmap.values()):
+            if _excluded(sid, excl) or any(_excluded(c if isinstance(c, str) else "_".join(c[:2]), excl) for c in colmap.values()):
                 continue
             uid = sid if sid not in seen else f"{ds_id}_{sid}"
             seen.add(uid)
             s = Series(id=uid, dataset=ds_id, group=ds.get("group", "Other"), file=ds["file"], cols=colmap,
-                       pivot=pivot, fill_missing=ds.get("fill_missing"))
+                       pivot=pivot, period=period, fill_missing=ds.get("fill_missing"))
             _infer(s)
             for k, v in (overrides.get(uid) or overrides.get(sid) or {}).items():
                 setattr(s, k, v)

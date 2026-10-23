@@ -208,6 +208,13 @@ variables:
       group: Property
       pivot: segment         # long table: one column per segment, named <segment>_<column>
       segments: [residential_buy, residential_rent, commercial_buy, commercial_rent]
+    property_quarterly:
+      file: "property/h{res}_property_quarterly_panel_2021_2026.parquet"
+      group: Property
+      pivot: segment
+      segments: [residential_buy, residential_rent]
+      period: [date]           # one row per cell, segment and date -> a time series (Jan 2021 ... Mar 2026)
+      ignore: [year, quarter]  # restate the date; not variables
 
   # Any other parquet under processed/h{res}/**/ is picked up automatically (its folder name
   # becomes the group). These files are skipped: point-level tables, previews, and copies.
@@ -221,6 +228,9 @@ variables:
     - "*cloud_nodata*"
     - "*_p25_*"
     - "*_p75_*"
+    - "*_p25"
+    - "*_p75"
+    - "*n_localities*"
     - "*listings_approx_location*"
     - "*listings_used*"
     - "*distinct_locations*"
@@ -301,6 +311,8 @@ variables:
     commercial_buy_rate_median_inr_per_sqft:   {label: Commercial sale rate, unit: ₹/sqft, ramp: viridis, format: inr, agg: median, density: false}
     commercial_buy_price_median_inr:           {label: Commercial sale price, unit: ₹, ramp: viridis, format: inr, agg: median, density: false}
     commercial_rent_price_median_inr:          {label: Commercial rent, unit: ₹/month, ramp: viridis, format: inr, agg: median, density: false}
+    residential_buy_locality_price_median:     {label: Locality sale rate (quarterly), unit: ₹/sqft, ramp: viridis, format: inr, agg: median, density: false, note: "Housing.com locality average asking price per sq ft, quarterly 2021–2025 then monthly in 2026; Mumbai, Pune, Bengaluru, Gurugram, Ahmedabad, Hyderabad, Chennai, Kolkata"}
+    residential_rent_locality_price_median:    {label: Locality rent (quarterly), unit: ₹/month, ramp: viridis, format: inr, agg: median, density: false, note: "Housing.com locality average monthly rent, quarterly 2021–2025 then monthly in 2026; same eight cities"}
 
 # --------------------------------------------------------------------------------------------
 # Features: switch any off to remove it from the UI entirely.

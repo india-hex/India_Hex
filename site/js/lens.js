@@ -2,6 +2,7 @@
 // between years, per km²). Hex and unit numbers are both computed through it, so every view,
 // legend, ranking and tooltip agrees.
 import * as HX from './data/hexstore.js';
+import { periodLabel } from './scales.js';
 import { rawUnitValues } from './data/units.js';
 
 let CFG = null;
@@ -39,7 +40,7 @@ export function lensOf(st, over = {}) {
   return {
     id: s.id, series: s, label: s.label, note: s.note, group: s.group, years, year, from, mode, density,
     pctChange, diverging, ramp: s.ramp, format: density ? 'dec2' : s.format, agg: s.agg, unitLabel,
-    title: `${s.label}${density ? ' per km²' : ''}${mode === 'change' ? `, change ${from}–${year}` : year ? `, ${year}` : ''}`,
+    title: `${s.label}${density ? ' per km²' : ''}${mode === 'change' ? `, change ${periodLabel(from)}–${periodLabel(year)}` : year ? `, ${periodLabel(year)}` : ''}`,
   };
 }
 

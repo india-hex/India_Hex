@@ -4,7 +4,7 @@
 //   tools      (right)      zoom, home, find me, compass, 3D, compare, export, full screen
 //   bases      (bottom-left) Map / Satellite / Terrain tabs + a Labels popover
 //   compare bar              what the right side of a swipe compare shows
-import { esc, legendNum } from '../scales.js';
+import { esc, legendNum, periodLabel } from '../scales.js';
 import { lensOf, allSeries, seriesById } from '../lens.js';
 
 let CTX = null;
@@ -227,7 +227,7 @@ function renderPickerList() {
   const featured = CTX.cfg.featured.map(seriesById).filter((s) => s && items.includes(s));
   const groups = {};
   for (const s of items) if (!featured.includes(s) || q) (groups[s.group] ||= []).push(s);
-  const btn = (s) => `<button data-k="var" data-v="${s.id}" class="${st.var === s.id ? 'on' : ''}">${esc(s.label)}<small>${s.years.length > 1 ? `${s.years[0]}–${s.years[s.years.length - 1]}` : s.years[0] || ''}</small></button>`;
+  const btn = (s) => `<button data-k="var" data-v="${s.id}" class="${st.var === s.id ? 'on' : ''}">${esc(s.label)}<small>${s.years.length > 1 ? `${periodLabel(s.years[0])}–${periodLabel(s.years[s.years.length - 1])}` : periodLabel(s.years[0])}</small></button>`;
   el.innerHTML = `${!q ? `<button data-k="var" data-v="none" class="${st.var === 'none' ? 'on' : ''}">None (boundaries only)</button>` : ''}
     ${featured.length && !q ? `<div class="g">Featured</div>${featured.map(btn).join('')}` : ''}
     ${Object.entries(groups).map(([g, ss]) => `<div class="g">${esc(g)}</div>${ss.map(btn).join('')}`).join('')}
@@ -245,7 +245,7 @@ export function legendHTML() {
   const full = `${lens.title}${lens.unitLabel ? ` (${lens.unitLabel})` : ''}. ${sc.rel ? `Breaks relative to ${scopeLabel}` : 'All-India breaks'}.${lens.note ? ` ${lens.note}.` : ''}`;
   return `<div class="ramp">${sc.colors.map((c) => `<i style="background:${c}"></i>`).join('')}</div>
     <div class="ticks"><span></span>${sc.breaks.map((b) => `<span>${esc(legendNum(b, lens))}</span>`).join('')}<span></span></div>
-    <div class="lnote" title="${esc(full)}">${esc(lens.unitLabel || '')}${lens.year ? ` · ${lens.mode === 'change' ? `${lens.from}–${lens.year}` : lens.year}` : ''}${sc.rel ? ` · relative to ${esc(scopeLabel)}` : ' · All-India'}${part}</div>`;
+    <div class="lnote" title="${esc(full)}">${esc(lens.unitLabel || '')}${lens.year ? ` · ${lens.mode === 'change' ? `${periodLabel(lens.from)}–${periodLabel(lens.year)}` : periodLabel(lens.year)}` : ''}${sc.rel ? ` · relative to ${esc(scopeLabel)}` : ' · All-India'}${part}</div>`;
 }
 
 export function updateLegend() {
@@ -300,7 +300,7 @@ export function renderTimeline() {
     <div class="years">${lens.years.map((y) => {
     let cls = y === lens.year ? 'on' : '';
     if (lens.mode === 'change') { if (y === lens.from) cls = 'from'; else if (y > lens.from && y < lens.year) cls = 'span'; }
-    return `<button data-year="${y}" class="${cls}" ${lens.mode === 'change' && y < lens.year ? 'title="Set as the start year"' : ''}>${y}</button>`;
+    return `<button data-year="${y}" class="${cls}" ${lens.mode === 'change' && y < lens.year ? 'title="Set as the start"' : ''}>${periodLabel(y, true)}</button>`;
   }).join('')}</div>`;
   el.querySelector('.years .on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
@@ -334,7 +334,7 @@ function renderCompareBar() {
   const lens = lensOf(st);
   const kinds = [['year', 'Year', lens.years.length >= 2], ['variable', 'Variable', true], ['basemap', 'Map style', true]];
   let opts = '';
-  if (st.compare.kind === 'year') opts = lens.years.map((y) => `<option value="${y}" ${String(y) === st.compare.value ? 'selected' : ''}>${y}</option>`).join('');
+  if (st.compare.kind === 'year') opts = lens.years.map((y) => `<option value="${y}" ${String(y) === st.compare.value ? 'selected' : ''}>${periodLabel(y)}</option>`).join('');
   else if (st.compare.kind === 'basemap') opts = visibleBasemaps().map((b) => `<option value="${b.id}" ${b.id === st.compare.value ? 'selected' : ''}>${esc(b.label)}</option>`).join('');
   else opts = allSeries().map((s) => `<option value="${s.id}" ${s.id === st.compare.value ? 'selected' : ''}>${esc(s.label)}</option>`).join('');
   bar.innerHTML = `<span>Right side</span>

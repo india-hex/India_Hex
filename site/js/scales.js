@@ -144,4 +144,13 @@ export function legendNum(v, lens) {
   return v.toFixed(a >= 0.1 ? 2 : 3).replace(/^(-?)0\./, '$1.');
 }
 
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** A series' time step for display: a year (2025) or a month coded YYYYMM (202603 -> Mar 2026, short: Mar '26). */
+export function periodLabel(p, short = false) {
+  if (p == null) return '';
+  if (p < 100000) return String(p);
+  const y = Math.floor(p / 100);
+  return `${MON[(p % 100) - 1]} ${short ? `'${String(y).slice(2)}` : y}`;
+}
+
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

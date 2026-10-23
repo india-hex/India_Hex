@@ -23,7 +23,7 @@ constituency, district or state are aggregated from its H8 hexagons.
 
 ## Data
 
-53 variables, many of them yearly:
+55 variables, many of them yearly:
 
 - **People:** population, 2010–2030 (2025 and 2030 are projections).
 - **Economy:** night-time lights, 2012–2025.
@@ -33,7 +33,9 @@ constituency, district or state are aggregated from its H8 hexagons.
 - **Forest:** forest cover, forest loss, tree canopy and permanent water, 2012–2025.
 - **Commerce:** points of interest in 16 categories (retail, food, finance, health, education,
   transport and more).
-- **Property:** median sale and rent prices and listing counts, residential and commercial.
+- **Property:** median sale and rent prices and listing counts, residential and commercial; and
+  locality sale rates and rents from Housing.com, quarterly from 2021 (monthly in 2026), for Mumbai,
+  Pune, Bengaluru, Gurugram, Ahmedabad, Hyderabad, Chennai and Kolkata.
 
 Sources: GHSL (population, built-up), NASA Black Marble (night lights), Esri 10 m Land Cover,
 Hansen Global Forest Change, OpenStreetMap (POIs, industrial land) and property listing portals.

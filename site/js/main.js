@@ -10,7 +10,7 @@ import { loadUnits, units, unit, LEVEL_FIELD } from './data/units.js';
 import { initLens, lensOf, hexValues, unitValues, resAvailable, indiaBreaks, seriesById } from './lens.js';
 import { MapView } from './map/view.js';
 import { loadVectorStyle } from './map/overlays.js';
-import { rampFor, scaleFromValues, spread, colourOf, position, rgba, fmtValue } from './scales.js';
+import { rampFor, scaleFromValues, spread, colourOf, position, rgba, fmtValue, periodLabel } from './scales.js';
 import { initPanel, renderPanel } from './ui/panel.js';
 import { initControls, renderLens, updateLegend, renderTimeline, defaultCompareValue } from './ui/controls.js';
 import { initSearch } from './ui/search.js';
@@ -158,7 +158,7 @@ async function updateCells() {
   const lens = lensOf(st);
   const useView = st.scope === 'view' || !st.sel;
   let res; let cs = null;
-  const fallback = (r) => { let x = r; while (x > cfg.hex.resolutions[0] && !resAvailable(lens, x)) x--; if (x !== r) rt.notice = `${lens.label}${lens.year ? ` ${lens.year}` : ''} is published down to H${x}`; return x; };
+  const fallback = (r) => { let x = r; while (x > cfg.hex.resolutions[0] && !resAvailable(lens, x)) x--; if (x !== r) rt.notice = `${lens.label}${lens.year ? ` ${periodLabel(lens.year)}` : ''} is published down to H${x}`; return x; };
   const viewRes = useView ? (st.res === 'auto' ? autoResForView() : st.res) : null;
   if (useView && viewRes == null) rt.notice = 'zoom in for hexagons';
   if (useView && viewRes != null) {
@@ -477,7 +477,7 @@ ctx.act = {
         rows.map((r, i) => [i + 1, r.u.name, r.u.no ?? '', U.state[r.u.st]?.name ?? r.u.name, r.u.key, Number.isFinite(r.v) ? r.v : ''])));
     } else if (action === 'csvcompare' && rt.compareRows) {
       const { pins: ps, rows } = rt.compareRows;
-      EX().then((m) => m.csv('pinned_places', ['variable', 'year', ...ps.map((p) => unit(p).name)], rows.map((r) => [r.s.label, r.y ?? '', ...r.vals.map((v) => v ?? '')])));
+      EX().then((m) => m.csv('pinned_places', ['variable', 'year', ...ps.map((p) => unit(p).name)], rows.map((r) => [r.s.label, periodLabel(r.y), ...r.vals.map((v) => v ?? '')])));
     } else if (action === 'geojson') downloadHexes();
   },
 };
