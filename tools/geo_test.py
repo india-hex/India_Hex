@@ -32,7 +32,7 @@ with sync_playwright() as p:
     pg = b.new_page()
     pg.goto(BASE + "manifest.webmanifest")
     r = pg.evaluate("""async ([d, a, s]) => {
-        const g = await import('/js/ui/geo.js');
+        const g = await import(new URL('js/ui/geo.js', location.href).href); // works under a sub-path (GitHub Pages)
         return {
           d: d.map(([n, p, q]) => g.distance(p, q)),
           a: a.map(([n, ring]) => g.ringArea(ring)),
