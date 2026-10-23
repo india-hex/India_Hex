@@ -63,8 +63,6 @@ let pins = [];
 try { pins = JSON.parse(localStorage.getItem('indiahex.pins') || '[]'); } catch { /* private mode */ }
 let theme = D.theme || 'light';
 try { theme = localStorage.getItem('indiahex.theme') || theme; } catch { /* ignore */ }
-let coordMode = 'dms';
-try { coordMode = localStorage.getItem('indiahex.coords') === 'dec' ? 'dec' : 'dms'; } catch { /* ignore */ }
 
 let sel0 = null;
 if (hash.sel) {
@@ -73,7 +71,7 @@ if (hash.sel) {
 }
 const S = createStore({
   ...DEFAULTS, ...hash, sel: sel0,
-  here: null, measuring: false, coordMode,
+  here: null, measuring: false,
   opacity: D.opacity ?? 0.72, theme, mask: !!D.dim_outside_selection, labels: true, stateLines: true, hexLines: true, lineScale: 1, cbSafe: false,
   pinned: pins, panel: 'place', tab: 'ac', filter: '', limit: 50, comparePos: 0.5,
 });
@@ -702,7 +700,7 @@ S.on(['compare'], async (st, prev) => {
 });
 S.on(['comparePos'], positionSwipe);
 S.on(['pinned'], (st) => { try { localStorage.setItem('indiahex.pins', JSON.stringify(st.pinned)); } catch { /* ignore */ } });
-S.on(['sel', 'hex', 'panel', 'tab', 'filter', 'limit', 'pinned', 'level', 'coordMode'], () => renderPanel());
+S.on(['sel', 'hex', 'panel', 'tab', 'filter', 'limit', 'pinned', 'level'], () => renderPanel());
 S.on(['measuring'], (st) => {
   if (!st.measuring) return;
   $('#tip').hidden = true;

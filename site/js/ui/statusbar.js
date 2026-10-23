@@ -1,12 +1,12 @@
-// Status bar (bottom right): scale bar, camera height and the coordinates under the pointer.
-// Click the coordinates to switch DMS / decimal (kept in the store as coordMode); double-click to copy.
-import { distance, fmtDMS, fmtDec, plainLatLng } from './geo.js';
+// Status bar (bottom right): scale bar, camera height and the coordinates under the pointer, in
+// decimal degrees. Click the coordinates to copy them.
+import { distance, fmtDec, plainLatLng } from './geo.js';
 
 const SCALE_PX = 110;
 const touch = () => window.matchMedia('(hover: none)').matches;
 
-/** Coordinates in the user's chosen format (used by the sidebar cards too). */
-export const fmtCoord = (mode, lng, lat) => (mode === 'dec' ? fmtDec(lng, lat) : fmtDMS(lng, lat));
+/** Coordinates as shown everywhere on the site: decimal degrees (used by the sidebar cards too). */
+export const fmtCoord = (lng, lat) => fmtDec(lng, lat);
 
 /** Largest 1, 2 or 5 × 10ⁿ metres that is ≤ m. */
 function niceLength(m) {
@@ -18,14 +18,14 @@ function niceLength(m) {
 const grouped = (v) => v.toLocaleString('en-IN');
 
 export function initStatusBar(ctx) {
-  const { S, cfg, view } = ctx;
+  const { cfg, view } = ctx;
   const el = document.getElementById('statusbar');
   if (!cfg.features.coordinates) { el.hidden = true; return; }
   el.hidden = false;
   el.innerHTML = `
     <span class="sb-scale" title="Scale at the bottom of the view"><span class="sb-bar"></span><span class="sb-lbl"></span></span>
     <span class="sb-cam" title="Approximate height of the viewpoint above the ground"></span>
-    <button class="sb-coord" type="button" title="Click: switch degrees-minutes-seconds / decimal · Double-click: copy latitude, longitude"></button>`;
+    <button class="sb-coord" type="button" title="Click to copy latitude, longitude"></button>`;
   const bar = el.querySelector('.sb-bar');
   const lbl = el.querySelector('.sb-lbl');
   const cam = el.querySelector('.sb-cam');
@@ -37,7 +37,7 @@ export function initStatusBar(ctx) {
   const showCoord = () => {
     const c = pointer && !touch() ? pointer : m.getCenter().toArray();
     shown = c;
-    coord.textContent = fmtCoord(S.get().coordMode, c[0], c[1]);
+    coord.textContent = fmtCoord(c[0], c[1]);
     el.classList.toggle('dim', !pointer && !touch());
   };
 
@@ -70,24 +70,13 @@ export function initStatusBar(ctx) {
   m.on('move', () => schedule(() => { showScaleAndCamera(); if (!pointer || touch()) showCoord(); }));
   m.on('resize', () => { showScaleAndCamera(); showCoord(); });
 
-  // click switches the format; a double-click copies instead (the pending switch is cancelled)
-  let clickTimer = 0;
   coord.addEventListener('click', () => {
-    clearTimeout(clickTimer);
-    clickTimer = setTimeout(() => S.set({ coordMode: S.get().coordMode === 'dec' ? 'dms' : 'dec' }), 260);
-  });
-  coord.addEventListener('dblclick', (e) => {
-    e.preventDefault();
-    clearTimeout(clickTimer);
     if (!shown) return;
     const text = plainLatLng(shown[0], shown[1]);
     const done = () => ctx.act.toast(`Copied ${text}`, { ttl: 2000 });
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => ctx.act.toast("Couldn't copy to the clipboard", { ttl: 2500 }));
   });
-  S.on(['coordMode'], (st) => {
-    showCoord();
-    try { localStorage.setItem('indiahex.coords', st.coordMode); } catch { /* private mode */ }
-  });
+  try { localStorage.removeItem('indiahex.coords'); } catch { /* the old format switch is gone */ }
 
   showScaleAndCamera();
   showCoord();

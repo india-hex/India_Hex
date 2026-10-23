@@ -1,7 +1,7 @@
 """Interaction test for the status bar and the ruler (headless Chrome).
 
 usage: python tools/ruler_test.py [base_url] [out_dir]      default http://127.0.0.1:$PORT/ , design/frames
-Checks: coordinates on hover + DMS/decimal switch, a 3-point path finished by double-click, a closed
+Checks: decimal coordinates on hover + click to copy, a 3-point path finished by double-click, a closed
 shape (area + perimeter), Backspace / Esc, hover back after Done, ruler surviving basemap switches,
 card on one line (desktop) and clear of the bottom sheet (phone), no console errors.
 """
@@ -50,12 +50,14 @@ def desktop(b):
     # status bar
     pg.mouse.move(900, 450); pg.mouse.move(905, 452); pg.wait_for_timeout(400)
     sb = pg.evaluate("() => ({ t: document.querySelector('.sb-coord').innerText, dim: document.querySelector('#statusbar').classList.contains('dim'), scale: document.querySelector('.sb-lbl').innerText, cam: document.querySelector('.sb-cam').innerText })")
-    check("coordinates under the pointer (DMS)", "°" in sb["t"] and "′" in sb["t"] and not sb["dim"], sb["t"])
+    check("coordinates under the pointer, decimal only", "°" in sb["t"] and "′" not in sb["t"] and "″" not in sb["t"] and not sb["dim"], sb["t"])
     check("scale bar and camera height", bool(sb["scale"]) and sb["cam"].startswith("Camera:"), f"{sb['scale']} · {sb['cam']}")
-    pg.click(".sb-coord"); pg.wait_for_timeout(500)
-    dec = pg.evaluate("() => document.querySelector('.sb-coord').innerText")
-    check("click switches to decimal", "′" not in dec and "° N" in dec, dec)
-    pg.click(".sb-coord"); pg.wait_for_timeout(500)
+    pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
+    pg.click(".sb-coord"); pg.wait_for_timeout(600)
+    toast = pg.evaluate("() => document.querySelector('#toast').innerText")
+    check("click copies lat, lng", toast.startswith("Copied ") and "°" not in toast, toast)
+    still = pg.evaluate("() => document.querySelector('.sb-coord').innerText")
+    check("still decimal after a click", "′" not in still and "° N" in still, still)
     pg.mouse.move(1500, 880); pg.mouse.move(380, 450); pg.wait_for_timeout(300)  # leave the canvas
     check("pointer off the map: centre shown dimmed", pg.evaluate("() => document.querySelector('#statusbar').classList.contains('dim')"))
     ov = pg.evaluate("""() => { const a = document.querySelector('#statusbar').getBoundingClientRect(); const b = document.querySelector('.maplibregl-ctrl-attrib').getBoundingClientRect();

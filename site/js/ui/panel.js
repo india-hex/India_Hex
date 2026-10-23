@@ -305,7 +305,7 @@ function coordLine(st, info) {
   const here = h3IsHere(st);
   const [lng, lat] = here ? [st.here.lng, st.here.lat] : [info.lng, info.lat];
   return `<button class="coordline" data-act="copycoord" data-lat="${lat}" data-lng="${lng}" title="Copy latitude, longitude">
-    ${esc(fmtCoord(st.coordMode, lng, lat))}<small>${here ? 'your position' : 'centre'}</small></button>`;
+    ${esc(fmtCoord(lng, lat))}<small>${here ? 'your position' : 'centre'}</small></button>`;
 }
 
 async function hexBand(st) {

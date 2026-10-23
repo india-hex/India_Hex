@@ -146,19 +146,6 @@ export function fmtArea(m2) {
   return `${num(km2, km2 < 100 ? 2 : 0)} km²`;
 }
 
-function dmsPart(v, pos, neg) {
-  const a = Math.abs(v);
-  let d = Math.floor(a);
-  let m = Math.floor((a - d) * 60);
-  let s = Math.round(((a - d) * 60 - m) * 60 * 100) / 100;
-  if (s >= 60) { s = 0; m += 1; } // 59.995″ rounds up to the next minute
-  if (m >= 60) { m = 0; d += 1; }
-  return `${d}°${String(m).padStart(2, '0')}′${s.toFixed(2).padStart(5, '0')}″${v < 0 ? neg : pos}`;
-}
-
-/** 12°58′31.34″N 77°37′51.44″E (latitude first) */
-export const fmtDMS = (lng, lat) => `${dmsPart(lat, 'N', 'S')} ${dmsPart(lng, 'E', 'W')}`;
-
 /** 12.975372° N, 77.630956° E */
 export const fmtDec = (lng, lat) => `${Math.abs(lat).toFixed(6)}° ${lat < 0 ? 'S' : 'N'}, ${Math.abs(lng).toFixed(6)}° ${lng < 0 ? 'W' : 'E'}`;
 

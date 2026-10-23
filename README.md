@@ -57,7 +57,7 @@ Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
   buildings toggled on or off.
 - **Find me:** your position, the H8 and H7 hexagons you're in, and their AC, PC and district.
 - **Read the status bar:** a scale bar, the camera's height, and the latitude and longitude under the
-  pointer (click to switch degrees-minutes-seconds and decimal; double-click to copy).
+  pointer in decimal degrees (click to copy).
 - **Measure** the length of a path, or the area and perimeter of a shape, along the Earth's surface
   (WGS84).
 - **Export** the map as PNG, rankings as CSV, or hexagons as GeoJSON.
