@@ -23,6 +23,10 @@ class Config(dict):
     def boundary_path(self, name) -> Path:
         return self.src_root / self["source"]["boundaries"][name]
 
+    @property
+    def ac_patch_paths(self):
+        return [self.src_root / p for p in self["source"]["boundaries"].get("ac_patches") or []]
+
     def hex_file(self, template, res) -> Path:
         return self.processed / f"h{res}" / template.format(res=res)
 

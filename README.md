@@ -13,7 +13,7 @@ or phone.
 | States and union territories | 36 |
 | Districts (LGD) | 785 |
 | Lok Sabha constituencies | 543 |
-| Assembly constituencies | 4,095 |
+| Assembly constituencies | 4,119 |
 | H6 hexagons (≈36 km² each) | 89,284 |
 | H7 hexagons (≈5.2 km² each) | 624,978 |
 | H8 hexagons (≈0.74 km² each) | 4,374,944 |
@@ -53,8 +53,13 @@ Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
   its constituencies compare.
 - **Compare:** swipe between two years, variables or basemaps, pin places to see them side by side,
   or raise hexagons in 3D.
-- **Switch basemaps and labels:** satellite, streets, terrain, light and dark basemaps, with roads,
-  place names, POIs and buildings toggled on or off.
+- **Switch map styles and labels:** Map, Satellite and Terrain, with roads, place names, POIs and
+  buildings toggled on or off.
+- **Find me:** your position, the H8 and H7 hexagons you're in, and their AC, PC and district.
+- **Read the status bar:** a scale bar, the camera's height, and the latitude and longitude under the
+  pointer (click to switch degrees-minutes-seconds and decimal; double-click to copy).
+- **Measure** the length of a path, or the area and perimeter of a shape, along the Earth's surface
+  (WGS84).
 - **Export** the map as PNG, rankings as CSV, or hexagons as GeoJSON.
 - **Share:** every view has its own link. The site works on phones and can be added to the home
   screen.

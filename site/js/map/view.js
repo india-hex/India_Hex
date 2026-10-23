@@ -266,14 +266,73 @@ export class MapView {
       lineWidthMaxPixels: 1.4,
       getElevation: elev ? (i) => elev[i] : 0,
       elevationScale: 1,
-      pickable: true,
-      autoHighlight: true,
+      pickable: this.pickOn !== false,
+      autoHighlight: this.pickOn !== false,
       highlightColor: [255, 214, 140, 150],
       material: { ambient: 0.55, diffuse: 0.6, shininess: 24, specularColor: [40, 40, 40] },
       updateTriggers: { getFillColor: version, getElevation: version, getLineColor: this.dark },
     };
     this.hexLayerProps = props;
     this.overlay.setProps({ layers: [new deck.H3HexagonLayer(props)] });
+  }
+
+  /** Hexagon picking and hover highlight on/off (off while the ruler owns the pointer). */
+  setPickable(on) {
+    this.pickOn = on;
+    if (!this.hexLayerProps) return;
+    this.hexLayerProps = { ...this.hexLayerProps, pickable: on, autoHighlight: on };
+    this.overlay.setProps({ layers: [new deck.H3HexagonLayer(this.hexLayerProps)] });
+  }
+
+  // ---- ruler ------------------------------------------------------------------------------------
+  /**
+   * Ruler layers, added last so they draw above everything. Basemap switches only swap the bm-
+   * and bmv- layers below the anchors, so these survive them.
+   */
+  initMeasureLayers() {
+    const m = this.map;
+    if (m.getSource('measure')) return;
+    const AMBER = '#f5a524';
+    const k = (v) => ['==', ['get', 'k'], v];
+    m.addSource('measure', { type: 'geojson', data: EMPTY });
+    m.addLayer({ id: 'ms-fill', type: 'fill', source: 'measure', filter: k('fill'), paint: { 'fill-color': AMBER, 'fill-opacity': 0.22 } });
+    m.addLayer({ id: 'ms-casing', type: 'line', source: 'measure', filter: k('line'), layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': 'rgba(0,0,0,0.55)', 'line-width': 5 } });
+    m.addLayer({ id: 'ms-line', type: 'line', source: 'measure', filter: k('line'), layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': AMBER, 'line-width': 2.5 } });
+    m.addLayer({ id: 'ms-live', type: 'line', source: 'measure', filter: k('live'), paint: { 'line-color': AMBER, 'line-width': 2, 'line-dasharray': [2, 1.6] } });
+    m.addLayer({
+      id: 'ms-pts', type: 'circle', source: 'measure', filter: k('pt'),
+      paint: { 'circle-radius': ['case', ['get', 'first'], 6, 4.5], 'circle-color': '#ffffff', 'circle-stroke-color': AMBER, 'circle-stroke-width': 2 },
+    });
+    m.addLayer({
+      id: 'ms-lbl', type: 'symbol', source: 'measure', filter: k('lbl'),
+      layout: {
+        'text-field': ['get', 't'],
+        // a font the style's glyph server actually serves (OpenFreeMap has no "Medium")
+        'text-font': [this.vs ? 'Noto Sans Bold' : 'Noto Sans Medium'],
+        'text-size': 12, 'text-allow-overlap': true, 'text-ignore-placement': true,
+        'text-anchor': ['get', 'anc'], 'text-offset': ['get', 'off'],
+      },
+      paint: { 'text-color': '#ffffff', 'text-halo-color': 'rgba(0,0,0,0.85)', 'text-halo-width': 1.6 },
+    });
+  }
+
+  setMeasure(fc) { this.map.getSource('measure')?.setData(fc || EMPTY); }
+
+  /**
+   * Show only the compact "i" attribution button (it expands on click) so the status bar fits
+   * beside it. MapLibre expands it itself once the first source attributions arrive, so this waits
+   * for that moment, collapses it once, and then leaves the user's own clicks alone.
+   */
+  collapseAttribution() {
+    const a = this.map.getContainer().querySelector('.maplibregl-ctrl-attrib');
+    if (!a) return;
+    const collapse = () => { a.classList.remove('maplibregl-compact-show'); a.removeAttribute('open'); };
+    if (a.classList.contains('maplibregl-compact-show')) { collapse(); return; }
+    const obs = new MutationObserver(() => {
+      if (a.classList.contains('maplibregl-compact-show')) { obs.disconnect(); collapse(); }
+    });
+    obs.observe(a, { attributes: true, attributeFilter: ['class'] });
+    setTimeout(() => obs.disconnect(), 30000);
   }
 
   /** {hex: index|null, unit: id|null} under a screen point. */

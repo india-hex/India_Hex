@@ -14,6 +14,9 @@ import { rampFor, scaleFromValues, spread, colourOf, position, rgba, fmtValue } 
 import { initPanel, renderPanel } from './ui/panel.js';
 import { initControls, renderLens, updateLegend, renderTimeline, defaultCompareValue } from './ui/controls.js';
 import { initSearch } from './ui/search.js';
+import { initStatusBar } from './ui/statusbar.js';
+import { initMeasure } from './ui/measure.js';
+import { plainLatLng } from './ui/geo.js';
 const EX = () => import('./ui/exporter.js'); // loaded on first export only
 
 const $ = (s) => document.querySelector(s);
@@ -60,6 +63,8 @@ let pins = [];
 try { pins = JSON.parse(localStorage.getItem('indiahex.pins') || '[]'); } catch { /* private mode */ }
 let theme = D.theme || 'light';
 try { theme = localStorage.getItem('indiahex.theme') || theme; } catch { /* ignore */ }
+let coordMode = 'dms';
+try { coordMode = localStorage.getItem('indiahex.coords') === 'dec' ? 'dec' : 'dms'; } catch { /* ignore */ }
 
 let sel0 = null;
 if (hash.sel) {
@@ -68,7 +73,7 @@ if (hash.sel) {
 }
 const S = createStore({
   ...DEFAULTS, ...hash, sel: sel0,
-  here: null,
+  here: null, measuring: false, coordMode,
   opacity: D.opacity ?? 0.72, theme, mask: !!D.dim_outside_selection, labels: true, stateLines: true, hexLines: true, lineScale: 1, cbSafe: false,
   pinned: pins, panel: 'place', tab: 'ac', filter: '', limit: 50, comparePos: 0.5,
 });
@@ -447,6 +452,7 @@ ctx.act = {
       await (await EX()).png(ctx, { title: lens.none ? place : `${place}: ${lens.title}`, subtitle: `${lens.none ? 'Boundaries' : lens.unitLabel || ''}${ctx.cs ? ` · H${ctx.cs.res} hexagons` : ''} · ${new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}` });
       toast('');
     } else if (id === 'locate') locate();
+    else if (id === 'measure') S.set({ measuring: !st.measuring });
     else if (id === 'north') m.easeTo({ bearing: 0, pitch: st.threeD ? (cfg.hex.pitch_3d ?? 52) : 0, duration: 600 });
   },
   run(action, data) {
@@ -454,6 +460,10 @@ ctx.act = {
     if (action === 'zoom' && st.sel) fit(unit(st.sel).bbox);
     else if (action === 'copy') navigator.clipboard?.writeText(location.href).then(() => toast('Link copied', { ttl: 1800 }));
     else if (action === 'copyhex') navigator.clipboard?.writeText(st.hex).then(() => toast('H3 id copied', { ttl: 1800 }));
+    else if (action === 'copycoord') {
+      const text = plainLatLng(+data.lng, +data.lat);
+      navigator.clipboard?.writeText(text).then(() => toast(`Copied ${text}`, { ttl: 2000 }));
+    }
     else if (action === 'closehex') S.set({ hex: null, here: null });
     else if (action === 'more') S.set({ limit: 100000 });
     else if (action === 'pin' && st.sel) {
@@ -541,6 +551,7 @@ function wireMap() {
   const m = view.map;
   m.on('mousemove', (e) => {
     const st = S.get();
+    if (st.measuring) return; // the ruler owns the pointer: no hover, no picking
     const p = view.pick(e.point, st.level);
     if (hoverUnit !== p.unit) { view.setUnitHover(st.level, hoverUnit, false); hoverUnit = p.unit; view.setUnitHover(st.level, hoverUnit, true); }
     m.getCanvas().style.cursor = p.hex != null || p.unit != null ? 'pointer' : '';
@@ -572,6 +583,7 @@ function wireMap() {
 
   m.on('click', (e) => {
     const st = S.get();
+    if (st.measuring) return; // clicks add ruler points instead of selecting
     const p = view.pick(e.point, st.level);
     const inSel = p.hex != null && ctx.cs && (!st.sel || ctx.cs[LEVEL_FIELD[st.sel.level]][p.hex] === st.sel.id);
     if (p.hex != null && inSel) { S.set({ hex: ctx.cs.h[p.hex] }); if (isMobile()) $('#side').classList.remove('peek'); return; }
@@ -690,7 +702,14 @@ S.on(['compare'], async (st, prev) => {
 });
 S.on(['comparePos'], positionSwipe);
 S.on(['pinned'], (st) => { try { localStorage.setItem('indiahex.pins', JSON.stringify(st.pinned)); } catch { /* ignore */ } });
-S.on(['sel', 'hex', 'panel', 'tab', 'filter', 'limit', 'pinned', 'level'], () => renderPanel());
+S.on(['sel', 'hex', 'panel', 'tab', 'filter', 'limit', 'pinned', 'level', 'coordMode'], () => renderPanel());
+S.on(['measuring'], (st) => {
+  if (!st.measuring) return;
+  $('#tip').hidden = true;
+  view.setUnitHover(st.level, hoverUnit, false);
+  hoverUnit = null;
+  view.map.getCanvas().style.cursor = '';
+});
 // your own position (Find me) is never written into shareable links
 S.on(null, (st) => writeHash({ ...st, sel: st.sel ? { level: st.sel.level, key: unit(st.sel).key } : null, view: st.sel || st.here ? null : st.view, hex: st.here ? null : st.hex }, DEFAULTS));
 }
@@ -711,6 +730,9 @@ view.setLabels(U[st0.level], cfg.boundaries.levels[st0.level].label_minzoom, st0
 initPanel(ctx);
 initControls(ctx);
 initSearch(ctx);
+initStatusBar(ctx);
+initMeasure(ctx);
+view.collapseAttribution();
 wireMap();
 wireMenu();
 subscribe();

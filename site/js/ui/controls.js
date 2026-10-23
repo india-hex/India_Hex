@@ -16,6 +16,7 @@ const I = {
   minus: '<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>',
   home: '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>',
   locate: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="7.5"/></svg>',
+  ruler: '<svg viewBox="0 0 24 24"><path d="M3.5 16.5L16.5 3.5l4 4-13 13z"/><path d="M7.5 12.5l1.8 1.8M10 10l2.6 2.6M12.5 7.5l1.8 1.8M15 5l2.6 2.6"/></svg>',
   compass: '<svg viewBox="0 0 24 24"><path d="M12 3l3.5 9h-7z" fill="currentColor" stroke="none" opacity=".9"/><path d="M12 21l-3.5-9h7z"/></svg>',
   three: '<span class="txt">3D</span>',
   compare: '<svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 3v18"/></svg>',
@@ -90,7 +91,8 @@ export function initControls(ctx) {
   const f = cfg.features;
   const groups = [
     [['layers', I.layers, 'Layers'], ['zin', I.plus, 'Zoom in'], ['zout', I.minus, 'Zoom out'], ['north', I.compass, 'Reset north and tilt']],
-    [['home', I.home, 'All of India'], ...(f.locate_me ? [['locate', I.locate, 'Find me']] : [])],
+    [['home', I.home, 'All of India'], ...(f.locate_me ? [['locate', I.locate, 'Find me']] : []),
+      ...(f.measure ? [['measure', I.ruler, 'Measure distance and area']] : [])],
     [...(f.three_d ? [['3d', I.three, '3D hexagons']] : []), ...(f.compare ? [['compare', I.compare, 'Swipe compare']] : []),
       ...(f.export_png ? [['png', I.camera, 'Save map as PNG']] : []), ['full', I.full, 'Full screen']],
   ];
@@ -132,7 +134,7 @@ export function initControls(ctx) {
     if (['level', 'res', 'scope', 'mask', 'labels', 'stateLines', 'hexLines', 'cbSafe', 'theme', 'sel'].some((k) => changed.has(k))) renderLens();
     if (['var', 'year', 'mode', 'from', 'density', 'scale'].some((k) => changed.has(k))) { renderBar(); renderTimeline(); }
     if (['basemap', 'overlays'].some((k) => changed.has(k))) renderBases();
-    if (['threeD', 'compare'].some((k) => changed.has(k))) renderTools();
+    if (['threeD', 'compare', 'measuring'].some((k) => changed.has(k))) renderTools();
     if (['compare', 'var', 'year', 'basemap'].some((k) => changed.has(k))) renderCompareBar();
   });
   renderLens(); renderBar(); renderBases(); renderTimeline(); renderTools(); renderCompareBar();
@@ -284,6 +286,7 @@ function renderTools() {
   const st = CTX.S.get();
   document.querySelectorAll('[data-tool="3d"]').forEach((b) => b.classList.toggle('on', !!st.threeD));
   document.querySelectorAll('[data-tool="compare"]').forEach((b) => b.classList.toggle('on', !!st.compare));
+  document.querySelectorAll('[data-tool="measure"]').forEach((b) => { b.classList.toggle('on', !!st.measuring); b.setAttribute('aria-pressed', String(!!st.measuring)); });
   renderCompass();
 }
 

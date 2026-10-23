@@ -84,7 +84,45 @@ def load_boundaries(cfg):
     ac["geometry"] = shapely.make_valid(ac.geometry.values)
     ac = ac.dissolve(by="ac_key", as_index=False, aggfunc="first")
     ac = ac.rename(columns={"ac_key": "key", "AC_NAME": "name", "AC_NO": "no"})[["key", "name", "no", "geometry"]]
+    for path in cfg.ac_patch_paths:
+        ac = _apply_ac_patch(ac, path, lk)
     return {"state": states, "district": dist, "pc": pc, "ac": ac}
+
+
+def _polygonal(g):
+    parts = [p for p in getattr(g, "geoms", [g]) if p.geom_type in ("Polygon", "MultiPolygon") and not p.is_empty]
+    return shapely.unary_union(parts) if parts else None
+
+
+def _apply_ac_patch(ac, path, lookup):
+    """Cut corrected AC polygons out of the AC map and add them as their own ACs.
+
+    Each patch polygon's state is taken from the old AC polygon under its interior point, and its
+    key from the lookup row with that state and AC number (the lookup holds the official names).
+    """
+    patch = gpd.read_file(path).to_crs(ac.crs)
+    patch["geometry"] = [_polygonal(g) for g in shapely.make_valid(patch.geometry.values)]
+    patch = patch[patch.geometry.notna()].copy()
+    pts = gpd.GeoDataFrame(geometry=patch.geometry.representative_point(), crs=ac.crs)
+    owner = gpd.sjoin(pts, ac[["key", "geometry"]], predicate="within", how="left")["key"]
+    patch["state"] = owner.groupby(level=0).first().str.split("|").str[0].map(norm_state)
+    lk = lookup.assign(st=lookup.State_source.map(norm_state)).set_index(["st", "AC_NO"]).ac_key
+    patch["key"] = [lk.get((s, int(n))) for s, n in zip(patch.state, patch.ac_no)]
+    missing = patch[patch.key.isna()]
+    if len(missing):
+        log(f"  AC patch {path.name}: {len(missing)} polygon(s) with no lookup key skipped:", list(zip(missing.state, missing.ac_no)))
+    patch = patch[patch.key.notna()].dissolve(by="key", as_index=False)
+    cut = shapely.unary_union(patch.geometry.values)
+    rest = ac[~ac.key.isin(patch.key)].copy()
+    rest["geometry"] = [_polygonal(g) for g in shapely.make_valid(shapely.difference(rest.geometry.values, cut))]
+    rest = rest[rest.geometry.notna()]
+    rest = rest[shapely.area(rest.geometry.values) > 1e-10]  # drop slivers left by the cut
+    names = lookup.set_index("ac_key").AC_name
+    patch["name"] = patch.key.map(names)
+    patch["no"] = patch.key.str.split("|").str[1].astype(int)
+    out = gpd.GeoDataFrame(pd.concat([rest, patch[["key", "name", "no", "geometry"]]], ignore_index=True), crs=ac.crs)
+    log(f"  AC patch {path.name}: {len(patch)} ACs replaced or added ({len(set(patch.key) - set(ac.key))} new); {len(out)} ACs in all")
+    return out
 
 
 def _bbox(geom):

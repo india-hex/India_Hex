@@ -4,6 +4,7 @@
 import { esc, fmtValue, compact, rampFor, scaleFromValues, colourOf, legendNum } from '../scales.js';
 import { units, unit, stateName, childrenOf, rawUnitValues } from '../data/units.js';
 import { lensOf, seriesById, unitValues } from '../lens.js';
+import { fmtCoord } from './statusbar.js';
 
 let tok = 0;
 let CTX = null;
@@ -298,6 +299,15 @@ function hero(st) {
     </div>`;
 }
 
+/** The hexagon's centre, or your position after Find me, in the status bar's format; click to copy. */
+function coordLine(st, info) {
+  if (!CTX.cfg.features.coordinates) return '';
+  const here = h3IsHere(st);
+  const [lng, lat] = here ? [st.here.lng, st.here.lat] : [info.lng, info.lat];
+  return `<button class="coordline" data-act="copycoord" data-lat="${lat}" data-lng="${lng}" title="Copy latitude, longitude">
+    ${esc(fmtCoord(st.coordMode, lng, lat))}<small>${here ? 'your position' : 'centre'}</small></button>`;
+}
+
 async function hexBand(st) {
   const info = await CTX.act.hexInfo(st.hex);
   if (!info) return '';
@@ -314,6 +324,7 @@ async function hexBand(st) {
     ${st.here && h3IsHere(st) ? `<div class="kicker"><b>You are here</b> · accurate to ${st.here.acc < 1000 ? `${Math.round(st.here.acc)} m` : `${(st.here.acc / 1000).toFixed(1)} km`}</div>` : ''}
     <div class="kicker">H${info.res} hexagon · ${info.area.toFixed(2)} km² · ${esc(stateName(info.s))}</div>
     <h2 class="title mono">${info.h}</h2><div class="meta">${links.join('')}</div>
+    ${coordLine(st, info)}
     <div class="acts"><button class="icon" data-act="copyhex" title="Copy H3 id">${ICON.link}</button>${googleLinks(info.lng, info.lat, { 6: 11, 7: 13, 8: 15 }[info.res])}</div>
     <div class="figs" style="margin-top:12px">${figs}</div></section>`;
 }

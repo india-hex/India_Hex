@@ -45,7 +45,7 @@ def build(cfg, force=False, only_config=False):
         return series
 
     # ---- units + boundaries (everything downstream keys off unit ids) ------------------------
-    bsrc = [cfg.boundary_path(k) for k in ("ac", "ac_lookup", "pc", "district")]
+    bsrc = [cfg.boundary_path(k) for k in ("ac", "ac_lookup", "pc", "district")] + cfg.ac_patch_paths
     h8_ntl = cfg.hex_file(cfg["variables"]["datasets"]["ntl"]["file"], 8)
     units_sig = obj_sig([file_sig(p) for p in bsrc], file_sig(h8_ntl))
     bnd_sig = obj_sig(units_sig, cfg["boundaries"]["simplify"], cfg["boundaries"]["detail"])

@@ -27,6 +27,10 @@ source:
     ac_lookup: outputs/ntl/ac_lookup.csv
     pc: processed/pc_wgs84.gpkg
     district: processed/district_lgd_wgs84.gpkg
+    # Corrected AC polygons layered over the AC map: each is cut out of the old outlines and added
+    # as its own AC (matched to the lookup by state + AC number). Columns: ac_no (+ any others).
+    ac_patches:
+      - processed/_audit/boundary_fix/new_ac_polygons.gpkg   # 2026-10-20 fix: 27 ACs in Ahmedabad, Surat, Indore
 
 # What the site opens with. Every one of these is also changeable in the UI and kept in the URL.
 defaults:
@@ -315,6 +319,8 @@ features:
   export_geojson: true
   google_links: true        # open the same place in Google Maps / Google Earth
   locate_me: true           # "which constituency am I in"
+  coordinates: true         # status bar: scale bar, camera height, coordinates under the pointer
+  measure: true             # ruler: path length, and area + perimeter of a closed shape
   colourblind_ramps: true   # option to swap every ramp for cividis / PuOr
 
 # --------------------------------------------------------------------------------------------
