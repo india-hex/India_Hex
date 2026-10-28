@@ -3,7 +3,7 @@
 **Live map: https://india-hex.github.io/India_Hex/**
 
 India Hex is an interactive map of India's states, districts, Lok Sabha and Assembly constituencies,
-with economic and land data at three sizes of H3 hexagon. It runs in any modern browser, on desktop
+with economic, land and election data at three sizes of H3 hexagon. It runs in any modern browser, on desktop
 or phone.
 
 ## What's on the map
@@ -19,11 +19,12 @@ or phone.
 | H8 hexagons (≈0.74 km² each) | 4,374,944 |
 
 Each hexagon belongs to the constituency, district and state that contains its centre. Values for a
-constituency, district or state are aggregated from its H8 hexagons.
+constituency, district or state are aggregated from its H8 hexagons, except for elections, where they
+are the official results.
 
 ## Data
 
-55 variables, many of them yearly:
+85 variables, many of them yearly:
 
 - **People:** population, 2010–2030 (2025 and 2030 are projections).
 - **Economy:** night-time lights, 2012–2025.
@@ -36,9 +37,16 @@ constituency, district or state are aggregated from its H8 hexagons.
 - **Property:** median sale and rent prices and listing counts, residential and commercial; and
   locality sale rates and rents from Housing.com, quarterly from 2021 (monthly in 2026), for Mumbai,
   Pune, Bengaluru, Gurugram, Ahmedabad, Hyderabad, Chennai and Kolkata.
+- **Elections:** Karnataka Lok Sabha 2014, 2019 and 2024 and Assembly 2018 and 2023; Bihar Assembly
+  2025. Vote shares of parties and alliances, the margin between the two main sides, turnout, votes,
+  electors and the leading party. Hexagon values are modelled from booth results (Form 20) spread over
+  where voters live; constituency, district and state values are the official results. Karnataka
+  hexagons are left grey where an Assembly constituency's booth data is incomplete.
 
 Sources: GHSL (population, built-up), NASA Black Marble (night lights), Esri 10 m Land Cover,
-Hansen Global Forest Change, OpenStreetMap (POIs, industrial land) and property listing portals.
+Hansen Global Forest Change, OpenStreetMap (POIs, industrial land), property listing portals, and for
+elections the Election Commission of India (results, Form 20), CEO Bihar (Form 20), TCPD Lokdhaba,
+OpenCity and WorldPop.
 Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
 
 ## What you can do
