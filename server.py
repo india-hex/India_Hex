@@ -135,7 +135,7 @@ def list_variables():
             print(f"\n{group}")
         yrs = f"{s.years[0]}–{s.years[-1]} ({len(s.years)})" if s.years else "single"
         res = ",".join(f"H{r}" for r in sorted(s.res_years))
-        print(f"  {s.id:48s} {yrs:16s} {res:10s} {s.agg:6s} {s.label}")
+        print(f"  {s.id:48s} {yrs:16s} {res:10s} {s.dtype:3s} {s.agg:6s} {s.ramp:8s} {s.label}")
     print(f"\n{len(series)} variables. Change labels, years, H8 publishing etc. in india_hex.yaml → variables.")
 
 

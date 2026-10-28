@@ -198,12 +198,12 @@ function renderBar() {
   const f = cfg.features;
   const s = lens.series;
   const chips = [];
-  if (s && s.years.length >= 2 && f.change_mode) {
+  if (s && s.years.length >= 2 && f.change_mode && s.type !== 'categorical') {
     chips.push(`<button class="chip${lens.mode === 'value' ? ' on' : ''}" data-k="mode" data-v="value">Value</button>`);
     chips.push(`<button class="chip${lens.mode === 'change' ? ' on' : ''}" data-k="mode" data-v="change" title="Difference between two years">Change</button>`);
   }
   if (s && s.density && f.density_toggle) chips.push(`<button class="chip${lens.density ? ' on' : ''}" data-k="density" title="Divide by area">Per km²</button>`);
-  if (s) chips.push(`<button class="chip${st.scale === 'india' ? ' on' : ''}" data-k="scale" data-v="${st.scale === 'india' ? 'relative' : 'india'}" title="${st.scale === 'india' ? 'Same colour breaks everywhere in India (click for breaks relative to the view)' : 'Colour breaks relative to the view (click for All-India breaks)'}">${st.scale === 'india' ? 'All-India scale' : 'Relative scale'}</button>`);
+  if (s && !lens.categorical && !lens.fixedBreaks) chips.push(`<button class="chip${st.scale === 'india' ? ' on' : ''}" data-k="scale" data-v="${st.scale === 'india' ? 'relative' : 'india'}" title="${st.scale === 'india' ? 'Same colour breaks everywhere in India (click for breaks relative to the view)' : 'Colour breaks relative to the view (click for All-India breaks)'}">${st.scale === 'india' ? 'All-India scale' : 'Relative scale'}</button>`);
   document.getElementById('lbRow').innerHTML = `
     <button class="var-btn" id="varBtn" aria-haspopup="listbox"><span class="vk">Colour by</span><span class="vv">${esc(s ? s.label : 'Choose a variable')}</span>${I.chev}</button>
     ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}`;
@@ -238,14 +238,27 @@ export function legendHTML() {
   const lg = CTX.rt.legend;
   if (!lg || lg.lens.none) return '';
   const cov = lg.coverage;
-  if (cov && cov.n && !cov.fin) return `<div class="lnote nodata">No ${esc(lg.lens.label.toLowerCase())} data for these ${cov.n.toLocaleString('en-IN')} cells.</div>`;
+  const { lens } = lg;
+  // election layers: a visible caveat line under the legend, not only in the tooltip
+  const caveat = lens.caveat ? `<div class="lcaveat">${esc(lens.caveat)}</div>` : '';
+  if (cov && lg.scopeName && !cov.n) return `<div class="lnote nodata">${esc(lens.label)} covers ${esc(lg.scopeName)} only: zoom there, or choose it from the state list.</div>${caveat}`;
+  if (cov && cov.n && !cov.fin) return `<div class="lnote nodata">No ${esc(lens.label.toLowerCase())} data for these ${cov.n.toLocaleString('en-IN')} cells.</div>${caveat}`;
   if (!lg.sc) return '';
-  const { sc, lens, scopeLabel } = lg;
+  const { sc, scopeLabel } = lg;
   const part = cov && cov.fin < cov.n ? ` · data for ${cov.fin.toLocaleString('en-IN')} of ${cov.n.toLocaleString('en-IN')} cells` : '';
-  const full = `${lens.title}${lens.unitLabel ? ` (${lens.unitLabel})` : ''}. ${sc.rel ? `Breaks relative to ${scopeLabel}` : 'All-India breaks'}.${lens.note ? ` ${lens.note}.` : ''}`;
+  const whole = lg.scopeName ? `all of ${lg.scopeName}` : 'All-India';
+  const breaks = sc.cat ? '' : sc.fixed ? ' · fixed breaks' : sc.rel ? ` · relative to ${esc(scopeLabel)}` : ` · ${esc(whole)}`;
+  const full = `${lens.title}${lens.unitLabel ? ` (${lens.unitLabel})` : ''}.${sc.cat ? '' : sc.fixed ? ' Fixed breaks.' : sc.rel ? ` Breaks relative to ${scopeLabel}.` : ` Breaks over ${whole}.`}${lens.note ? ` ${lens.note}.` : ''}`;
+  const na = sc.na ? `<span class="na"><i></i>${esc(sc.na)}</span>` : '';
+  const when = lens.year ? (lens.mode === 'change' ? `${periodLabel(lens.from)}–${periodLabel(lens.year)}` : periodLabel(lens.year)) : '';
+  if (sc.cat) {
+    return `<div class="cats">${sc.shown.map((i) => `<span><i style="background:${sc.colors[i]}"></i>${esc(sc.labels[i])}</span>`).join('')}${na}</div>
+      <div class="lnote" title="${esc(full)}">${esc(lens.note || '')}${when ? ` · ${when}` : ''}${part}</div>${caveat}`;
+  }
   return `<div class="ramp">${sc.colors.map((c) => `<i style="background:${c}"></i>`).join('')}</div>
     <div class="ticks"><span></span>${sc.breaks.map((b) => `<span>${esc(legendNum(b, lens))}</span>`).join('')}<span></span></div>
-    <div class="lnote" title="${esc(full)}">${esc(lens.unitLabel || '')}${lens.year ? ` · ${lens.mode === 'change' ? `${periodLabel(lens.from)}–${periodLabel(lens.year)}` : periodLabel(lens.year)}` : ''}${sc.rel ? ` · relative to ${esc(scopeLabel)}` : ' · All-India'}${part}</div>`;
+    ${na ? `<div class="cats">${na}</div>` : ''}
+    <div class="lnote" title="${esc(full)}">${esc(lens.unitLabel || '')}${when ? ` · ${when}` : ''}${breaks}${part}</div>${caveat}`;
 }
 
 export function updateLegend() {

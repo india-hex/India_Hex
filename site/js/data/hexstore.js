@@ -2,8 +2,12 @@
 // Hexagon data: index chunks and variable slices, fetched with HTTP Range requests.
 // File layout is documented in pipeline/hexes.py. One chunk = every cell under one H3 parent
 // cell (chunk_res = res - chunk_levels); chunk k spans cells [start[k], start[k+1]).
+// A sparse series (one or two states) stores only the chunks listed in config.json chunks[dataset][res],
+// back to back; any other chunk is missing for it and is never fetched.
 
 let VER = '';
+let SPARSE = {}; // dataset -> res -> [chunk numbers in file order]
+const sparseSpans = new Map(); // `${dataset}/${res}` -> Map(k -> [first cell, end cell] in the file)
 const manifests = new Map(); // res -> Promise<manifest>
 const indexCache = new Map(); // `${res}/${k}` -> Promise<chunk>
 const valueCache = new Map(); // `${res}/${file}/${k}` -> Promise<Float32Array>
@@ -11,7 +15,7 @@ const wholeFile = new Map(); // url -> Promise<ArrayBuffer>  (only when a server
 const MAX_INDEX = 2500;
 const MAX_VALUES = 6000;
 
-export function initHexStore(version) { VER = version; }
+export function initHexStore(version, chunks = {}) { VER = version; SPARSE = chunks || {}; }
 
 const url = (res, file) => `data/hex/h${res}/${file}?v=${VER}`;
 
@@ -42,20 +46,37 @@ async function fetchRange(u, a, b) {
   return (await whole).slice(a, b);
 }
 
-/** Fetch byte ranges for chunks ks of one file (width = bytes per cell); contiguous chunks share a request. */
-async function fetchChunks(u, m, ks, width) {
+const denseSpan = (m) => (k) => [m.start[k], m.start[k + 1]];
+
+/** Where each chunk of a sparse file sits: its listed chunks, back to back. */
+function sparseSpan(ds, res, m) {
+  const key = `${ds}/${res}`;
+  if (!sparseSpans.has(key)) {
+    const at = new Map();
+    let o = 0;
+    for (const k of SPARSE[ds]?.[String(res)] || []) { const n = m.start[k + 1] - m.start[k]; at.set(k, [o, o + n]); o += n; }
+    sparseSpans.set(key, at);
+  }
+  const at = sparseSpans.get(key);
+  return (k) => at.get(k);
+}
+
+/**
+ * Fetch byte ranges for chunks ks of one file (width = bytes per cell; span(k) = the chunk's cells
+ * in the file); chunks that are adjacent in the file share a request.
+ */
+async function fetchChunks(u, span, ks, width) {
   const sorted = [...ks].sort((x, y) => x - y);
   const runs = [];
   for (const k of sorted) {
+    const [a, b] = span(k);
     const last = runs[runs.length - 1];
-    if (last && k === last.to + 1 && m.start[k + 1] - m.start[last.from] < 40000) last.to = k;
-    else runs.push({ from: k, to: k });
+    if (last && a === last.b && b - last.a < 40000) { last.b = b; last.ks.push(k); } else runs.push({ a, b, ks: [k] });
   }
   const out = new Map();
-  await Promise.all(runs.map(async ({ from, to }) => {
-    const base = m.start[from];
-    const buf = await fetchRange(u, width * base, width * m.start[to + 1]);
-    for (let k = from; k <= to; k++) out.set(k, buf.slice(width * (m.start[k] - base), width * (m.start[k + 1] - base)));
+  await Promise.all(runs.map(async ({ a, b, ks: rk }) => {
+    const buf = await fetchRange(u, width * a, width * b);
+    for (const k of rk) { const [x, y] = span(k); out.set(k, buf.slice(width * (x - a), width * (y - a))); }
   }));
   return out;
 }
@@ -88,7 +109,7 @@ async function indexChunks(res, ks) {
   const m = await manifest(res);
   const missing = ks.filter((k) => !indexCache.has(`${res}/${k}`));
   if (missing.length) {
-    const p = fetchChunks(url(res, 'index.bin'), m, missing, 10);
+    const p = fetchChunks(url(res, 'index.bin'), denseSpan(m), missing, 10);
     for (const k of missing) indexCache.set(`${res}/${k}`, p.then((bufs) => decodeIndex(bufs.get(k), m, res, k)));
     p.catch(() => missing.forEach((k) => indexCache.delete(`${res}/${k}`)));
   }
@@ -156,7 +177,10 @@ export async function cellSet(res, bbox, { filter = null, clip = null } = {}) {
 
 function decodeValues(buf, q) {
   const out = new Float32Array(q.dtype === 'u8' ? buf.byteLength : buf.byteLength / 2);
-  if (q.dtype === 'u8') {
+  if (q.t === 'cat') { // category codes
+    const a = new Uint8Array(buf);
+    for (let i = 0; i < a.length; i++) out[i] = a[i] === 255 ? NaN : a[i];
+  } else if (q.dtype === 'u8') {
     const a = new Uint8Array(buf);
     for (let i = 0; i < a.length; i++) out[i] = a[i] === 255 ? NaN : a[i] * q.scale;
   } else {
@@ -174,14 +198,16 @@ export async function values(cs, series, year) {
   const file = `v/${year == null ? series.id : `${series.id}_${year}`}.bin`;
   const m = await manifest(cs.res);
   const width = q.dtype === 'u8' ? 1 : 2;
+  const span = series.sparse ? sparseSpan(series.sparse, cs.res, m) : denseSpan(m);
   const ks = cs.parts.map((p) => p.c.k);
-  const missing = ks.filter((k) => !valueCache.has(`${cs.res}/${file}/${k}`));
+  const have = ks.filter((k) => span(k)); // a sparse file lacks most chunks: those are all missing
+  const missing = have.filter((k) => !valueCache.has(`${cs.res}/${file}/${k}`));
   if (missing.length) {
-    const p = fetchChunks(url(cs.res, file), m, missing, width);
+    const p = fetchChunks(url(cs.res, file), span, missing, width);
     for (const k of missing) valueCache.set(`${cs.res}/${file}/${k}`, p.then((b) => decodeValues(b.get(k), q)));
     p.catch(() => missing.forEach((k) => valueCache.delete(`${cs.res}/${file}/${k}`)));
   }
-  const arrs = await Promise.all(ks.map((k) => valueCache.get(`${cs.res}/${file}/${k}`)));
+  const arrs = await Promise.all(cs.parts.map(({ c }) => (span(c.k) ? valueCache.get(`${cs.res}/${file}/${c.k}`) : new Float32Array(c.n).fill(NaN))));
   lru(valueCache, MAX_VALUES);
   const out = new Float32Array(cs.n);
   let o = 0;

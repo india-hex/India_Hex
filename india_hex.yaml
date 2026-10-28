@@ -16,7 +16,7 @@ site:
   tagline: Constituencies, districts and H3 hexagons of India
   author: ""                 # shown in the About panel when set
   github: https://github.com/india-hex/India_Hex   # shown in the About panel
-  data_credit: GHSL · NASA Black Marble · Esri Land Cover · Hansen GFC · OpenStreetMap · property portals
+  data_credit: GHSL · NASA Black Marble · Esri Land Cover · Hansen GFC · OpenStreetMap · property portals · Election Commission of India (results, Form 20) · CEO Bihar (Form 20) · TCPD Lokdhaba · OpenCity · WorldPop R2025A
 
 # Where the source data lives.
 source:
@@ -215,6 +215,78 @@ variables:
       segments: [residential_buy, residential_rent]
       period: [date]           # one row per cell, segment and date -> a time series (Jan 2021 ... Mar 2026)
       ignore: [year, quarter]  # restate the date; not variables
+    # ---- Elections: one or two states each, so files are chunk-sparse (only the index chunks that
+    # hold the state's cells). Unit values come from the official ECI results (units_table), not from
+    # the hexagons; units outside `states` get none. Series ids carry the dataset prefix.
+    karnataka_ae:
+      root: D:/booth_catchment/KA/outputs/maps
+      file: h{res}_karnataka_ae.parquet
+      group: Karnataka Assembly (2018, 2023)
+      prefix: ka_ae_
+      states: [KARNATAKA]
+      sparse: true
+      h8: all
+      exclude: ["*bjp_inc_margin_pp*", "*lead_margin_pp*", "*is_lead_*"]
+      units_table: &ka_table
+        path: D:/booth_catchment/KA/outputs/maps/units/karnataka_ae{year}_ac_official.parquet
+        state: KARNATAKA
+        key: ac_no
+        weights: {"votes_{year}": "total_valid_{year}"}     # share denominator (reproduces the AC shares exactly)
+        lead: {column: "lead_bucket_{year}", share: "{cat}_share_{year}"}
+        na_flag: incomplete_booth_data                  # missing cells in these ACs are drawn grey
+      lead: &ka_lead
+        from: is_lead_
+        label: Leading party
+        note: "Leading party is the bucket with the most votes in the cell, not a seat winner"
+        categories:
+          bjp:     {label: BJP, color: "#E69F00"}
+          bjp_jds: {label: BJP+JD(S), color: "#E69F00"}
+          inc:     {label: INC, color: "#0072B2"}
+          inc_jds: {label: INC+JD(S), color: "#0072B2"}
+          jds:     {label: JD(S), color: "#009E73"}
+          oth:     {label: Others, color: "#999999"}
+      caveat: &ka_caveat "Modelled from booth results spread over where voters live (method: booth catchments on the 100 m population grid). Shares of valid votes incl. NOTA, EVM + postal. Grey: AC booth data incomplete."
+      na_label: &ka_na AC booth data incomplete
+    karnataka_ge:
+      root: D:/booth_catchment/KA/outputs/maps
+      file: h{res}_karnataka_ge.parquet
+      group: Karnataka Lok Sabha (2014, 2019, 2024)
+      prefix: ka_ge_
+      states: [KARNATAKA]
+      sparse: true
+      h8: all
+      exclude: ["*bjp_inc_margin_pp*", "*lead_margin_pp*", "*party_lead_margin_pp*", "*is_lead_*"]
+      units_table:
+        <<: *ka_table
+        path: D:/booth_catchment/KA/outputs/maps/units/karnataka_ge{year}_ac_official.parquet
+      lead: *ka_lead
+      caveat: *ka_caveat
+      na_label: *ka_na
+    bihar_ae2025:
+      root: D:/booth_catchment/BR/outputs/maps
+      file: h{res}_bihar_ae2025_model.parquet
+      group: Bihar Assembly 2025
+      prefix: br_ae_
+      states: [BIHAR]
+      sparse: true
+      h8: all
+      exclude: ["*is_lead_*"]
+      units_table:
+        path: D:/booth_catchment/BR/outputs/maps/units/bihar_ae2025_ac_official.parquet
+        state: BIHAR
+        key: ac_no
+        weights: {"votes_{year}": "valid_votes_{year}"}
+        lead: {column: "lead_bucket_{year}", share: "{cat}_share_{year}"}
+      lead:
+        from: is_lead_
+        label: Leading alliance
+        note: "Leading party is the bucket with the most votes in the cell, not a seat winner"
+        categories:
+          nda:    {label: NDA, color: "#E69F00"}
+          mgb:    {label: Mahagathbandhan, color: "#0072B2"}
+          jsp:    {label: Jan Suraaj, color: "#CC79A7"}
+          others: {label: Others, color: "#999999"}
+      caveat: "Modelled from booth results spread over where voters live (method: booth catchments on the 100 m population grid). Shares of valid votes incl. NOTA, EVM + postal; turnout is EVM votes / electors."
 
   # Any other parquet under processed/h{res}/**/ is picked up automatically (its folder name
   # becomes the group). These files are skipped: point-level tables, previews, and copies.
@@ -272,11 +344,15 @@ variables:
     - avg_height_total_m
 
   # Per-variable settings. Anything not given is inferred from the column name:
-  #   agg     sum | mean | median   how hexes combine into a unit (sum for counts/areas,
-  #                                  mean for shares/means/heights, median for prices/rates)
+  #   agg     sum | mean | median | wmean   how hexes combine into a unit (sum for counts/areas,
+  #                                  mean for shares/means/heights, median for prices/rates,
+  #                                  wmean = mean weighted by the `weight` column, e.g. "votes_{year}")
   #   density true lets the UI show it per km² (default true for sum-type variables)
-  #   ramp    ylorrd | magma | viridis | greens | ylgn | blues | purples | cividis | rdbu | brbg | puor
-  #   format  int | dec1 | dec2 | pct (value is a 0-1 share) | inr
+  #   ramp    ylorrd | magma | viridis | greens | ylgn | blues | purples | cividis | oranges | bugn |
+  #           rdpu | greys | rdbu | brbg | puor | buor (diverging: also set diverging: true)
+  #   format  int | dec1 | dec2 | pct (value is a 0-1 share) | pp (percentage points) | inr
+  #   breaks  fixed class breaks, used in every scale mode;  featured: true lists it first in its group
+  # Unknown keys are an error.
   overrides:
     population:          {label: Population, unit: people, ramp: ylorrd, format: int, default_year: 2025, note: "GHSL GHS-POP; model estimates on the 2011 Census; 2025 and 2030 are projections"}
     ntl_mean:            {label: Night lights, unit: nW/cm²/sr, ramp: magma, format: dec2, note: "NASA Black Marble mean radiance of ~500 m pixels"}
@@ -313,6 +389,38 @@ variables:
     commercial_rent_price_median_inr:          {label: Commercial rent, unit: ₹/month, ramp: viridis, format: inr, agg: median, density: false}
     residential_buy_locality_price_median:     {label: Locality sale rate (quarterly), unit: ₹/sqft, ramp: viridis, format: inr, agg: median, density: false, note: "Housing.com locality average asking price per sq ft, quarterly 2021–2025 then monthly in 2026; Mumbai, Pune, Bengaluru, Gurugram, Ahmedabad, Hyderabad, Chennai, Kolkata"}
     residential_rent_locality_price_median:    {label: Locality rent (quarterly), unit: ₹/month, ramp: viridis, format: inr, agg: median, density: false, note: "Housing.com locality average monthly rent, quarterly 2021–2025 then monthly in 2026; same eight cities"}
+    # ---- Elections (shares: of valid votes incl. NOTA; agg wmean is only the fallback where an AC
+    # has no official row: unit values come from the official results)
+    ka_ae_bjp_share:      &ka_bjp {label: BJP vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: oranges, featured: true, note: &ka_note "Unit values are the official ECI results; hexagons are modelled. ACs with incomplete booth data have complete official AC values"}
+    ka_ae_inc_share:      &ka_inc {label: INC vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: blues, featured: true, note: *ka_note}
+    ka_ae_jds_share:      &ka_jds {label: JD(S) vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: bugn, featured: true, note: *ka_note}
+    ka_ae_oth_share:      &ka_oth {label: Others vote share (incl. NOTA), format: pct, agg: wmean, weight: "votes_{year}", ramp: greys, note: *ka_note}
+    ka_ae_bloc_margin_pp: &ka_margin {label: "Margin, BJP side − INC side", unit: pp, format: pp, agg: wmean, weight: "votes_{year}", density: false, ramp: buor, diverging: true, breaks: [-20, -10, -5, -2, 2, 5, 10, 20], featured: true, note: "Percentage points of valid votes; positive = BJP side ahead (2024: BJP+JD(S)), negative = INC side ahead (2019: INC+JD(S)). Unit values are the official ECI results"}
+    ka_ae_turnout_share:  &ka_turnout {label: Turnout (valid votes / electors), format: pct, agg: wmean, weight: "electors_{year}", ramp: viridis, note: *ka_note}
+    ka_ae_votes:          &ka_votes {label: Valid votes, unit: votes, format: int, agg: sum, ramp: ylorrd, note: *ka_note}
+    ka_ae_electors:       &ka_electors {label: Electors, unit: electors, format: int, agg: sum, ramp: ylorrd, note: "Hexagon electors are modelled; unit values are the official ECI electors"}
+    ka_ae_lead:           {featured: true}
+    ka_ge_bjp_share:      *ka_bjp
+    ka_ge_inc_share:      *ka_inc
+    ka_ge_jds_share:      *ka_jds
+    ka_ge_oth_share:      *ka_oth
+    ka_ge_inc_jds_share:  {label: INC+JD(S) vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: blues, featured: true, note: *ka_note}
+    ka_ge_bjp_jds_share:  {label: BJP+JD(S) vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: oranges, featured: true, note: *ka_note}
+    ka_ge_bloc_margin_pp: *ka_margin
+    ka_ge_turnout_share:  *ka_turnout
+    ka_ge_votes:          *ka_votes
+    ka_ge_electors:       *ka_electors
+    ka_ge_lead:           {featured: true}
+    br_ae_nda_share:      {label: NDA vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: oranges, featured: true, note: &br_note "Unit values are the official ECI results; hexagons are modelled"}
+    br_ae_mgb_share:      {label: Mahagathbandhan vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: blues, featured: true, note: *br_note}
+    br_ae_jsp_share:      {label: Jan Suraaj vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: rdpu, featured: true, note: *br_note}
+    br_ae_others_share:   {label: Others vote share, format: pct, agg: wmean, weight: "votes_{year}", ramp: greys, note: *br_note}
+    br_ae_nota_share:     {label: NOTA share, format: pct, agg: wmean, weight: "votes_{year}", ramp: greys, note: *br_note}
+    br_ae_nda_mgb_margin_pp: {label: "Margin, NDA − MGB", unit: pp, format: pp, agg: wmean, weight: "votes_{year}", density: false, ramp: buor, diverging: true, breaks: [-20, -10, -5, -2, 2, 5, 10, 20], featured: true, note: "Percentage points of valid votes; positive = NDA ahead, negative = Mahagathbandhan ahead. Unit values are the official ECI results"}
+    br_ae_turnout_share:  {label: Turnout (EVM votes / electors), format: pct, agg: wmean, weight: "electors_{year}", ramp: viridis, official_col: "turnout_evm_share_{year}", note: *br_note}
+    br_ae_votes:          {label: Valid votes, unit: votes, format: int, agg: sum, ramp: ylorrd, official_col: "valid_votes_{year}", note: *br_note}
+    br_ae_electors:       {label: Electors, unit: electors, format: int, agg: sum, ramp: ylorrd, note: "Hexagon electors are modelled; unit values are the official ECI electors"}
+    br_ae_lead:           {featured: true}
 
 # --------------------------------------------------------------------------------------------
 # Features: switch any off to remove it from the UI entirely.

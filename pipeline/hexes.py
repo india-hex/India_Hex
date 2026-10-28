@@ -11,9 +11,14 @@ Per resolution r (all little-endian):
                                 one value per cell in index order: uint8 (shares) or uint16.
                                 Chunk k's values are bytes [w*start[k], w*start[k+1]), w = 1 or 2.
 
+                                A sparse dataset (one or two states) writes only the chunks listed in
+                                config.json chunks[dataset][res], concatenated in that order; every
+                                other chunk is missing for that series.
+
 So any chunk of any variable is one HTTP Range request; adding a variable adds files and touches
 nothing else. Decoding (catalog `q` per series and resolution):
   u8   value = q * scale                        (255 = missing)
+       categorical (t = "cat"): q = category code (position in the series' categories)
   u16  sqrt:   value = (q * scale) ** 2          (65535 = missing)
        linear: value = offset + q * scale
 """
@@ -139,8 +144,38 @@ class SeriesReader:
             self._pos[path] = self.al.positions(h3_to_u64(ids))
         return self._pos[path]
 
+    def path(self, series):
+        return self.cfg.hex_file(series.file, self.res, series.root)
+
+    def positions(self, series):
+        return self._positions(self.path(series))
+
+    def raw(self, series, column):
+        """A plain column of the series' file (e.g. a weight), aligned to index order."""
+        path = self.path(series)
+        pos = self._positions(path)
+        vals = duckdb.sql(f"SELECT {column} AS v FROM '{path}'").fetchnumpy()["v"]
+        vals = np.ma.filled(vals.astype("float64"), np.nan) if np.ma.isMaskedArray(vals) else np.asarray(vals, dtype="float64")
+        return self.al.scatter(pos, vals.astype(np.float32))
+
+    def lead(self, series, year):
+        """Category code per cell from is_lead_<category> flags: the one flagged 1; NaN where none is."""
+        pairs = series.cols[year]
+        pos = {c["id"]: i for i, c in enumerate(series.categories)}
+        code_of = np.array([pos[c] for c, _ in pairs], dtype=np.float32)   # codes index the full list
+        flags = np.stack([self.raw(series, c) for _, c in pairs])
+        one = flags == 1
+        n_one = one.sum(axis=0)
+        code = np.where(n_one == 1, code_of[one.argmax(axis=0)], np.nan).astype(np.float32)
+        bad = int(((n_one != 1) & ~np.all(np.isnan(flags), axis=0)).sum())
+        if bad:
+            log(f"  ! {series.id} {year}: {bad} cells with flags but not exactly one lead; left missing")
+        return code
+
     def column(self, series, year):
-        path = self.cfg.hex_file(series.file, self.res)
+        path = self.path(series)
+        if series.type == "categorical":
+            return self.lead(series, year)
         col = series.cols[year]
         if series.pivot:
             seg, c = col[0], col[1]
@@ -165,6 +200,8 @@ class SeriesReader:
 
 def quant_params(series, arrays):
     """Shared decoding parameters for all years of one series at one resolution."""
+    if series.type == "categorical":
+        return {"dtype": "u8", "t": "cat", "scale": 1, "offset": 0}
     if series.dtype == "u8":
         return {"dtype": "u8", "t": "linear", "scale": 1 / 250, "offset": 0}
     vals = np.concatenate([a[~np.isnan(a)] for a in arrays]) if arrays else np.array([])
@@ -179,7 +216,12 @@ def quant_params(series, arrays):
 
 
 def encode(v, q):
+    v = np.asarray(v, dtype="float64")
     nan = np.isnan(v)
+    if q.get("t") == "cat":
+        out = np.nan_to_num(v).astype(np.uint8)
+        out[nan] = U8_MISSING
+        return out
     if q["dtype"] == "u8":
         out = np.round(np.clip(np.nan_to_num(v), 0, 1) / q["scale"]).astype(np.uint8)
         out[nan] = U8_MISSING
@@ -204,11 +246,35 @@ def decode(raw: bytes, q):
     return out
 
 
-def write_series(res, series, arrays_by_year, q):
+def chunks_of(positions, start):
+    """Sorted index chunks holding at least one of these cell positions (-1 = not in the index)."""
+    pos = positions[positions >= 0]
+    return np.unique(np.searchsorted(start, pos, side="right") - 1).astype(int).tolist()
+
+
+def write_series(res, series, arrays_by_year, q, chunks=None, start=None):
+    """Dense: one value per index cell. Sparse (chunks given): only those chunks' cells, in order."""
     out = DATA / "hex" / f"h{res}" / "v"
     out.mkdir(parents=True, exist_ok=True)
     for y in series.res_years[res]:
-        (out / series.bin_name(y)).write_bytes(encode(arrays_by_year[y], q).tobytes())
+        enc = encode(arrays_by_year[y], q)
+        if chunks is not None:
+            enc = np.concatenate([enc[start[k]:start[k + 1]] for k in chunks])
+        (out / series.bin_name(y)).write_bytes(enc.tobytes())
+
+
+def read_series(res, name, q, n, chunks=None, start=None):
+    """Decoded values of a published file for every index cell (NaN outside a sparse file's chunks)."""
+    v = decode((DATA / "hex" / f"h{res}" / "v" / name).read_bytes(), q)
+    if chunks is None:
+        return v
+    full = np.full(n, np.nan)
+    o = 0
+    for k in chunks:
+        m = start[k + 1] - start[k]
+        full[start[k]:start[k + 1]] = v[o:o + m]
+        o += m
+    return full
 
 
 # ---------------------------------------------------------------------------------------------
@@ -219,8 +285,9 @@ def _sig4(x):
     return None if x is None or not np.isfinite(x) else float(f"{x:.5g}")
 
 
-def aggregate(series, arrays_by_year, ids, n_units):
-    """{"y": [...], "<level>": [[values per unit] per year]} from H8 values."""
+def aggregate(series, arrays_by_year, ids, n_units, weights=None, allowed=None):
+    """{"y": [...], "<level>": [[values per unit] per year]} from H8 values.
+    weights: {year: H8 weights} for agg wmean; allowed: {level: bool per unit} (others get no value)."""
     out = {"y": [y for y in (series.years or [None])]}
     keys = {"state": "s", "district": "d", "pc": "p", "ac": "a"}
     for lvl, k in keys.items():
@@ -230,7 +297,16 @@ def aggregate(series, arrays_by_year, ids, n_units):
             v = arrays_by_year[y]
             ok = (g >= 0) & ~np.isnan(v)
             n = n_units[lvl]
-            if series.agg == "median":
+            if series.type == "categorical":
+                arr = np.full(n, np.nan)   # unit leads come from the official tables only
+            elif series.agg == "wmean":
+                w = weights[y].astype("float64")
+                ok &= np.isfinite(w) & (w > 0)
+                s = np.bincount(g[ok], weights=v[ok] * w[ok], minlength=n)[:n]
+                c = np.bincount(g[ok], weights=w[ok], minlength=n)[:n]
+                with np.errstate(invalid="ignore", divide="ignore"):
+                    arr = np.where(c > 0, s / c, np.nan)
+            elif series.agg == "median":
                 med = pd.Series(v[ok]).groupby(g[ok]).median()
                 arr = np.full(n, np.nan)
                 arr[med.index.to_numpy()] = med.to_numpy()
@@ -239,6 +315,8 @@ def aggregate(series, arrays_by_year, ids, n_units):
                 c = np.bincount(g[ok], minlength=n)[:n]
                 with np.errstate(invalid="ignore", divide="ignore"):
                     arr = s / c if series.agg == "mean" else np.where(c > 0, s, np.nan)
+            if allowed is not None:
+                arr = np.where(allowed[lvl], arr, np.nan)
             per_year.append([_sig4(x) for x in arr])
         out[lvl] = per_year
     return out

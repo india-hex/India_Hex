@@ -27,7 +27,7 @@ const cfg = await fetch('config.json', { cache: 'no-cache' }).then((r) => r.json
 document.title = cfg.site.title;
 document.documentElement.style.setProperty('--side-w', `${cfg.ui.sidebar_width || 392}px`);
 if (cfg.ui.accent) document.documentElement.style.setProperty('--accent', cfg.ui.accent);
-initHexStore(cfg.version);
+initHexStore(cfg.version, cfg.chunks);
 initLens(cfg);
 const [U, vs] = await Promise.all([loadUnits(cfg.version), loadVectorStyle(cfg.overlays.vector_style)]);
 
@@ -207,6 +207,7 @@ function inSelMask(cs, st) {
 
 function hexScale(vals, cs, lens, st, mask) {
   const ramp = rampFor(lens, st.cbSafe);
+  if (lens.categorical || lens.fixedBreaks) return scaleFromValues(vals, lens, ramp); // same in every scale mode
   if (st.scale === 'india') {
     const b = indiaBreaks(lens, cs.res);
     if (b) return spread(b, ramp, false);
@@ -216,13 +217,19 @@ function hexScale(vals, cs, lens, st, mask) {
   return scaleFromValues(pool, lens, ramp) || scaleFromValues(vals, lens, ramp);
 }
 
-function fills(vals, sc, cs, st, mask) {
+const NA_GREY = [128, 128, 128];
+
+function fills(vals, sc, cs, st, mask, naAcs) {
   const out = new Uint8Array(cs.n * 4);
   const a1 = Math.round(st.opacity * 255);
   const a0 = Math.round(st.opacity * 255 * 0.32);
   for (let i = 0; i < cs.n; i++) {
     const c = vals ? colourOf(vals[i], sc) : null;
-    if (!c) { out[4 * i + 3] = 0; continue; }
+    if (!c) {
+      // missing because the AC's booth data is incomplete: faint grey (other missing cells stay clear)
+      if (naAcs && naAcs.has(cs.a[i])) { out.set(NA_GREY, 4 * i); out[4 * i + 3] = Math.round((mask && !mask[i] ? a0 : a1) * 0.75); } else out[4 * i + 3] = 0;
+      continue;
+    }
     const [r, g, b] = rgba(c);
     let a = mask && !mask[i] ? a0 : a1;
     if (sc.faintFirst && vals[i] < sc.breaks[0]) a = Math.round(a * 0.3);
@@ -238,10 +245,23 @@ function elevations(vals, sc, cs) {
   return e;
 }
 
+/** State ids of a state-scoped (election) lens, or null. */
+const scopedStates = (lens) => (lens.states ? new Set(U.state.filter((u) => lens.states.includes(u.key)).map((u) => u.id)) : null);
+const scopeName = (lens) => U.state.filter((u) => lens.states.includes(u.key)).map((u) => u.name).join(' and ');
+
+/** ACs whose missing cells are drawn grey for this lens (incomplete booth data), or null. */
+function naAcsOf(lens) {
+  const by = lens.naLabel && lens.series.na_acs;
+  if (!by) return null;
+  const ids = [...(by[String(lens.year)] || []), ...(lens.mode === 'change' ? by[String(lens.from)] || [] : [])];
+  return ids.length ? new Set(ids) : null;
+}
+
 /** Colour one view: hexes if drawn, otherwise the unit choropleth. */
 async function paint(v, lens, st, { scaleFrom } = {}) {
   const cs = ctx.cs;
   const mask = cs ? inSelMask(cs, st) : null;
+  const scoped = lens.none ? null : scopedStates(lens);
   const vals = cs && !lens.none ? await hexValues(cs, lens) : null;
   const uvals = !lens.none && (!vals) ? await unitValues(st.level, lens, U) : null;
   return (shared) => {
@@ -250,11 +270,13 @@ async function paint(v, lens, st, { scaleFrom } = {}) {
     let coverage = null;
     if (vals) {
       let fin = 0; let n = 0;
-      for (let i = 0; i < cs.n; i++) if (!mask || mask[i]) { n++; if (Number.isFinite(vals[i])) fin++; }
-      coverage = { fin, n };
+      for (let i = 0; i < cs.n; i++) if ((!mask || mask[i]) && (!scoped || scoped.has(cs.s[i]))) { n++; if (Number.isFinite(vals[i])) fin++; }
+      coverage = { fin, n, scoped: scoped ? scopeName(lens) : '' };
       sc = shared || scaleFrom || hexScale(vals, cs, lens, st, mask);
       scopeLabel = st.sel ? unit(st.sel).name : 'the hexagons in view';
-      v.setHexes({ cs, fill: fills(vals, sc, cs, st, mask), elev: st.threeD ? elevations(vals, sc, cs) : null, threeD: st.threeD, lines: st.hexLines, version: ++ver });
+      const naAcs = naAcsOf(lens);
+      if (sc) sc.na = naAcs ? lens.naLabel : '';
+      v.setHexes({ cs, fill: fills(vals, sc, cs, st, mask, naAcs), elev: st.threeD ? elevations(vals, sc, cs) : null, threeD: st.threeD, lines: st.hexLines, version: ++ver });
       v.setUnitColours(st.level, null);
     } else {
       v.setHexes({ cs, fill: cs && mask ? outlineFill(cs, mask) : null, elev: null, threeD: false, lines: true, version: ++ver });
@@ -264,7 +286,7 @@ async function paint(v, lens, st, { scaleFrom } = {}) {
         const pool = U[st.level].filter((u) => st.scale === 'india' || stId < 0 || u.st === stId || st.level === 'state').map((u) => uvals[u.id]);
         sc = shared || scaleFrom || scaleFromValues(pool, lens, ramp);
         if (st.scale === 'india' && sc) sc.rel = false;
-        scopeLabel = `${cfg.boundaries.levels[st.level].label}${stId >= 0 && st.level !== 'state' && st.scale !== 'india' ? ` in ${U.state[stId].name}` : ' across India'}`;
+        scopeLabel = `${cfg.boundaries.levels[st.level].label}${stId >= 0 && st.level !== 'state' && st.scale !== 'india' ? ` in ${U.state[stId].name}` : scoped ? ` in ${scopeName(lens)}` : ' across India'}`;
         const colours = new Map();
         if (sc) U[st.level].forEach((u) => { const c = colourOf(uvals[u.id], sc); if (c) colours.set(u.id, c); });
         v.setUnitColours(st.level, colours);
@@ -297,7 +319,7 @@ async function recolour() {
   const { sc, scopeLabel, coverage } = applyMain();
   // comparing years: one shared scale so colours mean the same on both sides
   if (applyCmp) applyCmp(st.compare.kind === 'year' ? sc : null);
-  rt.legend = { sc, lens, scopeLabel, coverage };
+  rt.legend = { sc, lens, scopeLabel, coverage, scopeName: !lens.none && lens.states ? scopeName(lens) : '' };
   updateLegend();
   renderPanel();
 }
@@ -338,12 +360,25 @@ function clearSelection() {
 
 // ---- hex info (sidebar band) -------------------------------------------------------------------------
 const hexInfoCache = new Map();
+/**
+ * The clicked hexagon: its units, and the featured series. When the map shows an election series,
+ * also every series of that election (its group) for the year on the map.
+ */
 async function hexInfo(h3id) {
-  if (hexInfoCache.has(h3id)) return hexInfoCache.get(h3id);
+  const lens = lensOf(S.get());
+  const scoped = !lens.none && lens.states ? lens : null;
+  const key = scoped ? `${h3id}|${lens.id}|${lens.year}` : h3id;
+  if (hexInfoCache.has(key)) return hexInfoCache.get(key);
   const c = await findCell(h3id);
   if (!c) return null;
   const cs = { res: c.res, n: 1, parts: [{ c: c.chunk, idx: [c.i] }], area: h3.cellArea(h3id, 'km2') };
   const [lat, lng] = h3.cellToLatLng(h3id);
+  let group = null;
+  if (scoped) {
+    const ss = cfg.variables.filter((s) => s.group === lens.group && (s.res_years[String(c.res)] || []).includes(lens.year));
+    const vals = await Promise.all(ss.map((s) => hexRaw(cs, s, lens.year)));
+    group = { name: lens.group, year: lens.year, figs: ss.map((s, j) => ({ s, v: vals[j] ? vals[j][0] : NaN, year: lens.year })) };
+  }
   const figs = (await Promise.all(cfg.featured.map(async (id) => {
     const s = seriesById(id);
     const ys = s.res_years[String(c.res)];
@@ -352,8 +387,8 @@ async function hexInfo(h3id) {
     const v = await hexRaw(cs, s, y);
     return { s, v: v ? v[0] : NaN, year: y };
   }))).filter(Boolean);
-  const info = { ...c, area: cs.area, lat, lng, figs };
-  hexInfoCache.set(h3id, info);
+  const info = { ...c, area: cs.area, lat, lng, figs, group };
+  hexInfoCache.set(key, info);
   return info;
 }
 
@@ -474,10 +509,10 @@ ctx.act = {
     else if (action === 'csv' && rt.list) {
       const { level, rows, lens } = rt.list;
       EX().then((m) => m.csv(`${st.sel ? unit(st.sel).name : 'India'}_${level}_${lens.id}`, ['rank', 'name', 'number', 'state', 'key', `${lens.title} (${lens.unitLabel})`],
-        rows.map((r, i) => [i + 1, r.u.name, r.u.no ?? '', U.state[r.u.st]?.name ?? r.u.name, r.u.key, Number.isFinite(r.v) ? r.v : ''])));
+        rows.map((r, i) => [i + 1, r.u.name, r.u.no ?? '', U.state[r.u.st]?.name ?? r.u.name, r.u.key, Number.isFinite(r.v) ? (lens.categorical ? lens.series.categories[r.v].label : r.v) : ''])));
     } else if (action === 'csvcompare' && rt.compareRows) {
       const { pins: ps, rows } = rt.compareRows;
-      EX().then((m) => m.csv('pinned_places', ['variable', 'year', ...ps.map((p) => unit(p).name)], rows.map((r) => [r.s.label, periodLabel(r.y), ...r.vals.map((v) => v ?? '')])));
+      EX().then((m) => m.csv('pinned_places', ['variable', 'year', ...ps.map((p) => unit(p).name)], rows.map((r) => [r.s.label, periodLabel(r.y), ...r.vals.map((v) => (v == null ? '' : r.s.type === 'categorical' ? r.s.categories[v]?.label ?? '' : v))])));
     } else if (action === 'geojson') downloadHexes();
   },
 };

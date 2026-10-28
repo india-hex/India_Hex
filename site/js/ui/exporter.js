@@ -57,7 +57,18 @@ export async function png(ctx, { title, subtitle }) {
   g.font = `${13 * dpr}px Inter, sans-serif`;
   g.fillText(subtitle, pad, 72 * dpr);
   const lg = ctx.rt.legend;
-  if (lg && lg.sc && !lg.lens.none) {
+  if (lg && lg.sc && lg.sc.cat && !lg.lens.none) { // categories: swatch + label
+    const y = head + H + 20 * dpr;
+    let x = pad;
+    g.font = `${11 * dpr}px Inter, sans-serif`;
+    for (const i of lg.sc.shown) {
+      g.fillStyle = lg.sc.colors[i];
+      g.fillRect(x, y, 12 * dpr, 12 * dpr);
+      g.fillStyle = ink3;
+      g.fillText(lg.sc.labels[i], x + 17 * dpr, y + 10 * dpr);
+      x += (26 + lg.sc.labels[i].length * 6.5) * dpr;
+    }
+  } else if (lg && lg.sc && !lg.lens.none) {
     const n = lg.sc.colors.length;
     const lw = Math.min(360 * dpr, W * 0.5);
     const sw = lw / n;

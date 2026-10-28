@@ -12,11 +12,30 @@ export const RAMPS = {
   rdbu: ['#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac'],
   brbg: ['#8c510a', '#bf812d', '#dfc27d', '#f6e8c3', '#f5f5f5', '#c7eae5', '#80cdc1', '#35978f', '#01665e'],
   puor: ['#b35806', '#e08214', '#fdb863', '#fee0b6', '#f7f7f7', '#d8daeb', '#b2abd2', '#8073ac', '#542788'],
+  // election palette: BJP/NDA orange, INC/MGB blue, JD(S) green, JSP pink, others grey (colour-blind safe)
+  oranges: ['#fff5eb', '#fee6ce', '#fdd0a2', '#fdae6b', '#fd8d3c', '#f16913', '#d94801', '#a63603', '#7f2704'],
+  bugn: ['#f7fcfd', '#e5f5f9', '#ccece6', '#99d8c9', '#66c2a4', '#41ae76', '#238b45', '#006d2c', '#00441b'],
+  rdpu: ['#fff7f3', '#fde0dd', '#fcc5c0', '#fa9fb5', '#f768a1', '#dd3497', '#ae017e', '#7a0177', '#49006a'],
+  greys: ['#ffffff', '#f0f0f0', '#d9d9d9', '#bdbdbd', '#969696', '#737373', '#525252', '#252525', '#000000'],
+  buor: ['#08519c', '#3182bd', '#6baed6', '#c6dbef', '#f7f7f7', '#fdd0a2', '#fd8d3c', '#e6550d', '#a63603'],
 };
 
+/**
+ * Colours for a lens. A series with its own diverging ramp (vote margins: buor) or from a
+ * state-scoped election dataset keeps its palette, in colour-blind mode too (it is safe already).
+ */
 export function rampFor(lens, cbSafe) {
+  const s = lens.series;
+  if (s && lens.mode !== 'change' && (s.diverging || s.states) && RAMPS[lens.ramp]) return RAMPS[lens.ramp];
   if (lens.diverging) return cbSafe ? RAMPS.puor : RAMPS.rdbu;
   return cbSafe ? RAMPS.cividis : RAMPS[lens.ramp] || RAMPS.viridis;
+}
+
+/** Scale of a categorical lens: one colour per category code (labels for the legend). */
+export function catScale(lens) {
+  const cats = lens.series.categories;
+  return { cat: true, breaks: [], colors: cats.map((c) => c.color), labels: cats.map((c) => c.label),
+    shown: cats.map((c, i) => (lens.year == null || c.years.includes(lens.year) ? i : -1)).filter((i) => i >= 0), rel: false };
 }
 
 const quantile = (sorted, p) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(p * sorted.length)))];
@@ -33,6 +52,8 @@ function uniqueAsc(arr) {
  * listings), and quantiles are taken over the values above it. Ties collapse; colours spread.
  */
 export function scaleFromValues(values, lens, ramp) {
+  if (lens.categorical) return catScale(lens);
+  if (lens.fixedBreaks) return { breaks: lens.fixedBreaks, colors: ramp, rel: false, fixed: true };
   const v = [];
   for (const x of values) if (Number.isFinite(x)) v.push(x);
   if (!v.length) return null;
@@ -71,7 +92,7 @@ export function classIndex(v, sc) {
 
 export function colourOf(v, sc) {
   if (!sc || v == null || !Number.isFinite(v)) return null;
-  return sc.colors[classIndex(v, sc)];
+  return sc.cat ? sc.colors[v] || null : sc.colors[classIndex(v, sc)];
 }
 
 /** 0..1 position of v within the scale (piecewise linear between breaks); used for 3D height. */
@@ -113,6 +134,8 @@ export function compact(n) {
 export function fmtValue(v, lens, { short = false } = {}) {
   if (v == null || !Number.isFinite(v)) return '–';
   const sign = lens.mode === 'change' && v > 0 ? '+' : '';
+  if (lens.format === 'cat') return lens.series?.categories?.[v]?.label ?? '–';
+  if (lens.format === 'pp') return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}`; // unit (pp) shown beside it
   if (lens.mode === 'change' && lens.pctChange) return `${sign}${v.toFixed(Math.abs(v) < 10 ? 1 : 0)}%`;
   if (lens.format === 'pct') {
     const p = v * 100;
@@ -129,6 +152,7 @@ export function fmtValue(v, lens, { short = false } = {}) {
 }
 
 export function legendNum(v, lens) {
+  if (lens.format === 'pp') return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v) >= 10 || Number.isInteger(v) ? Math.round(Math.abs(v)) : Math.abs(v).toFixed(1)}`;
   if (lens.format === 'pct' && !(lens.mode === 'change' && lens.pctChange)) {
     const p = v * 100;
     return `${Math.abs(p) < 1 ? p.toFixed(1) : Math.round(p)}${lens.mode === 'change' ? '' : '%'}`;

@@ -12,7 +12,7 @@ from collections import defaultdict
 import numpy as np
 
 from . import catalog as cat
-from . import geo, hexes
+from . import geo, hexes, official
 from .config import DATA, SITE
 from .util import dir_size, file_sig, log, obj_sig
 
@@ -35,6 +35,7 @@ def build(cfg, force=False, only_config=False):
     t0 = time.time()
     st = {} if force else _load_state()
     st.setdefault("bins", {}), st.setdefault("q", {}), st.setdefault("agg", {}), st.setdefault("index", {})
+    st.setdefault("chunks", {})
 
     log("catalog: discovering variables")
     series = cat.discover(cfg, verbose=True)
@@ -84,6 +85,7 @@ def build(cfg, force=False, only_config=False):
         st["index"][str(res)] = sig
         # unit ids changed -> every variable file at this res is stale
         st["bins"] = {k: v for k, v in st["bins"].items() if not k.startswith(f"{res}/")}
+        st["chunks"] = {k: v for k, v in st["chunks"].items() if not k.endswith(f"/{res}")}
         if res == 8:
             st["agg"] = {}
         _save_state(st)
@@ -95,6 +97,29 @@ def build(cfg, force=False, only_config=False):
         return orders[res]
 
     _split_old_unit_files()
+    starts = {}
+
+    def start_for(res):
+        if res not in starts:
+            starts[res] = np.array(json.loads((DATA / "hex" / f"h{res}" / "manifest.json").read_text())["start"])
+        return starts[res]
+
+    allowed_cache = {}
+
+    def allowed_for(states):
+        """{level: bool per unit}: units inside these states (None = no restriction)."""
+        if not states:
+            return None
+        key = tuple(states)
+        if key not in allowed_cache:
+            sids = {u["id"] for u in units["state"] if u["key"] in states}
+            if len(sids) != len(states):
+                raise ValueError(f"states {states}: not all found in units.json state keys")
+            allowed_cache[key] = {lvl: np.array([(u["id"] if lvl == "state" else u["st"]) in sids for u in units[lvl]])
+                                  for lvl in geo.LEVELS}
+        return allowed_cache[key]
+
+    off_cache = {}
 
     # ---- variables ------------------------------------------------------------------------------
     by_ds = defaultdict(list)
@@ -104,21 +129,33 @@ def build(cfg, force=False, only_config=False):
     readers = {}
     for ds, ss in by_ds.items():
         for res in res_list:
-            src = cfg.hex_file(ss[0].file, res)
+            src = cfg.hex_file(ss[0].file, res, ss[0].root)
             if not src.exists():
                 continue
+            ckey = f"{ds}/{res}"
+            if ss[0].sparse and ckey not in st["chunks"]:
+                reader = readers.get(res) or readers.setdefault(res, hexes.SeriesReader(cfg, res, hexes.Aligner(order_for(res))))
+                st["chunks"][ckey] = hexes.chunks_of(reader.positions(ss[0]), start_for(res))
+            elif not ss[0].sparse:
+                st["chunks"].pop(ckey, None)
             todo = []
             for s in ss:
                 if res not in s.res_years and not (res == 8):
                     continue
+                # settings only the newer dataset kinds use are signed only when set, so adding them
+                # leaves every existing series' signature (and file) as it was
+                extra = {k: v for k, v in (("sparse", st["chunks"].get(ckey) if s.sparse else None),
+                                           ("type", s.type if s.type != "numeric" else None), ("root", s.root)) if v}
                 ssig = obj_sig(st["index"].get(str(res)), file_sig(src), s.cols if not s.pivot else {str(k): list(v) for k, v in s.cols.items()},
-                               s.dtype, s.fill_missing, s.res_years.get(res), s.pivot)
+                               s.dtype, s.fill_missing, s.res_years.get(res), s.pivot, *([extra] if extra else []))
                 key = f"{res}/{s.id}"
                 files_ok = all((DATA / "hex" / f"h{res}" / "v" / s.bin_name(y)).exists() for y in s.res_years.get(res, []))
                 for y in s.res_years.get(res, []):
                     expected.add(f"h{res}/v/{s.bin_name(y)}")
                 need_bin = res in s.res_years and (st["bins"].get(key) != ssig or not files_ok)
-                asig = obj_sig(ssig, s.agg, st["index"].get("8"))
+                aextra = {k: v for k, v in (("weight", s.weight), ("states", s.states), ("official", official.signature(s)),
+                                            ("units_table", s.units_table), ("official_col", s.official_col)) if v}
+                asig = obj_sig(ssig, s.agg, st["index"].get("8"), *([aextra] if aextra else []))
                 need_agg = res == 8 and (st["agg"].get(s.id) != asig or not (DATA / "units" / "v" / s.id / "state.json").exists())
                 if need_bin or need_agg:
                     todo.append((s, key, ssig, need_bin, need_agg, asig))
@@ -131,10 +168,16 @@ def build(cfg, force=False, only_config=False):
                 by_year = {y: reader.column(s, y) for y in years}
                 if need_bin:
                     q = hexes.quant_params(s, [by_year[y] for y in s.res_years[res]])
-                    hexes.write_series(res, s, by_year, q)
+                    hexes.write_series(res, s, by_year, q, st["chunks"].get(ckey) if s.sparse else None, start_for(res))
                     st["q"][key], st["bins"][key] = q, ssig
                 if need_agg:
-                    _write_unit_files(s.id, hexes.aggregate(s, by_year, ids_by_res[8], n_units))
+                    weights = {y: reader.raw(s, s.weight_col(y)) for y in years} if s.agg == "wmean" else None
+                    agg = hexes.aggregate(s, by_year, ids_by_res[8], n_units, weights, allowed_for(s.states))
+                    if s.units_table:
+                        tk = obj_sig(s.units_table)
+                        off = off_cache.get(tk) or off_cache.setdefault(tk, official.Official(s.units_table, units, ids_by_res[8]))
+                        agg = off.apply(s, agg)
+                    _write_unit_files(s.id, agg)
                     st["agg"][s.id] = asig
             _save_state(st)
 
@@ -197,11 +240,18 @@ def compute_breaks(series, st):
             q = st["q"].get(f"{res}/{s.id}")
             if not q or st["breaks"].get(key, {}).get("sig") == st["bins"].get(f"{res}/{s.id}"):
                 continue
+            if s.type == "categorical" or s.breaks:   # categories need none; fixed breaks are used as given
+                st["breaks"][key] = {"sig": st["bins"].get(f"{res}/{s.id}"), "b": [float(b) for b in s.breaks] if s.breaks else None}
+                continue
             raw = (DATA / "hex" / f"h{res}" / "v" / name).read_bytes()
-            v = hexes.decode(raw, q)
+            v = hexes.decode(raw, q)   # a sparse file holds only its chunks: same distribution
             v = np.sort(v[~np.isnan(v)])
             br = []
-            if len(v):
+            if len(v) and s.diverging:   # symmetric around 0
+                a = np.abs(v[v != 0])
+                qs = [float(f"{x:.5g}") for x in np.quantile(a, [0.1, 0.35, 0.6, 0.85])] if len(a) else []
+                br = sorted({-x for x in qs} | set(qs))
+            elif len(v):
                 for qq in np.quantile(v[v > v[0]], [i / 9 for i in range(1, 9)]) if (v > v[0]).any() else []:
                     if not br or qq > br[-1] * (1 + 1e-9) + 1e-12:
                         br.append(float(f"{qq:.5g}"))
@@ -236,8 +286,12 @@ def _decode_index(res, man, levels):
 def write_client_config(cfg, series, st):
     """site/config.json: everything the browser needs besides the data files."""
     cat_out = []
+    units = None
     for s in series:
         d = s.to_client()
+        if s.na_label and (s.units_table or {}).get("na_flag"):
+            units = units or json.loads((DATA / "units.json").read_text(encoding="utf-8"))
+            d["na_acs"] = official.flagged_acs(s.units_table, units, s.years)   # grey where missing
         d["q"] = {str(r): st["q"].get(f"{r}/{s.id}") for r in s.res_years}
         d["breaks"] = {str(r): {str(y): (st.get("breaks", {}).get(f"{r}/{s.bin_name(y)}") or {}).get("b")
                                 for y in ys} for r, ys in s.res_years.items()}
@@ -251,6 +305,10 @@ def write_client_config(cfg, series, st):
         p = DATA / "hex" / f"h{res}" / "manifest.json"
         if p.exists():
             manifests[str(res)] = json.loads(p.read_text())["n"]
+    chunks = {}
+    for s in series:
+        if s.sparse:
+            chunks[s.dataset] = {str(r): st["chunks"].get(f"{s.dataset}/{r}") for r in s.res_years}
     client = {
         "version": time.strftime("%Y%m%d%H%M%S"),
         "site": cfg["site"], "defaults": cfg["defaults"], "hex": cfg["hex"],
@@ -261,5 +319,7 @@ def write_client_config(cfg, series, st):
         "featured": [f for f in cfg["variables"].get("featured", []) if any(s.id == f for s in series)],
         "groups": groups, "variables": cat_out, "cells": manifests,
     }
+    if chunks:
+        client["chunks"] = chunks   # sparse datasets: the index chunks in their files, in file order
     (SITE / "config.json").write_text(json.dumps(client, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     log(f"  config.json: {len(cat_out)} variables in {len(groups)} groups")

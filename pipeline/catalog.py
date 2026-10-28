@@ -41,10 +41,39 @@ class Series:
     dtype: str = "u16"              # u8 (shares, 0-1) | u16
     default_year: int | None = None  # year shown first (e.g. skip projections)
     res_years: dict = field(default_factory=dict)   # res -> [years] actually published
+    # dataset-level settings (india_hex.yaml datasets.<id>)
+    root: str | None = None         # folder holding h{res}/ when the dataset lives outside processed/
+    prefix: str = ""                # prepended to every series id of the dataset
+    states: list | None = None      # unit values only for these states (keys as in units.json)
+    sparse: bool = False            # write only the index chunks that hold the dataset's cells
+    units_table: dict | None = None  # official AC results: unit values come from it, not from hexagons
+    caveat: str = ""                # shown under the legend whenever the series is on the map
+    na_label: str = ""              # missing cells inside `states` are drawn grey with this legend label
+    # per-series settings
+    weight: str | None = None       # agg wmean: weight column, "{year}" filled in (e.g. votes_{year})
+    official_col: str | None = None  # column in units_table (default: the source column)
+    type: str = "numeric"           # numeric | categorical (u8 codes into `categories`)
+    categories: list | None = None  # [{id, label, color, years}]; code = position in the list
+    breaks: list | None = None      # fixed class breaks, used in every scale mode
+    diverging: bool = False
+    featured: bool = False          # listed first within its group
+
+    SERVER_ONLY = ("cols", "file", "pivot", "fill_missing", "dataset", "period", "root", "prefix", "units_table",
+                   "weight", "official_col")
+    # new fields are written to config.json only when set, so existing entries stay as they were
+    CLIENT_IF_SET = ("states", "sparse", "type", "categories", "breaks", "diverging", "featured", "caveat", "na_label")
 
     @property
     def years(self):
         return sorted(y for y in self.cols if y is not None)
+
+    def source_col(self, year):
+        """Source column name for a year (the lead series has one column per category)."""
+        c = self.cols[year]
+        return c if isinstance(c, str) else None
+
+    def weight_col(self, year):
+        return self.weight.format(year=year) if self.weight else None
 
     def files(self):
         """(res, year, published file name) for everything this series publishes."""
@@ -57,7 +86,18 @@ class Series:
 
     def to_client(self):
         d = asdict(self)
-        d.pop("cols"), d.pop("file"), d.pop("pivot"), d.pop("fill_missing"), d.pop("dataset"), d.pop("period")
+        for k in self.SERVER_ONLY:
+            d.pop(k)
+        default = Series(id="", dataset="", group="", file="", cols={})
+        for k in self.CLIENT_IF_SET:
+            if d[k] == getattr(default, k):
+                d.pop(k)
+        if self.sparse:
+            d["sparse"] = self.dataset   # key into config.json "chunks"
+        if self.units_table:
+            d["official"] = True        # unit values are official results (districts approximate)
+        if "breaks" in d:
+            d["fixed_breaks"] = d.pop("breaks")   # "breaks" in config.json is the All-India breaks per file
         d["years"] = self.years
         d["res_years"] = {str(r): ys for r, ys in self.res_years.items()}
         return d
@@ -72,8 +112,10 @@ def _humanise(name):
     return s[:1].upper() + s[1:]
 
 
-def _infer(series: Series):
-    n = series.id.lower()
+def _infer(series: Series, name=None):
+    """Defaults from the column name (`name` = the id without the dataset prefix)."""
+    name = name or series.id
+    n = name.lower()
     if "share" in n or n.startswith("is_"):
         series.dtype, series.format, series.agg, series.density, series.ramp = "u8", "pct", "mean", False, "ylgn"
     elif any(t in n for t in ("median", "rate", "price")):
@@ -84,7 +126,7 @@ def _infer(series: Series):
         series.format, series.agg, series.density, series.ramp = "int", "sum", True, "ylorrd"
     if "change" in n:
         series.ramp = "rdbu"
-    series.label = _humanise(series.id)
+    series.label = _humanise(name)
 
 
 def _numeric_columns(con, path):
@@ -127,7 +169,7 @@ def _datasets(cfg):
     ds = {k: dict(v) for k, v in (vcfg.get("datasets") or {}).items()}
     if not vcfg.get("auto_discover", True):
         return ds
-    known = {cfg.hex_file(v["file"], 8).resolve() for v in ds.values()}
+    known = {cfg.hex_file(v["file"], 8, v.get("root")).resolve() for v in ds.values()}
     base = cfg.processed / "h8"
     for p in sorted(base.rglob("*.parquet")):
         rel = p.relative_to(base).as_posix()
@@ -140,17 +182,59 @@ def _datasets(cfg):
     return ds
 
 
+# Keys an override may set; anything else in india_hex.yaml `overrides` is an error.
+OVERRIDE_KEYS = {"label", "unit", "note", "ramp", "format", "agg", "density", "dtype", "default_year", "weight",
+                 "official_col", "type", "categories", "breaks", "diverging", "featured"}
+DATASET_KEYS = {"file", "group", "pivot", "segments", "period", "ignore", "fill_missing", "auto", "root", "prefix",
+                "states", "sparse", "units_table", "exclude", "h8", "lead", "caveat", "na_label"}
+
+
+def _check_keys(where, d, allowed):
+    bad = sorted(set(d) - allowed)
+    if bad:
+        raise ValueError(f"india_hex.yaml {where}: unknown key(s) {', '.join(bad)} (allowed: {', '.join(sorted(allowed))})")
+
+
+def _lead_series(ds, groups):
+    """One categorical series from is_lead_<category>_YYYY flags: per cell the category flagged 1."""
+    spec = ds["lead"]
+    pre = spec.get("from", "is_lead_")
+    cats = spec["categories"]
+    cols = {}
+    for base, colmap in groups.items():
+        if not base.startswith(pre):
+            continue
+        cat = base[len(pre):]
+        if cat not in cats:
+            raise ValueError(f"lead: column {base} has category '{cat}', not in lead.categories")
+        for y, c in colmap.items():
+            cols.setdefault(y, {})[cat] = c
+    if not cols:
+        return None, None
+    present = {c for per in cols.values() for c in per}
+    order = [c for c in cats if c in present]
+    categories = [{"id": c, "label": cats[c]["label"], "color": cats[c]["color"],
+                   "years": sorted(y for y, per in cols.items() if c in per)} for c in order]
+    # cols[year] = ((category, column), ...) in code order
+    cols = {y: tuple((c, per[c]) for c in order if c in per) for y, per in cols.items()}
+    return cols, categories
+
+
 def discover(cfg, verbose=False):
     vcfg = cfg["variables"]
     excl = vcfg.get("exclude", [])
     overrides = vcfg.get("overrides", {})
+    for sid, o in overrides.items():
+        _check_keys(f"variables.overrides.{sid}", o or {}, OVERRIDE_KEYS)
     h8_list = vcfg.get("h8", [])
     h8_all = "all" in h8_list
     con = duckdb.connect()
     series, seen = [], set()
 
     for ds_id, ds in _datasets(cfg).items():
-        res_paths = {r: cfg.hex_file(ds["file"], r) for r in cfg.resolutions}
+        _check_keys(f"variables.datasets.{ds_id}", ds, DATASET_KEYS)
+        root = ds.get("root")
+        res_paths = {r: cfg.hex_file(ds["file"], r, root) for r in cfg.resolutions}
         res_paths = {r: p for r, p in res_paths.items() if p.exists()}
         if 8 not in res_paths and verbose:
             print(f"  [catalog] {ds_id}: no H8 file; skipped (units are aggregated from H8)")
@@ -161,6 +245,10 @@ def discover(cfg, verbose=False):
             continue
         pivot = ds.get("pivot")
         period = ds.get("period")
+        prefix = ds.get("prefix", "")
+        ds_excl = excl + list(ds.get("exclude") or [])
+        ds_h8_all = h8_all or ds.get("h8") == "all"
+        lead = None
         if pivot:
             segs = ds.get("segments") or [r[0] for r in con.sql(
                 f"SELECT DISTINCT {pivot} FROM '{res_paths[8]}' ORDER BY 1").fetchall()]
@@ -182,24 +270,43 @@ def discover(cfg, verbose=False):
                         print(f"  [catalog] {ds_id}: several rows per cell and no `pivot:` set; skipped")
                     continue
             groups = _group_years(cols)
-        for sid, colmap in groups.items():
-            if _excluded(sid, excl) or any(_excluded(c if isinstance(c, str) else "_".join(c[:2]), excl) for c in colmap.values()):
+            if ds.get("lead"):
+                lead = _lead_series(ds, groups)
+        found = []
+        for base, colmap in groups.items():
+            if _excluded(base, ds_excl) or any(_excluded(c if isinstance(c, str) else "_".join(c[:2]), ds_excl) for c in colmap.values()):
                 continue
+            found.append((base, colmap, None))
+        if lead and lead[0]:
+            found.append(("lead", lead[0], lead[1]))
+        ds_series = []
+        for base, colmap, categories in found:
+            sid = prefix + base   # prefix after year grouping; inference runs on the bare name
             uid = sid if sid not in seen else f"{ds_id}_{sid}"
             seen.add(uid)
             s = Series(id=uid, dataset=ds_id, group=ds.get("group", "Other"), file=ds["file"], cols=colmap,
-                       pivot=pivot, period=period, fill_missing=ds.get("fill_missing"))
-            _infer(s)
+                       pivot=pivot, period=period, fill_missing=ds.get("fill_missing"), root=root, prefix=prefix,
+                       states=ds.get("states"), sparse=bool(ds.get("sparse")), units_table=ds.get("units_table"),
+                       caveat=ds.get("caveat", ""), na_label=ds.get("na_label", ""))
+            if categories is not None:
+                s.type, s.categories, s.dtype, s.format, s.agg, s.density, s.ramp = "categorical", categories, "u8", "cat", "lead", False, "cat"
+                s.label, s.note = ds["lead"].get("label", "Leading party"), ds["lead"].get("note", "")
+            else:
+                _infer(s, base)
             for k, v in (overrides.get(uid) or overrides.get(sid) or {}).items():
                 setattr(s, k, v)
-            if s.format == "pct":
+            if s.format == "pct" or s.type == "categorical":
                 s.dtype = "u8"
+            if s.agg == "wmean" and not s.weight:
+                raise ValueError(f"{uid}: agg wmean needs a weight column")
             years = s.years or [None]
             for r in res_paths:
-                if r == 8 and not (h8_all or uid in h8_list or sid in h8_list):
+                if r == 8 and not (ds_h8_all or uid in h8_list or sid in h8_list):
                     continue
-                s.res_years[r] = _h8_years(years, vcfg.get("h8_years", "latest_and_steps")) if r == 8 else years
-            series.append(s)
+                s.res_years[r] = (years if ds.get("h8") == "all" else _h8_years(years, vcfg.get("h8_years", "latest_and_steps"))) if r == 8 else years
+            ds_series.append(s)
+        ds_series.sort(key=lambda s: not s.featured)   # featured first within the dataset's group
+        series += ds_series
 
     featured = vcfg.get("featured", [])
     series.sort(key=lambda s: (featured.index(s.id) if s.id in featured else len(featured)))

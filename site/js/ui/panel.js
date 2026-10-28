@@ -89,7 +89,7 @@ async function figures(sel) {
       if (!a) return null;
       const st = U().state;
       if (s.agg === 'sum') return a.reduce((t, x) => t + (x || 0), 0);
-      if (s.agg === 'mean') { let w = 0; let t = 0; a.forEach((x, i) => { if (x != null) { t += x * st[i].area; w += st[i].area; } }); return w ? t / w : null; }
+      if (s.agg === 'mean' || s.agg === 'wmean') { let w = 0; let t = 0; a.forEach((x, i) => { if (x != null) { t += x * st[i].area; w += st[i].area; } }); return w ? t / w : null; }
       const v = a.filter((x) => x != null).sort((p, q) => p - q);
       return v.length ? v[Math.floor(v.length / 2)] : null; // median: middle state
     };
@@ -165,23 +165,64 @@ function histogram(vals, mark, lens, ramp, sc) {
     <text x="${W}" y="${H + 12}" font-size="10" fill="var(--ink-3)" text-anchor="end">${esc(legendNum(hi, lens))}</text></svg>`;
 }
 
+/** State ids of a state-scoped (election) series and their names, or null. */
+function scopeOf(lens) {
+  if (!lens.states) return null;
+  const ss = U().state.filter((u) => lens.states.includes(u.key));
+  return { ids: new Set(ss.map((u) => u.id)), name: ss.map((u) => u.name).join(' and ') };
+}
+const inScope = (scope, lvl) => (u) => !scope || scope.ids.has(lvl === 'state' ? u.id : u.st);
+const approx = (lens, lvl) => (lens.series?.official && lvl === 'district' ? ' (approximate: ACs grouped by district)' : '');
+
+/** Swatch and label of a category code. */
+function catChip(v, lens) {
+  const c = lens.series.categories[v];
+  return c ? `<i class="sw" style="background:${c.color}"></i>${esc(c.label)}` : '–';
+}
+
+/** How many units each category leads, as a stacked bar with counts. */
+function catCounts(pv, lens, label) {
+  const cats = lens.series.categories;
+  const n = cats.map(() => 0);
+  for (const x of pv) if (Number.isFinite(x) && n[x] !== undefined) n[x]++;
+  const tot = n.reduce((a, b) => a + b, 0);
+  if (!tot) return '';
+  const order = cats.map((c, i) => i).filter((i) => n[i]).sort((a, b) => n[b] - n[a]);
+  return `<div class="rank">Leading in ${tot.toLocaleString('en-IN')} ${esc(label)}</div>
+    <div class="catbar">${order.map((i) => `<i style="flex:${n[i]};background:${cats[i].color}" title="${esc(cats[i].label)}: ${n[i]}"></i>`).join('')}</div>
+    <div class="catkey">${order.map((i) => `<span>${catChip(i, lens)} <b>${n[i]}</b></span>`).join('')}</div>`;
+}
+
 async function lensBlock(st, lens) {
   if (lens.none) return '';
-  const lvl = st.sel ? st.sel.level : st.level;
+  const scope = scopeOf(lens);
+  if (scope && st.sel && !scope.ids.has(st.sel.level === 'state' ? st.sel.id : unit(st.sel).st)) {
+    return `<div class="lensblock"><div class="lbl">${esc(lens.title)}</div><div class="rank">Available for ${esc(scope.name)} only.</div></div>`;
+  }
+  // an election's leading party for a selected state: count its constituencies, like seats
+  const lvl = st.sel ? (lens.categorical && st.sel.level === 'state' ? st.tab || 'ac' : st.sel.level) : st.level;
   const vals = await unitValues(lvl, lens, U());
   if (!vals) return '';
   const ramp = rampFor(lens, st.cbSafe);
   let peers; let v = null; let label;
-  if (st.sel) {
+  if (st.sel && lvl !== st.sel.level) {
+    v = (await unitValues('state', lens, U()))?.[st.sel.id];
+    peers = U()[lvl].filter((x) => x.st === st.sel.id);
+    label = `${PLURAL[lvl]} in ${stateName(st.sel.id)}${approx(lens, lvl)}`;
+  } else if (st.sel) {
     const u = unit(st.sel);
     v = vals[st.sel.id];
-    peers = st.sel.level === 'state' ? U().state : U()[lvl].filter((x) => x.st === u.st);
-    label = st.sel.level === 'state' ? PLURAL.state : `${PLURAL[lvl]} in ${stateName(u.st)}`;
+    peers = st.sel.level === 'state' ? U().state.filter(inScope(scope, 'state')) : U()[lvl].filter((x) => x.st === u.st);
+    label = st.sel.level === 'state' ? (scope ? scope.name : PLURAL.state) : `${PLURAL[lvl]} in ${stateName(u.st)}${approx(lens, lvl)}`;
   } else {
-    peers = U()[lvl];
-    label = `${PLURAL[lvl]} across India`;
+    peers = U()[lvl].filter(inScope(scope, lvl));
+    label = scope ? `${PLURAL[lvl]} in ${scope.name}${approx(lens, lvl)}` : `${PLURAL[lvl]} across India`;
   }
   const pv = peers.map((p) => vals[p.id]);
+  if (lens.categorical) {
+    const big = st.sel ? `<div class="big catv">${catChip(v, lens)}</div>` : '';
+    return `<div class="lensblock"><div class="lbl">${esc(lens.title)}</div>${big}${catCounts(pv, lens, label)}</div>`;
+  }
   const sc = scaleFromValues(pv, lens, ramp) || { breaks: [], colors: ramp };
   let rank = '';
   if (st.sel && Number.isFinite(v)) {
@@ -189,7 +230,8 @@ async function lensBlock(st, lens) {
     const n = pv.filter(Number.isFinite).length;
     const allN = Array.from(vals).filter(Number.isFinite);
     const rAll = allN.filter((x) => x > v).length + 1;
-    rank = `<div class="rank">${r.toLocaleString('en-IN')} of ${n.toLocaleString('en-IN')} ${esc(label)}${st.sel.level !== 'state' ? ` · ${rAll.toLocaleString('en-IN')} of ${allN.length.toLocaleString('en-IN')} in India` : ''}</div>`;
+    rank = `<div class="rank">${r.toLocaleString('en-IN')} of ${n.toLocaleString('en-IN')} ${esc(label)}${st.sel.level !== 'state' && !scope ? ` · ${rAll.toLocaleString('en-IN')} of ${allN.length.toLocaleString('en-IN')} in India` : ''}</div>`;
+    if (scope && st.sel.level === 'state') rank = ''; // one state: nothing to rank against
   }
   const big = st.sel
     ? `<div class="big">${fmtValue(v, lens)}<small>${esc(lens.unitLabel)}</small></div>${rank}`
@@ -199,9 +241,10 @@ async function lensBlock(st, lens) {
 
 async function listBlock(st, lens) {
   let level; let items; let head = '';
+  const scope = lens.none ? null : scopeOf(lens);
   if (!st.sel) {
     level = st.level === 'state' ? 'state' : st.level;
-    items = U()[level];
+    items = U()[level].filter(inScope(scope, level));
     head = `<h2 class="h2">${lens.none ? 'States & union territories' : `Ranking · ${esc(LEVEL(level).label)}`}<small>${lens.none ? '' : 'top and bottom'}</small></h2>`;
     if (lens.none) { level = 'state'; items = U().state; }
   } else if (st.sel.level === 'state') {
@@ -225,7 +268,8 @@ async function listBlock(st, lens) {
     const q = st.filter.toLowerCase();
     rows = rows.filter((r) => r.u.name.toLowerCase().includes(q) || String(r.u.no ?? '') === q);
   }
-  if (vals) rows.sort((a, b) => (Number.isFinite(b.v) ? b.v : -Infinity) - (Number.isFinite(a.v) ? a.v : -Infinity));
+  if (vals && lens.categorical) rows.sort((a, b) => (Number.isFinite(a.v) ? a.v : 99) - (Number.isFinite(b.v) ? b.v : 99) || a.u.name.localeCompare(b.u.name));
+  else if (vals) rows.sort((a, b) => (Number.isFinite(b.v) ? b.v : -Infinity) - (Number.isFinite(a.v) ? a.v : -Infinity));
   else if (level === 'ac' || level === 'pc') rows.sort((a, b) => (a.u.no || 0) - (b.u.no || 0));
   else rows.sort((a, b) => a.u.name.localeCompare(b.u.name));
   const ramp = rampFor(lens, st.cbSafe);
@@ -233,7 +277,7 @@ async function listBlock(st, lens) {
   const max = vals ? Math.max(1e-12, ...rows.map((r) => Math.abs(r.v)).filter(Number.isFinite)) : 1;
   const row = ({ u, v }, i) => {
     const val = vals ? fmtValue(v, lens, { short: true }) : '';
-    const bar = vals && Number.isFinite(v) ? `<span class="br"><i style="width:${Math.max(1.5, (Math.abs(v) / max) * 100)}%;background:${(sc && colourOf(v, sc)) || 'var(--ink-3)'}"></i></span>` : '';
+    const bar = vals && Number.isFinite(v) ? `<span class="br"><i style="width:${lens.categorical ? 100 : Math.max(1.5, (Math.abs(v) / max) * 100)}%;background:${(sc && colourOf(v, sc)) || 'var(--ink-3)'}"></i></span>` : '';
     const no = u.no != null ? `<small>${u.no}</small>` : '';
     const sub = level !== 'state' && !st.sel ? `<small>${esc(stateName(u.st))}</small>` : no;
     return `<button class="row" data-sel="${level}:${u.id}"><span class="rk">${vals ? i + 1 : ''}</span><span class="nm">${esc(u.name)}${sub}</span><span class="vl">${val}</span>${bar}</button>`;
@@ -242,7 +286,7 @@ async function listBlock(st, lens) {
   const jumpSel = !st.sel ? `<select class="jump" id="stateJump" aria-label="Go to a state or union territory">
       <option value="">Go to a state or union territory</option>
       ${[...U().state].sort((x, y) => x.name.localeCompare(y.name)).map((u) => `<option value="${u.id}">${esc(u.name)}</option>`).join('')}</select>` : '';
-  if (!st.sel && vals && rows.length > 24 && !st.filter && level !== 'state') {
+  if (!st.sel && vals && rows.length > 24 && !st.filter && level !== 'state' && !lens.categorical) {
     const top = rows.slice(0, 10);
     const bottomRows = rows.filter((r) => Number.isFinite(r.v));
     const bottom = bottomRows.slice(-10).reverse();
@@ -315,18 +359,22 @@ async function hexBand(st) {
   if (info.a >= 0) links.push(`<span>AC</span><button data-sel="ac:${info.a}">${esc(U().ac[info.a].name)}</button>`);
   if (info.p >= 0) links.push(`<span>PC</span><button data-sel="pc:${info.p}">${esc(U().pc[info.p].name)}</button>`);
   if (info.d >= 0) links.push(`<span>District</span><button data-sel="district:${info.d}">${esc(U().district[info.d].name)}</button>`);
-  const figs = info.figs.map(({ s, v, year }) => {
+  const fig = ({ s, v, year }) => {
     const lens = lensOf({ ...st, var: s.id, mode: 'value', density: false, year });
     return `<button class="fig${st.var === s.id ? ' on' : ''}" data-var="${s.id}"><div class="fl">${esc(s.label)}${year ? ` · ${periodLabel(year)}` : ''}</div>
-      <div class="fv">${fmtValue(v, lens)}</div>${s.density && Number.isFinite(v) ? `<div class="fd">${fmtValue(v / info.area, { ...lens, density: true, format: 'dec2' })} per km²</div>` : ''}</button>`;
-  }).join('');
+      <div class="fv">${lens.categorical ? (Number.isFinite(v) ? catChip(v, lens) : '–') : fmtValue(v, lens)}${s.format === 'pp' && Number.isFinite(v) ? '<small> pp</small>' : ''}</div>${s.density && Number.isFinite(v) ? `<div class="fd">${fmtValue(v / info.area, { ...lens, density: true, format: 'dec2' })} per km²</div>` : ''}</button>`;
+  };
+  const figs = info.figs.map(fig).join('');
+  const grp = info.group && info.group.figs.length
+    ? `<div class="kicker" style="margin-top:14px">${esc(info.group.name)} · ${periodLabel(info.group.year)}</div>
+      ${info.group.figs.every((f) => !Number.isFinite(f.v)) ? '<p class="note">No modelled votes in this hexagon for this election.</p>' : `<div class="figs" style="margin-top:8px">${info.group.figs.map(fig).join('')}</div>`}` : '';
   return `<section class="band"><button class="icon close" data-act="closehex" title="Close">${ICON.x}</button>
     ${st.here && h3IsHere(st) ? `<div class="kicker"><b>You are here</b> · accurate to ${st.here.acc < 1000 ? `${Math.round(st.here.acc)} m` : `${(st.here.acc / 1000).toFixed(1)} km`}</div>` : ''}
     <div class="kicker">H${info.res} hexagon · ${info.area.toFixed(2)} km² · ${esc(stateName(info.s))}</div>
     <h2 class="title mono">${info.h}</h2><div class="meta">${links.join('')}</div>
     ${coordLine(st, info)}
     <div class="acts"><button class="icon" data-act="copyhex" title="Copy H3 id">${ICON.link}</button>${googleLinks(info.lng, info.lat, { 6: 11, 7: 13, 8: 15 }[info.res])}</div>
-    <div class="figs" style="margin-top:12px">${figs}</div></section>`;
+    ${grp}<div class="figs" style="margin-top:12px">${figs}</div></section>`;
 }
 
 async function compareTable(st) {
@@ -343,12 +391,12 @@ async function compareTable(st) {
   const head = pins.map((p) => `<th>${esc(unit(p).name)}<div style="font-size:10px;color:var(--ink-3)">${esc(LEVEL(p.level).short)}</div></th>`).join('');
   const body = rows.map(({ s, y, vals }) => {
     const lens = lensOf({ ...st, var: s.id, mode: 'value', density: false });
-    const best = Math.max(...vals.filter(Number.isFinite));
+    const best = s.type === 'categorical' ? null : Math.max(...vals.filter(Number.isFinite));
     return `<tr><td>${esc(s.label)}${y ? ` <span style="color:var(--ink-3)">${periodLabel(y)}</span>` : ''}</td>${vals.map((v) => `<td class="${v === best && pins.length > 1 ? 'best' : ''}">${fmtValue(v, lens, { short: true })}</td>`).join('')}</tr>`;
   }).join('');
   return `<div class="kicker">Side by side</div><h1 class="title small">Pinned places</h1>
     <table class="ctable"><thead><tr><th></th>${head}</tr></thead><tbody>${body}</tbody></table>
-    <p class="note">Highest value per row highlighted. Values are aggregated from H8 cells: sums for counts, means for shares, medians for prices.</p>
+    <p class="note">Highest value per row highlighted. Values are aggregated from H8 cells: sums for counts, means for shares, medians for prices. Election values are the official ECI results.</p>
     <div style="display:flex;gap:16px;margin-top:14px"><button class="textbtn" data-act="csvcompare">Download CSV</button><button class="textbtn" data-act="back">Back to map panel</button></div>`;
 }
 
@@ -363,6 +411,7 @@ function about() {
       <li>Click a hexagon for its values. Pin places to compare them. Export PNG, CSV or GeoJSON.</li>
     </ol>
     <p class="note">Sources: ${esc(s.data_credit || '')}. A hexagon belongs to the unit that contains its centre. Unit values are aggregated from H8 cells.</p>
+    <p class="note">Elections (Karnataka, Bihar): hexagon values are modelled from booth results spread over where voters live. Values for constituencies, districts and states are the official ECI results, not hexagon aggregates; a district combines the ACs that lie mostly inside it, so district values are approximate.</p>
     <p class="note">${s.author ? `${esc(s.author)} · ` : ''}${s.github ? `<a href="${esc(s.github)}" target="_blank" rel="noopener">Source code</a> · ` : ''}Data version ${esc(CTX.cfg.version)}</p>
     <button class="textbtn" data-act="back" style="margin-top:16px">Back</button>`;
 }

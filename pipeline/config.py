@@ -27,8 +27,10 @@ class Config(dict):
     def ac_patch_paths(self):
         return [self.src_root / p for p in self["source"]["boundaries"].get("ac_patches") or []]
 
-    def hex_file(self, template, res) -> Path:
-        return self.processed / f"h{res}" / template.format(res=res)
+    def hex_file(self, template, res, root=None) -> Path:
+        """processed/h{res}/<file>, or <root>/h{res}/<file> for a dataset kept elsewhere."""
+        base = Path(root) if root else self.processed
+        return base / f"h{res}" / template.format(res=res)
 
     @property
     def resolutions(self):

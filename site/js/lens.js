@@ -24,7 +24,8 @@ export function lensOf(st, over = {}) {
   const years = s.years || [];
   const dflt = years.includes(s.default_year) ? s.default_year : years[years.length - 1];
   const year = years.length ? (years.includes(o.year) ? o.year : dflt) : null;
-  const canChange = years.length >= 2 && CFG.features.change_mode;
+  const categorical = s.type === 'categorical';
+  const canChange = years.length >= 2 && CFG.features.change_mode && !categorical;
   const mode = canChange && o.mode === 'change' ? 'change' : 'value';
   let from = null;
   if (mode === 'change') {
@@ -33,13 +34,15 @@ export function lensOf(st, over = {}) {
   }
   const density = !!(o.density && s.density && CFG.features.density_toggle);
   const pctChange = mode === 'change' && s.agg === 'sum';
-  const diverging = mode === 'change' || ['rdbu', 'brbg', 'puor'].includes(s.ramp);
-  let unitLabel = s.unit || (s.format === 'pct' ? '%' : '');
+  const diverging = mode === 'change' || !!s.diverging || ['rdbu', 'brbg', 'puor', 'buor'].includes(s.ramp);
+  let unitLabel = categorical ? '' : s.unit || (s.format === 'pct' ? '%' : '');
   if (density) unitLabel = `${s.unit ? `${s.unit} ` : ''}per km²`;
   if (mode === 'change') unitLabel = pctChange ? '% change' : s.format === 'pct' ? 'percentage points' : `change${s.unit ? ` (${s.unit})` : ''}`;
   return {
     id: s.id, series: s, label: s.label, note: s.note, group: s.group, years, year, from, mode, density,
     pctChange, diverging, ramp: s.ramp, format: density ? 'dec2' : s.format, agg: s.agg, unitLabel,
+    categorical, fixedBreaks: mode === 'value' && !density && s.fixed_breaks ? s.fixed_breaks : null,
+    states: s.states || null, caveat: s.caveat || '', naLabel: s.na_label || '',
     title: `${s.label}${density ? ' per km²' : ''}${mode === 'change' ? `, change ${periodLabel(from)}–${periodLabel(year)}` : year ? `, ${periodLabel(year)}` : ''}`,
   };
 }
@@ -94,7 +97,8 @@ export async function unitValues(level, lens, units) {
 
 /** All-India breaks precomputed by the pipeline (value mode, no density), else null. */
 export function indiaBreaks(lens, res) {
-  if (lens.none || lens.mode === 'change') return null;
+  if (lens.none || lens.categorical || lens.mode === 'change') return null;
+  if (lens.fixedBreaks) return lens.fixedBreaks;
   const b = lens.series.breaks?.[String(res)]?.[lens.year == null ? 'None' : String(lens.year)];
   if (!b || !b.length) return null;
   if (!lens.density) return b;
