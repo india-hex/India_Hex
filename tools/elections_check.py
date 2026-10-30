@@ -69,7 +69,7 @@ def hex_checks():
         n = man["n"]
         pos_of = dict(zip(order.tolist(), range(n)))
         for dsid, ds in DS.items():
-            if not ds.get("sparse"):
+            if not (ds.get("sparse") and ds.get("states")):   # election datasets (incl. booth counts)
                 continue
             chunks = CC["chunks"][dsid][str(res)]
             path = f"{ds['root']}/h{res}/{ds['file'].format(res=res)}"
@@ -167,7 +167,7 @@ def unit_checks():
     _, ids8 = _decode_index(8, man, cfg.chunk_levels)
     a8, d8 = ids8["a"].astype(int), ids8["d"].astype(int)
     for dsid, ds in DS.items():
-        if not ds.get("units_table"):
+        if not ds.get("units_table") or not ds.get("lead"):   # booth counts: tools/booths_check.py
             continue
         spec = ds["units_table"]
         st_id = next(u["id"] for u in UNITS["state"] if u["key"] == spec["state"])

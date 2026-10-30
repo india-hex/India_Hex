@@ -8,12 +8,17 @@ india_hex.yaml, per dataset:
     weights: {votes_{year}: total_valid_{year}}          (series weight -> table column used to combine ACs)
     lead:    {column: lead_bucket_{year}, share: "{cat}_share_{year}"}
     na_flag: incomplete_booth_data                       (ACs whose missing cells the map draws grey)
+    fallback: false     an AC without a value stays empty (default: the hexagon aggregate stands in)
+    extra:   {located: booths_located_{year}}           (more AC columns, written beside the AC values)
 
 AC values are the table's own. PC, district and state values combine their ACs exactly: a share or
 margin weighted by the share denominator (valid votes) equals summed party votes over summed valid
 votes, turnout weighted by electors equals summed votes over summed electors, and counts are summed.
 A unit's leading category is the one with the largest combined share. Districts group ACs by the
 district holding most of the AC's H8 cells, so district values are approximate.
+
+An AC without a value (e.g. incomplete booth data) is left out of its PC, district and state; the
+unit files record how many were left out ("x"), so the site can say "excl. k ACs".
 """
 import duckdb
 import numpy as np
@@ -68,16 +73,21 @@ def ac_district(ids8, n_ac):
 
 
 def _combine(vals, wts, groups, n, how):
-    """Combine AC values into n units by group id (wmean or sum); NaN where a unit has no AC."""
-    ok = groups >= 0
+    """Combine AC values into n units by group id (wmean or sum), leaving out ACs without a value.
+    Returns (values, left_out): NaN where a unit has no AC with a value; left_out = ACs skipped per unit."""
+    inside = groups >= 0
+    ok = inside & np.isfinite(vals)
+    if wts is not None:
+        ok &= np.isfinite(wts)
+    left_out = np.bincount(groups[inside & ~ok], minlength=n)[:n]
     if how == "sum":
         s = np.bincount(groups[ok], weights=vals[ok], minlength=n)[:n]
         c = np.bincount(groups[ok], minlength=n)[:n]
-        return np.where(c > 0, s, np.nan)
+        return np.where(c > 0, s, np.nan), left_out
     s = np.bincount(groups[ok], weights=vals[ok] * wts[ok], minlength=n)[:n]
     c = np.bincount(groups[ok], weights=wts[ok], minlength=n)[:n]
     with np.errstate(invalid="ignore", divide="ignore"):
-        return np.where(c > 0, s / c, np.nan)
+        return np.where(c > 0, s / c, np.nan), left_out
 
 
 class Official:
@@ -115,9 +125,10 @@ class Official:
         return np.full(len(ac_ids), self.state)
 
     def values(self, series, year):
-        """{level: per-unit array} for one year; NaN for units without official rows."""
+        """({level: per-unit array}, {level: ACs left out per unit}) for one year; NaN for units
+        without official values."""
         df, ac_ids = self.rows(year)
-        out = {}
+        out, left = {}, {}
         if series.type == "categorical":
             lead = self.spec["lead"]
             col = lead["column"].format(year=year)
@@ -133,13 +144,13 @@ class Official:
                     arr[ac_ids] = df[col].map(codes).to_numpy(float)
                 else:
                     g = self._groups(ac_ids, lvl)
-                    shares = np.stack([_combine(df[lead["share"].format(cat=c, year=year)].to_numpy(float), w, g, self.n[lvl], "wmean")
+                    shares = np.stack([_combine(df[lead["share"].format(cat=c, year=year)].to_numpy(float), w, g, self.n[lvl], "wmean")[0]
                                        for c in cats])
                     have = ~np.all(np.isnan(shares), axis=0)
                     best = np.nanargmax(np.where(np.isnan(shares), -1, shares), axis=0)
                     arr[have] = np.array([codes[cats[b]] for b in best[have]], float)
                 out[lvl] = arr
-            return out
+            return out, left
         col = (series.official_col or series.cols[year]).format(year=year)
         if col not in df:
             raise ValueError(f"{series.id} {year}: column {col} not in {table_path(self.spec, year)}")
@@ -151,8 +162,18 @@ class Official:
                 arr = np.full(self.n["ac"], np.nan)
                 arr[ac_ids] = v
             else:
-                arr = _combine(v, w, self._groups(ac_ids, lvl), self.n[lvl], how)
+                arr, left[lvl] = _combine(v, w, self._groups(ac_ids, lvl), self.n[lvl], how)
             out[lvl] = arr
+        return out, left
+
+    def extras(self, year):
+        """{name: per-AC array} of the table's `extra` columns (e.g. located / unlocated booths)."""
+        df, ac_ids = self.rows(year)
+        out = {}
+        for name, col in (self.spec.get("extra") or {}).items():
+            arr = np.full(self.n["ac"], np.nan)
+            arr[ac_ids] = df[col.format(year=year)].to_numpy(float)
+            out[name] = arr
         return out
 
     def _weight_col(self, series, year, lead_weight=False):
@@ -163,10 +184,14 @@ class Official:
         return wmap.get(name, name).format(year=year)
 
     def apply(self, series, agg):
-        """Overwrite hexagon aggregates with official values wherever the table has them."""
+        """Overwrite hexagon aggregates with official values wherever the table has them. Where it has
+        none, the hexagon value stands in, or (fallback: false) the unit stays empty."""
+        fallback = self.spec.get("fallback", True)
         n_fallback = {lvl: 0 for lvl in LEVELS}
+        left_out = {lvl: [] for lvl in LEVELS if lvl != "ac"}
+        extras = {}
         for j, y in enumerate(agg["y"]):
-            off = self.values(series, y)
+            off, left = self.values(series, y)
             for lvl in LEVELS:
                 cur = agg[lvl][j]
                 o = off[lvl]
@@ -174,8 +199,21 @@ class Official:
                     if np.isfinite(x):
                         cur[i] = _sig4(x)
                     elif cur[i] is not None:
-                        n_fallback[lvl] += 1
+                        if fallback:
+                            n_fallback[lvl] += 1
+                        else:
+                            cur[i] = None
+                if lvl in left_out:
+                    k = left.get(lvl)
+                    left_out[lvl].append([int(x) for x in k] if k is not None else [0] * self.n[lvl])
+            for name, arr in self.extras(y).items():
+                extras.setdefault(name, []).append([None if not np.isfinite(x) else int(x) if float(x).is_integer() else _sig4(x) for x in arr])
         fb = {k: v for k, v in n_fallback.items() if v}
         if fb:
             log(f"  {series.id}: hexagon fallback (no official rows) for {fb}")
+        x = {lvl: per_year for lvl, per_year in left_out.items() if any(any(r) for r in per_year)}
+        if x:
+            agg["x"] = x          # ACs left out per unit and year ("excl. k ACs")
+        if extras:
+            agg["e"] = extras     # AC-level extra columns
         return agg

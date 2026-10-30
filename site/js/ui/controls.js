@@ -1,14 +1,18 @@
 // Map chrome, generated from config.json and kept in sync with the store:
 //   lens bar   (top)        what the map is coloured by: variable, mode, scale, legend, years
-//   Layers     (top-left)   boundaries, hexagons, fill, display options
+//   Layers     (top-left)   a stack: hexagons, booth pins + catchments (election chips), boundaries
+//                            (extra lines, widths), fill, display options
 //   tools      (right)      zoom, home, find me, compass, 3D, compare, export, full screen
 //   bases      (bottom-left) Map / Satellite / Terrain tabs + a Labels popover
 //   compare bar              what the right side of a swipe compare shows
 import { esc, legendNum, periodLabel } from '../scales.js';
 import { lensOf, allSeries, seriesById } from '../lens.js';
+import { units } from '../data/units.js';
+import { boothElections, boothColour } from '../booths.js';
 
 let CTX = null;
 let pickerQuery = '';
+const treeOpen = new Map(); // picker tree nodes the user opened or closed this session
 let playTimer = null;
 
 const I = {
@@ -47,17 +51,28 @@ export function initControls(ctx) {
     if (!b) return;
     let v = b.dataset.v;
     if (b.dataset.k === 'res') v = /^\d$/.test(v) ? +v : v;
+    if (b.dataset.k === 'bel') { ctx.act.pickElection(v); return; }
     S.set({ [b.dataset.k]: v });
   });
   body.addEventListener('input', (e) => {
     if (e.target.id === 'opacity') S.set({ opacity: +e.target.value });
     else if (e.target.id === 'lineScale') S.set({ lineScale: +e.target.value });
+    else if (e.target.dataset?.lw) {
+      S.set({ lw: { ...S.get().lw, [e.target.dataset.lw]: +e.target.value } });
+      const out = e.target.parentElement.querySelector('output');
+      if (out) out.textContent = `${(+e.target.value).toFixed(1)}×`;
+    }
   });
   body.addEventListener('change', (e) => {
     const k = e.target.dataset?.tog;
+    const line = e.target.dataset?.line;
     if (k === 'theme') S.set({ theme: e.target.checked ? 'dark' : 'light' });
+    else if (k === 'hexOn') S.set({ res: e.target.checked ? ctx.rt.lastRes || 'auto' : 'off' });
+    else if (k === 'pins') S.set({ pins: e.target.checked ? 'on' : 'off' });
+    else if (line) { const cur = S.get().lines.filter((l) => l !== line); S.set({ lines: e.target.checked ? [...cur, line] : cur }); }
     else if (k) S.set({ [k]: e.target.checked });
   });
+  if (S.get().res !== 'off') ctx.rt.lastRes = S.get().res;
 
   // ---- lens bar ----
   const bar = document.getElementById('lensbar');
@@ -66,7 +81,7 @@ export function initControls(ctx) {
     const b = e.target.closest('button[data-k]');
     if (b) {
       const k = b.dataset.k;
-      if (k === 'var') { togglePicker(false); S.set({ var: b.dataset.v, mode: 'value', density: false }); return; }
+      if (k === 'var') { togglePicker(false); ctx.act.pickVar(b.dataset.v); return; }
       if (k === 'density') { S.set({ density: !S.get().density }); return; }
       S.set({ [k]: b.dataset.v });
       return;
@@ -81,6 +96,7 @@ export function initControls(ctx) {
     }
   });
   document.getElementById('pickerQ').addEventListener('input', (e) => { pickerQuery = e.target.value; renderPickerList(); });
+  document.getElementById('pickerList').addEventListener('toggle', (e) => { if (e.target.dataset?.node) treeOpen.set(e.target.dataset.node, e.target.open); }, true);
   document.getElementById('pickerQ').addEventListener('keydown', (e) => {
     if (e.key === 'Escape') togglePicker(false);
     if (e.key === 'Enter') document.querySelector('#pickerList button')?.click();
@@ -131,7 +147,8 @@ export function initControls(ctx) {
   document.getElementById('compareBar').addEventListener('click', (e) => { if (e.target.closest('.x')) S.set({ compare: null }); });
 
   S.on(null, (st, prev, changed) => {
-    if (['level', 'res', 'scope', 'mask', 'labels', 'stateLines', 'hexLines', 'cbSafe', 'theme', 'sel'].some((k) => changed.has(k))) renderLens();
+    if (changed.has('res') && st.res !== 'off') ctx.rt.lastRes = st.res;
+    if (['level', 'res', 'scope', 'mask', 'labels', 'stateLines', 'hexLines', 'cbSafe', 'theme', 'sel', 'pins', 'catch', 'bel', 'lines', 'var', 'year'].some((k) => changed.has(k))) renderLens();
     if (['var', 'year', 'mode', 'from', 'density', 'scale'].some((k) => changed.has(k))) { renderBar(); renderTimeline(); }
     if (['basemap', 'overlays'].some((k) => changed.has(k))) renderBases();
     if (['threeD', 'compare', 'measuring'].some((k) => changed.has(k))) renderTools();
@@ -164,18 +181,29 @@ function tog(key, label, on) {
   return `<label class="tog">${label}<input type="checkbox" data-tog="${key}" ${on ? 'checked' : ''}><i></i></label>`;
 }
 
-/** Layers panel: where things are drawn (not what they're coloured by). */
+/** Layers panel: where things are drawn (not what they're coloured by), as a stack of layers. */
 export function renderLens() {
   const { S, cfg, rt } = CTX;
   const st = S.get();
   const f = cfg.features;
   const AREA = { 6: '≈36 km²', 7: '≈5.2 km²', 8: '≈0.74 km²' };
-  const resItems = [['off', 'Off', false, 'No hexagons'], ['auto', 'Auto', false, 'Resolution follows the zoom or the size of the selected place'],
+  const hexOn = st.res !== 'off';
+  const resItems = [['auto', 'Auto', false, 'Resolution follows the zoom or the size of the selected place'],
     ...cfg.hex.resolutions.map((r) => [r, `H${r}`, false, `H${r} cells, ${AREA[r] || ''} each`])];
+  const L = cfg.boundaries.levels;
+  const widthRow = (l) => `<div class="slider wl">${esc(L[l].label)}<input type="range" data-lw="${l}" min="0.5" max="4" step="0.1" value="${st.lw?.[l] ?? 1}" aria-label="${esc(L[l].label)} line width"><output>${(st.lw?.[l] ?? 1).toFixed(1)}×</output></div>`;
   document.getElementById('lensBody').innerHTML = `
-    <div><div class="lab">Boundaries</div>${seg('level', Object.entries(cfg.boundaries.levels).map(([id, l]) => [id, l.label]), st.level)}</div>
-    <div><div class="lab">Hexagons <span id="hexHint">${esc(st.res === 'off' ? '' : rt.hexHint || '')}</span></div>${seg('res', resItems, st.res)}
-      ${st.res !== 'off' ? `<div style="margin-top:5px">${seg('scope', [['sel', 'Selected place', false, st.sel ? 'Only the cells of the selected place' : 'Nothing is selected yet: cells in view are shown'], ['view', 'Everything in view', false, 'All cells on screen; the selected place stays highlighted']], st.scope, 'sm')}</div>` : ''}</div>
+    <div class="stack-row">
+      <div class="lab row">${tog('hexOn', 'Hexagons', hexOn)}<span id="hexHint">${esc(hexOn ? rt.hexHint || '' : '')}</span></div>
+      ${hexOn ? `${seg('res', resItems, st.res)}
+      <div style="margin-top:5px">${seg('scope', [['sel', 'Selected place', false, st.sel ? 'Only the cells of the selected place' : 'Nothing is selected yet: cells in view are shown'], ['view', 'Everything in view', false, 'All cells on screen; the selected place stays highlighted']], st.scope, 'sm')}</div>` : ''}
+    </div>
+    ${boothRows(st)}
+    <div class="stack-row">
+      <div class="lab">Boundaries</div>${seg('level', Object.entries(L).map(([id, l]) => [id, l.label]), st.level)}
+      <div class="also">${['ac', 'pc'].filter((l) => L[l]).map((l) => `<label class="chk"><input type="checkbox" data-line="${l}" ${st.level === l || st.lines.includes(l) ? 'checked' : ''} ${st.level === l ? 'disabled title="The active level always draws its lines"' : ''}>${esc(L[l].label)} lines</label>`).join('')}</div>
+      ${['ac', 'pc'].filter((l) => L[l]).map(widthRow).join('')}
+    </div>
     <div class="slider">Fill<input type="range" id="opacity" min="0.1" max="1" step="0.02" value="${st.opacity}" aria-label="Fill opacity"></div>
     <details class="drawer"${rt.drawerOpen ? ' open' : ''} id="drawer"><summary>Display options <span>＋</span></summary>
       ${tog('mask', 'Dim outside selection', st.mask)}
@@ -188,6 +216,30 @@ export function renderLens() {
     </details>`;
   document.getElementById('drawer').addEventListener('toggle', (e) => { rt.drawerOpen = e.target.open; });
   markShownRes();
+}
+
+/** Booth pins and catchments: switches, and election chips per state while they are on. */
+function boothRows(st) {
+  const els = boothElections();
+  if (!els.length) return '';
+  const bv = CTX.rt.booth;
+  const pinsOn = !!bv?.pins;
+  const mode = bv?.catchMode || 'off';
+  const on = pinsOn || mode !== 'off';
+  const states = [...new Set(els.map((e) => e.state))];
+  const cur = bv?.el?.id;
+  const chips = on || !bv ? `<div class="echips">${states.map((k) => {
+    const es = els.filter((e) => e.state === k).sort((a, b) => a.year - b.year);
+    return `<div class="erow"><span>${esc(es[0].state_name)}</span>${es.map((e) => `<button data-k="bel" data-v="${e.id}" class="${e.id === cur ? 'on' : ''}" title="${esc(e.state_name)} ${esc(e.label)}">${e.house === 'Lok Sabha' ? 'LS' : 'AS'} ${e.year}</button>`).join('')}</div>`;
+  }).join('')}</div>` : '';
+  const hint = !bv ? '<span class="auto">Karnataka and Bihar: pick an election</span>'
+    : st.pins || st.catch ? '' : `<span class="auto">${bv.coupled ? 'automatic' : 'with election variables'}</span>`;
+  return `<div class="stack-row">
+      <div class="lab row">${tog('pins', 'Booth pins', pinsOn)}${hint}</div>
+      <div class="lab">Booth catchments <span class="hint2">from zoom ${CTX.cfg.booths.minzoom}</span></div>
+      ${seg('catch', [['off', 'Off'], ['line', 'Outline'], ['fill', 'Fill']], mode, 'sm')}
+      ${chips}
+    </div>`;
 }
 
 /** Lens bar: what the map is coloured by. */
@@ -224,23 +276,75 @@ function renderPickerList() {
   const st = CTX.S.get();
   const q = pickerQuery.trim().toLowerCase();
   const items = allSeries().filter((s) => !q || s.label.toLowerCase().includes(q) || s.id.includes(q) || s.group.toLowerCase().includes(q));
-  const featured = CTX.cfg.featured.map(seriesById).filter((s) => s && items.includes(s));
-  const groups = {};
-  for (const s of items) if (!featured.includes(s) || q) (groups[s.group] ||= []).push(s);
   const btn = (s) => `<button data-k="var" data-v="${s.id}" class="${st.var === s.id ? 'on' : ''}">${esc(s.label)}<small>${s.years.length > 1 ? `${periodLabel(s.years[0])}–${periodLabel(s.years[s.years.length - 1])}` : periodLabel(s.years[0])}</small></button>`;
-  el.innerHTML = `${!q ? `<button data-k="var" data-v="none" class="${st.var === 'none' ? 'on' : ''}">None (boundaries only)</button>` : ''}
-    ${featured.length && !q ? `<div class="g">Featured</div>${featured.map(btn).join('')}` : ''}
-    ${Object.entries(groups).map(([g, ss]) => `<div class="g">${esc(g)}</div>${ss.map(btn).join('')}`).join('')}
-    ${!items.length ? '<div class="g">Nothing matches</div>' : ''}`;
+  const none = `<button data-k="var" data-v="none" class="${st.var === 'none' ? 'on' : ''}">None (boundaries only)</button>`;
+  if (q) { // a search flattens the tree: group headings only
+    const groups = {};
+    for (const s of items) (groups[s.group] ||= []).push(s);
+    el.innerHTML = `${Object.entries(groups).map(([g, ss]) => `<div class="g">${esc(g)}</div>${ss.map(btn).join('')}`).join('')}
+      ${!items.length ? '<div class="g">Nothing matches</div>' : ''}`;
+    return;
+  }
+  // Elections > state > house > variables; the state you are in opens first
+  const tree = new Map();
+  for (const s of items) {
+    if (s.menu?.[0] !== 'Elections' || s.menu.length < 3) continue;
+    const [, stName, house] = s.menu;
+    if (!tree.has(stName)) tree.set(stName, { keys: s.states || [], houses: new Map() });
+    const t = tree.get(stName);
+    if (!t.houses.has(house)) t.houses.set(house, []);
+    t.houses.get(house).push(s);
+  }
+  const curKey = CTX.rt.curState >= 0 ? units().state[CTX.rt.curState]?.key : null;
+  const curVar = seriesById(st.var);
+  const here = [...tree.keys()].find((k) => tree.get(k).keys.includes(curKey));
+  const order = [...tree.keys()].sort((a, b) => (b === here) - (a === here) || a.localeCompare(b));
+  const open = (node, dflt) => (treeOpen.has(node) ? treeOpen.get(node) : dflt);
+  const varIn = (stName, house) => !!stName && curVar?.menu?.[0] === 'Elections' && curVar.menu[1] === stName && (!house || curVar.menu[2] === house);
+  const years = (ss) => [...new Set(ss.flatMap((s) => s.years))].sort().join(' · ');
+  const elections = tree.size ? `<details class="tnode" data-node="Elections"${open('Elections', !!here || varIn(curVar?.menu?.[1])) ? ' open' : ''}>
+      <summary>Elections${here ? `<small>${esc(here)} first</small>` : ''}</summary>
+      ${order.map((stName) => {
+    const t = tree.get(stName);
+    const nodeKey = `Elections/${stName}`;
+    return `<details class="tnode t2" data-node="${esc(nodeKey)}"${open(nodeKey, stName === here || varIn(stName)) ? ' open' : ''}><summary>${esc(stName)}</summary>
+        ${[...t.houses.entries()].map(([house, ss]) => {
+      const hk = `${nodeKey}/${house}`;
+      return `<details class="tnode t3" data-node="${esc(hk)}"${open(hk, stName === here || varIn(stName, house)) ? ' open' : ''}><summary>${esc(house)}<small>${years(ss)}</small></summary>${ss.map(btn).join('')}</details>`;
+    }).join('')}</details>`;
+  }).join('')}</details>` : '';
+  const inTree = (s) => s.menu?.[0] === 'Elections';
+  const featured = CTX.cfg.featured.map(seriesById).filter((s) => s && items.includes(s) && !inTree(s));
+  const groups = {};
+  for (const s of items) if (!featured.includes(s) && !inTree(s)) (groups[s.group] ||= []).push(s);
+  el.innerHTML = `${none}${elections}
+    ${featured.length ? `<div class="g">Featured</div>${featured.map(btn).join('')}` : ''}
+    ${Object.entries(groups).map(([g, ss]) => `<div class="g">${esc(g)}</div>${ss.map(btn).join('')}`).join('')}`;
+}
+
+/** The booth layers' line: election, zoom hint, EVM note and, when they show the lead, its swatches. */
+function boothLegend(lens, sc) {
+  const bv = CTX.rt.booth;
+  if (!bv || (!bv.pins && bv.catchMode === 'off')) return '';
+  const el = bv.el;
+  const minz = CTX.cfg.booths.minzoom;
+  const z = CTX.view.map.getZoom();
+  const col = boothColour(el, lens, sc);
+  const sameLead = lens && !lens.none && lens.categorical && lens.id === `${el.prefix}lead`;
+  const sw = col.kind === 'lead' && !sameLead
+    ? `<div class="cats">${el.lead.map((c) => `<span><i style="background:${c.color}"></i>${esc(c.label)}</span>`).join('')}</div>` : '';
+  const what = [bv.pins ? 'pins' : '', bv.catchMode !== 'off' ? 'catchments' : ''].filter(Boolean).join(' and ');
+  return `<div class="lbooth"><b>Booth ${what}</b> · ${esc(el.state_name)} ${esc(el.label)}${z < minz ? ` · <span class="zh">zoom in to see them</span>` : ''} · ${col.kind === 'lead' ? 'leading party' : 'same colours'}, EVM votes (no postal ballots)${sw}</div>`;
 }
 
 export function legendHTML() {
   const lg = CTX.rt.legend;
-  if (!lg || lg.lens.none) return '';
+  if (!lg) return '';
+  if (lg.lens.none) return boothLegend(null, null);
   const cov = lg.coverage;
   const { lens } = lg;
   // election layers: a visible caveat line under the legend, not only in the tooltip
-  const caveat = lens.caveat ? `<div class="lcaveat">${esc(lens.caveat)}</div>` : '';
+  const caveat = (lens.caveat ? `<div class="lcaveat">${esc(lens.caveat)}</div>` : '') + boothLegend(lens, lg.sc);
   if (cov && lg.scopeName && !cov.n) return `<div class="lnote nodata">${esc(lens.label)} covers ${esc(lg.scopeName)} only: zoom there, or choose it from the state list.</div>${caveat}`;
   if (cov && cov.n && !cov.fin) return `<div class="lnote nodata">No ${esc(lens.label.toLowerCase())} data for these ${cov.n.toLocaleString('en-IN')} cells.</div>${caveat}`;
   if (!lg.sc) return '';

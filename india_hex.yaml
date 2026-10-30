@@ -198,22 +198,37 @@ variables:
   datasets:
     population: {file: "population/h{res}_population_2010_2030_wide.parquet", group: People}
     ntl:        {file: "ntl/h{res}_ntl_2012_2025_wide_with_geography.parquet", group: Economy}
-    built:      {file: "built_environment/h{res}_built_environment_2015_2020_2025_wide.parquet", group: Built environment}
+    built:
+      file: "built_environment/h{res}_built_environment_2015_2020_2025_wide.parquet"
+      group: Built environment
+      # cut 2026-10-30 (owner): the residential / non-residential splits, surface and volume
+      exclude: ["built_s_*", "built_v_*", built_share_res, built_share_nres, avg_height_res_m, avg_height_nres_m]
     landcover:  {file: "land_cover/h{res}_land_cover_classes_2017_2024_wide.parquet", group: Land cover}
     forest:     {file: "land_cover/h{res}_forest_2012_2025_wide.parquet", group: Forest}
     industrial: {file: "land_cover/h{res}_industrial_wide.parquet", group: Land cover}
-    poi:        {file: "commercial_poi/h{res}_poi_hexagon_AGGREGATED.parquet", group: Commerce, fill_missing: 0}
+    poi:
+      file: "commercial_poi/h{res}_poi_hexagon_AGGREGATED.parquet"
+      group: Commerce
+      fill_missing: 0
+      # cut 2026-10-30 (owner): the 16 POI categories; All POIs and Commercial POIs stay
+      exclude: [retail, food_drink, finance, offices, lodging, fuel_auto, markets, industry_logistics, crafts,
+                leisure_entertainment, health, education, transport, tourism, government_public, worship]
     property:
       file: "property/h{res}_property_hexagon_AGGREGATED.parquet"
       group: Property
       pivot: segment         # long table: one column per segment, named <segment>_<column>
       segments: [residential_buy, residential_rent, commercial_buy, commercial_rent]
+      # cut 2026-10-30 (owner): every static series except the residential sale rate
+      exclude: [residential_buy_listings_total, residential_buy_price_median_inr, residential_rent_listings_total,
+                residential_rent_price_median_inr, commercial_buy_listings_total, commercial_buy_price_median_inr,
+                commercial_buy_rate_median_inr_per_sqft, commercial_rent_listings_total, commercial_rent_price_median_inr]
     property_quarterly:
       file: "property/h{res}_property_quarterly_panel_2021_2026.parquet"
       group: Property
       pivot: segment
       segments: [residential_buy, residential_rent]
       period: [date]           # one row per cell, segment and date -> a time series (Jan 2021 ... Mar 2026)
+      sparse: true             # eight cities: only the index chunks holding them are stored
       ignore: [year, quarter]  # restate the date; not variables
     # ---- Elections: one or two states each, so files are chunk-sparse (only the index chunks that
     # hold the state's cells). Unit values come from the official ECI results (units_table), not from
@@ -222,6 +237,7 @@ variables:
       root: D:/booth_catchment/KA/outputs/maps
       file: h{res}_karnataka_ae.parquet
       group: Karnataka Assembly (2018, 2023)
+      menu: [Elections, Karnataka, Assembly]
       prefix: ka_ae_
       states: [KARNATAKA]
       sparse: true
@@ -251,6 +267,7 @@ variables:
       root: D:/booth_catchment/KA/outputs/maps
       file: h{res}_karnataka_ge.parquet
       group: Karnataka Lok Sabha (2014, 2019, 2024)
+      menu: [Elections, Karnataka, Lok Sabha]
       prefix: ka_ge_
       states: [KARNATAKA]
       sparse: true
@@ -266,6 +283,7 @@ variables:
       root: D:/booth_catchment/BR/outputs/maps
       file: h{res}_bihar_ae2025_model.parquet
       group: Bihar Assembly 2025
+      menu: [Elections, Bihar, Assembly]
       prefix: br_ae_
       states: [BIHAR]
       sparse: true
@@ -287,6 +305,54 @@ variables:
           jsp:    {label: Jan Suraaj, color: "#CC79A7"}
           others: {label: Others, color: "#999999"}
       caveat: "Modelled from booth results spread over where voters live (method: booth catchments on the 100 m population grid). Shares of valid votes incl. NOTA, EVM + postal; turnout is EVM votes / electors."
+    # ---- Booth counts per election (pins counted in the cell they lie in). Unit values come from the
+    # AC tables: an AC without complete booth data has none, and a PC / district / state sums its other
+    # ACs and says how many it leaves out.
+    karnataka_ae_booths:
+      root: D:/booth_catchment/KA/outputs/maps/booths/counts
+      file: h{res}_karnataka_ae_booths.parquet
+      group: Karnataka Assembly (2018, 2023)
+      menu: [Elections, Karnataka, Assembly]
+      prefix: ka_ae_
+      states: [KARNATAKA]
+      sparse: true
+      h8: all
+      units_table: &ka_ae_bc
+        path: D:/booth_catchment/KA/outputs/maps/booths/counts/units/karnataka_ae{year}_booth_counts.parquet
+        state: KARNATAKA
+        key: ac_no
+        fallback: false        # no hexagon sum where the AC's booth data is incomplete
+        extra: {located: "booths_located_{year}", unlocated: "booths_unlocated_{year}"}
+      caveat: &booth_caveat "Booths with coordinates, counted where their pin lies. ACs with incomplete booth data are blank."
+    karnataka_ge_booths:
+      root: D:/booth_catchment/KA/outputs/maps/booths/counts
+      file: h{res}_karnataka_ge_booths.parquet
+      group: Karnataka Lok Sabha (2014, 2019, 2024)
+      menu: [Elections, Karnataka, Lok Sabha]
+      prefix: ka_ge_
+      states: [KARNATAKA]
+      sparse: true
+      h8: all
+      units_table:
+        <<: *ka_ae_bc
+        path: D:/booth_catchment/KA/outputs/maps/booths/counts/units/karnataka_ge{year}_booth_counts.parquet
+      caveat: *booth_caveat
+    bihar_ae2025_booths:
+      root: D:/booth_catchment/BR/outputs/maps/booths/counts
+      file: h{res}_bihar_ae2025_booths.parquet
+      group: Bihar Assembly 2025
+      menu: [Elections, Bihar, Assembly]
+      prefix: br_ae_
+      states: [BIHAR]
+      sparse: true
+      h8: all
+      units_table:
+        path: D:/booth_catchment/BR/outputs/maps/booths/counts/units/bihar_ae2025_booth_counts.parquet
+        state: BIHAR
+        key: ac_no
+        fallback: false
+        extra: {located: "booths_located_{year}", unlocated: "booths_unlocated_{year}"}
+      caveat: *booth_caveat
 
   # Any other parquet under processed/h{res}/**/ is picked up automatically (its folder name
   # becomes the group). These files are skipped: point-level tables, previews, and copies.
@@ -421,10 +487,23 @@ variables:
     br_ae_votes:          {label: Valid votes, unit: votes, format: int, agg: sum, ramp: ylorrd, official_col: "valid_votes_{year}", note: *br_note}
     br_ae_electors:       {label: Electors, unit: electors, format: int, agg: sum, ramp: ylorrd, note: "Hexagon electors are modelled; unit values are the official ECI electors"}
     br_ae_lead:           {featured: true}
+    ka_ae_booths:         &booths {label: Booths (polling stations), unit: booths, format: int, agg: sum, dtype: u16, density: true, ramp: purples, note: "Polling stations with coordinates, counted in the hexagon their pin lies in; units count every booth of their ACs"}
+    ka_ge_booths:         *booths
+    br_ae_booths:         *booths
 
 # --------------------------------------------------------------------------------------------
 # Features: switch any off to remove it from the UI entirely.
 # --------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------
+# Booth pins and catchments: per election, PMTiles (one zoom, z10) plus per-AC detail files,
+# copied into site/data/booths/ by the build. Each source folder holds <st>_<tag>_booth_layers.json.
+# --------------------------------------------------------------------------------------------
+booths:
+  sources:
+    - D:/booth_catchment/KA/outputs/maps/booths
+    - D:/booth_catchment/BR/outputs/maps/booths
+  minzoom: 10                # pins and catchments from this zoom; hexagons serve lower zooms
+
 features:
   search: true
   timeline: true            # year slider + play for year series

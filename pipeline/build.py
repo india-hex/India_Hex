@@ -5,14 +5,16 @@ site/data/.build.json; outputs whose signature is unchanged are skipped. Editing
 settings in india_hex.yaml rewrites config.json and nothing else.
 """
 import json
+import os
 import shutil
+import stat
 import time
 from collections import defaultdict
 
 import numpy as np
 
 from . import catalog as cat
-from . import geo, hexes, official
+from . import booths, geo, hexes, official
 from .config import DATA, SITE
 from .util import dir_size, file_sig, log, obj_sig
 
@@ -192,7 +194,7 @@ def build(cfg, force=False, only_config=False):
     udir = DATA / "units" / "v"
     for d in udir.iterdir() if udir.exists() else []:
         if d.is_dir() and d.name not in ids_ok:
-            shutil.rmtree(d); removed += 1
+            _rmtree(d); removed += 1
     if removed:
         log(f"  removed {removed} stale files")
 
@@ -205,6 +207,9 @@ def build(cfg, force=False, only_config=False):
             if f.name != "manifest.json":
                 f.unlink()
 
+    if cfg.get("booths"):
+        booths.sync(cfg, st)   # pins, catchments and per-AC details for every election
+        _save_state(st)
     compute_breaks(series, st)
     _save_state(st)
     write_client_config(cfg, series, st)
@@ -214,13 +219,28 @@ def build(cfg, force=False, only_config=False):
     return series
 
 
+def _rmtree(d):
+    """shutil.rmtree that also removes read-only entries: OneDrive marks its folders read-only
+    (and robocopy keeps the flag), and Windows refuses to delete those."""
+    def clear_and_retry(func, path, _exc):
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    shutil.rmtree(d, onerror=clear_and_retry)
+
+
 def _write_unit_files(sid, agg):
     """units/v/<series>/<level>.json = {"y": [years], "v": [[value per unit id] per year]}.
-    One small file per level: the India view only needs the 36-row state file."""
+    One small file per level: the India view only needs the 36-row state file. Official-table series
+    may add "x" (ACs left out of a unit's value, per year) and, in the AC file, "e" (extra columns)."""
     d = DATA / "units" / "v" / sid
     d.mkdir(parents=True, exist_ok=True)
     for lvl in geo.LEVELS:
-        (d / f"{lvl}.json").write_text(json.dumps({"y": agg["y"], "v": agg[lvl]}, separators=(",", ":")))
+        out = {"y": agg["y"], "v": agg[lvl]}
+        if lvl in agg.get("x", {}):
+            out["x"] = agg["x"][lvl]
+        if lvl == "ac" and agg.get("e"):
+            out["e"] = agg["e"]
+        (d / f"{lvl}.json").write_text(json.dumps(out, separators=(",", ":")))
 
 
 def _split_old_unit_files():
@@ -320,6 +340,9 @@ def write_client_config(cfg, series, st):
         "groups": groups, "variables": cat_out, "cells": manifests,
     }
     if chunks:
-        client["chunks"] = chunks   # sparse datasets: the index chunks in their files, in file order
+        client["chunks"] = chunks
+    bc = booths.client_config(cfg, st, series)
+    if bc:
+        client["booths"] = bc   # sparse datasets: the index chunks in their files, in file order
     (SITE / "config.json").write_text(json.dumps(client, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     log(f"  config.json: {len(cat_out)} variables in {len(groups)} groups")

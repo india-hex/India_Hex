@@ -5,6 +5,7 @@ import { esc, fmtValue, compact, rampFor, scaleFromValues, colourOf, legendNum, 
 import { units, unit, stateName, childrenOf, rawUnitValues } from '../data/units.js';
 import { lensOf, seriesById, unitValues } from '../lens.js';
 import { fmtCoord } from './statusbar.js';
+import { initBoothCards, boothBand, electionFigs, hexBoothNote } from './boothcard.js';
 
 let tok = 0;
 let CTX = null;
@@ -26,6 +27,7 @@ const ICON = {
 
 export function initPanel(ctx) {
   CTX = ctx;
+  initBoothCards(ctx);
   const click = (e) => {
     const t = e.target.closest('[data-sel],[data-act],[data-tab],[data-var]');
     if (!t) return;
@@ -99,6 +101,7 @@ async function figures(sel) {
 }
 
 function figHTML(f, st, area) {
+  if (f.tag) return electionFigHTML(f, st);
   const lens = lensOf({ ...st, var: f.s.id, mode: 'value', density: false });
   let delta = '';
   if (f.v0 != null && f.v != null) {
@@ -113,6 +116,15 @@ function figHTML(f, st, area) {
   return `<button class="fig${st.var === f.s.id ? ' on' : ''}" data-var="${f.s.id}" title="Colour the map by ${esc(f.s.label)}">
     <div class="fl">${esc(f.s.label)}${f.last ? ` · ${periodLabel(f.last)}` : ''}</div>
     <div class="fv">${f.s.agg === 'sum' && f.v >= 1e5 ? compact(f.v) : fmtValue(f.v, lens)}${unitTxt}</div>${delta || dens}</button>`;
+}
+
+/** A key figure of the election in effect: its own label, and a note instead of a change. */
+function electionFigHTML(f, st) {
+  const lens = lensOf({ ...st, var: f.s.id, mode: 'value', density: false, year: f.last });
+  const unitTxt = f.s.unit ? `<small>${esc(f.s.unit)}</small>` : '';
+  return `<button class="fig elect${st.var === f.s.id ? ' on' : ''}" data-var="${f.s.id}" title="Colour the map by ${esc(f.s.label)}">
+    <div class="fl">${esc(f.s.label.replace(' (polling stations)', ''))} · ${esc(f.tag)}</div>
+    <div class="fv">${f.v == null ? '–' : `${fmtValue(f.v, lens)}${unitTxt}`}</div>${f.note ? `<div class="fd">${esc(f.note)}</div>` : ''}</button>`;
 }
 
 async function landCover(sel) {
@@ -359,15 +371,21 @@ async function hexBand(st) {
   if (info.a >= 0) links.push(`<span>AC</span><button data-sel="ac:${info.a}">${esc(U().ac[info.a].name)}</button>`);
   if (info.p >= 0) links.push(`<span>PC</span><button data-sel="pc:${info.p}">${esc(U().pc[info.p].name)}</button>`);
   if (info.d >= 0) links.push(`<span>District</span><button data-sel="district:${info.d}">${esc(U().district[info.d].name)}</button>`);
-  const fig = ({ s, v, year }) => {
+  const notes = new Map();
+  const el = info.elect?.el || (info.group ? CTX.act.electionHere(info.s) : null);
+  for (const f of [...(info.group?.figs || []), ...(info.elect?.figs || [])]) {
+    if (el && f.s.id.endsWith('_booths')) notes.set(f.s.id, await hexBoothNote(el, f.s, f.v, info.a));
+  }
+  const fig = ({ s, v, year }, tag = '') => {
     const lens = lensOf({ ...st, var: s.id, mode: 'value', density: false, year });
-    return `<button class="fig${st.var === s.id ? ' on' : ''}" data-var="${s.id}"><div class="fl">${esc(s.label)}${year ? ` · ${periodLabel(year)}` : ''}</div>
-      <div class="fv">${lens.categorical ? (Number.isFinite(v) ? catChip(v, lens) : '–') : fmtValue(v, lens)}${s.format === 'pp' && Number.isFinite(v) ? '<small> pp</small>' : ''}</div>${s.density && Number.isFinite(v) ? `<div class="fd">${fmtValue(v / info.area, { ...lens, density: true, format: 'dec2' })} per km²</div>` : ''}</button>`;
+    const note = notes.get(s.id);
+    return `<button class="fig${st.var === s.id ? ' on' : ''}" data-var="${s.id}"><div class="fl">${esc(tag ? s.label.replace(' (polling stations)', '') : s.label)}${tag ? ` · ${esc(tag)}` : year ? ` · ${periodLabel(year)}` : ''}</div>
+      <div class="fv">${lens.categorical ? (Number.isFinite(v) ? catChip(v, lens) : '–') : fmtValue(v, lens)}${s.format === 'pp' && Number.isFinite(v) ? '<small> pp</small>' : ''}</div>${note ? `<div class="fd">${esc(note)}</div>` : s.density && Number.isFinite(v) ? `<div class="fd">${fmtValue(v / info.area, { ...lens, density: true, format: 'dec2' })} per km²</div>` : ''}</button>`;
   };
-  const figs = info.figs.map(fig).join('');
+  const figs = [...(info.elect?.figs || []).map((f) => fig(f, info.elect.el.label)), ...info.figs.map((f) => fig(f))].join('');
   const grp = info.group && info.group.figs.length
     ? `<div class="kicker" style="margin-top:14px">${esc(info.group.name)} · ${periodLabel(info.group.year)}</div>
-      ${info.group.figs.every((f) => !Number.isFinite(f.v)) ? '<p class="note">No modelled votes in this hexagon for this election.</p>' : `<div class="figs" style="margin-top:8px">${info.group.figs.map(fig).join('')}</div>`}` : '';
+      ${info.group.figs.every((f) => !Number.isFinite(f.v)) ? '<p class="note">No modelled votes in this hexagon for this election.</p>' : `<div class="figs" style="margin-top:8px">${info.group.figs.map((f) => fig(f)).join('')}</div>`}` : '';
   return `<section class="band"><button class="icon close" data-act="closehex" title="Close">${ICON.x}</button>
     ${st.here && h3IsHere(st) ? `<div class="kicker"><b>You are here</b> · accurate to ${st.here.acc < 1000 ? `${Math.round(st.here.acc)} m` : `${(st.here.acc / 1000).toFixed(1)} km`}</div>` : ''}
     <div class="kicker">H${info.res} hexagon · ${info.area.toFixed(2)} km² · ${esc(stateName(info.s))}</div>
@@ -412,6 +430,7 @@ function about() {
     </ol>
     <p class="note">Sources: ${esc(s.data_credit || '')}. A hexagon belongs to the unit that contains its centre. Unit values are aggregated from H8 cells.</p>
     <p class="note">Elections (Karnataka, Bihar): hexagon values are modelled from booth results spread over where voters live. Values for constituencies, districts and states are the official ECI results, not hexagon aggregates; a district combines the ACs that lie mostly inside it, so district values are approximate.</p>
+    <p class="note">Booths: from zoom 10, every polling booth with coordinates is a pin, and each polling location has a catchment: the area where the people it serves live. Booth results are EVM votes from Form 20 (no postal ballots). Booth counts are counted where the pins lie; an AC without complete booth data has no count.</p>
     <p class="note">${s.author ? `${esc(s.author)} · ` : ''}${s.github ? `<a href="${esc(s.github)}" target="_blank" rel="noopener">Source code</a> · ` : ''}Data version ${esc(CTX.cfg.version)}</p>
     <button class="textbtn" data-act="back" style="margin-top:16px">Back</button>`;
 }
@@ -434,7 +453,7 @@ export async function renderPanel() {
     if (t === tok) { panel.innerHTML = html; lastPlace = null; }
     return;
   }
-  const place = JSON.stringify([st.sel, st.hex]);
+  const place = JSON.stringify([st.sel, st.hex, st.booth]);
   if (place !== lastPlace || !document.getElementById('sec-figs')) {
     lastPlace = place;
     panel.innerHTML = `<div id="sec-band"></div><div id="sec-hero">${hero(st)}</div><div id="sec-block"></div>
@@ -453,16 +472,16 @@ export async function renderPanel() {
     el.innerHTML = wrap(html);
     if (focused) { const f = document.getElementById('listFilter'); f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
   }).catch((e) => console.error(e));
-  fill('sec-band', st.hex ? hexBand(st) : Promise.resolve(''));
+  fill('sec-band', st.booth ? boothBand(st) : st.hex ? hexBand(st) : Promise.resolve(''));
   fill('sec-block', lensBlock(st, lens));
-  fill('sec-figs', figures(st.sel).then((figs) => {
+  fill('sec-figs', Promise.all([electionFigs(st.sel), figures(st.sel)]).then(([ef, figs]) => {
     if (!st.sel) {
       const pop = figs.find((f) => f.s.id === 'population');
       CTX.rt.indiaPop = pop ? pop.v : null;
       const h = document.getElementById('sec-hero');
       if (h && t === tok) h.innerHTML = hero(st);
     }
-    return figs.map((f) => figHTML(f, st, area)).join('');
+    return [...ef, ...figs].map((f) => figHTML(f, st, area)).join('');
   }));
   fill('sec-lc', landCover(st.sel));
   fill('sec-list', listBlock(st, lens));

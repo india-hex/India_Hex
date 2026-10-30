@@ -2,9 +2,17 @@
 // One map: MapLibre (basemap, overlays, boundaries, selection, labels) + a deck.gl layer for
 // hexagons drawn on the GPU in the same WebGL context (interleaved, so hexes sit under the mask,
 // road lines and labels). The main map and the compare map are both MapViews.
+//
+// Drawing order, bottom to top: basemap · unit fills · hexagons (deck, before `z-hex`) · booth
+// catchments (before `z-catch`) · mask · overlays · boundary lines · selection · booth pins (before
+// `unit-labels`) · unit labels · symbol overlays · booth numbers · ruler.
 import { groupLayers } from './overlays.js';
 
 const EMPTY = { type: 'FeatureCollection', features: [] };
+const NOLOC = ['==', ['get', 'loc'], -1];
+const NONE_RGBA = 'rgba(0,0,0,0)';
+const PIN_R = (add = 0) => ['interpolate', ['linear'], ['zoom'], 10, 2.1 + add * 0.6, 12, 3.1 + add * 0.8, 14, 4.6 + add, 16, 6.4 + add, 18, 8.6 + add];
+const BOOTH_LAYERS = ['catch-fill', 'catch-line', 'catch-hl', 'catch-sel', 'pin-halo', 'pin', 'pin-sel', 'pin-hl', 'pin-badge', 'pin-label'];
 const LEVELS = ['state', 'district', 'pc', 'ac'];
 const FALLBACK_GLYPHS = 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf';
 const BASEMAP_FALLBACK = ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'];
@@ -55,6 +63,12 @@ export class MapView {
     this.overlay = new deck.MapboxOverlay({ interleaved: true, layers: [] });
     this.map.addControl(this.overlay);
     this.ready = new Promise((resolve) => this.map.on('load', () => { this._setup(); resolve(); }));
+    // one count badge per polling location: mark its first booth whenever pin tiles arrive
+    this.map.on('sourcedata', (e) => {
+      if (!this.boothEl || e.sourceId !== `bt-${this.boothEl}-booths` || !e.isSourceLoaded) return;
+      clearTimeout(this._firstT);
+      this._firstT = setTimeout(() => this._markFirstPins(), 80);
+    });
     this.hexLayerProps = null;
   }
 
@@ -75,10 +89,15 @@ export class MapView {
         },
       });
     }
+    anchor('z-hex'); // hexagons go just below this (deck re-inserts its layer before it on every update)
+    anchor('z-catch'); // booth catchments: above the hexagons, below the mask and lines
     m.addLayer({ id: 'mask-fill', type: 'fill', source: 'mask', paint: { 'fill-color': 'rgba(0,0,0,0.4)' } });
     anchor('z-lines');
+    m.addSource('acd', { type: 'geojson', data: EMPTY });
     for (const l of ['ac', 'pc', 'district', 'state']) {
       m.addLayer({ id: `line-${l}`, type: 'line', source: `b-${l}`, layout: { visibility: 'none', 'line-join': 'round' }, paint: {} });
+      // detailed AC outlines in view while booth layers are on (the national layer is simplified)
+      if (l === 'ac') m.addLayer({ id: 'line-acd', type: 'line', source: 'acd', layout: { visibility: 'none', 'line-join': 'round' }, paint: {} });
     }
     m.addLayer({ id: 'sel-casing', type: 'line', source: 'sel', layout: { 'line-join': 'round' }, paint: { 'line-color': 'rgba(0,0,0,0.45)', 'line-width': 6, 'line-blur': 3 } });
     m.addLayer({ id: 'sel-line', type: 'line', source: 'sel', layout: { 'line-join': 'round' }, paint: { 'line-width': 2.6 } });
@@ -172,19 +191,26 @@ export class MapView {
     const p = this.pal;
     for (const l of LEVELS) {
       const [col, op, w8, w12, dash] = p[l];
-      const hw = (w) => ['case', ['boolean', ['feature-state', 'hover'], false], w + 1.4, w];
-      m.setPaintProperty(`line-${l}`, 'line-color', col);
-      m.setPaintProperty(`line-${l}`, 'line-opacity', Math.min(1, op * this.lineScale));
-      m.setPaintProperty(`line-${l}`, 'line-width', ['interpolate', ['linear'], ['zoom'], 4, hw(w8 * 0.45), 8, hw(w8), 12, hw(w12), 16, hw(w12 * 1.3)]);
-      m.setPaintProperty(`line-${l}`, 'line-dasharray', dash && dash.length ? dash : [1, 0]);
+      const k = this.lw?.[l] ?? 1; // the user's width multiplier for this level (Layers panel)
+      const hw = (w) => ['case', ['boolean', ['feature-state', 'hover'], false], w * k + 1.4, w * k];
+      for (const id of l === 'ac' ? ['line-ac', 'line-acd'] : [`line-${l}`]) {
+        m.setPaintProperty(id, 'line-color', col);
+        m.setPaintProperty(id, 'line-opacity', Math.min(1, op * this.lineScale));
+        m.setPaintProperty(id, 'line-width', ['interpolate', ['linear'], ['zoom'], 4, hw(w8 * 0.45), 8, hw(w8), 12, hw(w12), 16, hw(w12 * 1.3)]);
+        m.setPaintProperty(id, 'line-dasharray', dash && dash.length ? dash : [1, 0]);
+      }
     }
     m.setPaintProperty('sel-line', 'line-color', p.selection);
     m.setPaintProperty('mask-fill', 'fill-color', p.mask);
     m.setPaintProperty('unit-labels', 'text-color', p.label);
     m.setPaintProperty('unit-labels', 'text-halo-color', p.label_halo);
+    if (this.boothEl) this._paintBooths();
   }
 
   setLineScale(f) { this.lineScale = f; this.applyPalette(); }
+
+  /** Width multipliers per level, e.g. {ac: 1.6, pc: 2} (1 = the palette's width). */
+  setLineWidths(lw) { this.lw = { ...lw }; this.applyPalette(); }
 
   setOverlays(on) {
     for (const [g, layers] of Object.entries(this.ovGroups)) {
@@ -198,11 +224,24 @@ export class MapView {
   // ---- boundaries ------------------------------------------------------------------------------
   setBoundaryData(level, fc) { this.map.getSource(`b-${level}`).setData(fc); }
 
-  setLevel(level, stateLines) {
+  /** The active level fills and draws its lines; `lines` lists other levels whose lines show too. */
+  setLevel(level, stateLines, lines = []) {
     for (const l of LEVELS) {
+      const on = l === level || (l === 'state' && stateLines) || lines.includes(l) ? 'visible' : 'none';
       this.map.setLayoutProperty(`fill-${l}`, 'visibility', l === level ? 'visible' : 'none');
-      this.map.setLayoutProperty(`line-${l}`, 'visibility', l === level || (l === 'state' && stateLines) ? 'visible' : 'none');
+      this.map.setLayoutProperty(`line-${l}`, 'visibility', on);
+      if (l === 'ac') this.map.setLayoutProperty('line-acd', 'visibility', on);
     }
+  }
+
+  /**
+   * Detailed outlines of these ACs replace their simplified national lines (features: GeoJSON with
+   * numeric id = AC id). An empty list restores the national layer.
+   */
+  setAcDetail(features) {
+    const ids = features.map((f) => f.id);
+    this.map.getSource('acd').setData({ type: 'FeatureCollection', features });
+    this.map.setFilter('line-ac', ids.length ? ['!', ['in', ['id'], ['literal', ids]]] : null);
   }
 
   setFillOpacity(op) { for (const l of LEVELS) this.map.setPaintProperty(`fill-${l}`, 'fill-opacity', op); }
@@ -251,7 +290,7 @@ export class MapView {
     const data = cs.idx || (cs.idx = Uint32Array.from({ length: cs.n }, (_, i) => i));
     const props = {
       id: 'hex',
-      beforeId: 'mask-fill',
+      beforeId: 'z-hex',
       data,
       getHexagon: (i) => cs.h[i],
       highPrecision: cs.n < 15000 ? true : 'auto',
@@ -282,6 +321,136 @@ export class MapView {
     if (!this.hexLayerProps) return;
     this.hexLayerProps = { ...this.hexLayerProps, pickable: on, autoHighlight: on };
     this.overlay.setProps({ layers: [new deck.H3HexagonLayer(this.hexLayerProps)] });
+  }
+
+  // ---- booth pins and catchments (PMTiles, one zoom: z10, overzoomed above) ---------------------
+  /**
+   * b: {el, pins, catchMode: 'off'|'line'|'fill', colour: {expr, pinExpr}, opacity} or null.
+   * The layers are rebuilt only when the election changes; otherwise paint and visibility update.
+   */
+  setBooths(b) {
+    const show = !!b && (b.pins || b.catchMode !== 'off');
+    const elId = show ? b.el.id : null;
+    if (elId !== this.boothEl) {
+      this._removeBoothLayers();
+      if (elId) this._addBoothLayers(b.el, b.minzoom);
+      this.boothEl = elId;
+    }
+    this.booth = show ? b : null;
+    if (show) this._paintBooths();
+  }
+
+  _addBoothLayers(el, minzoom = 10) {
+    const m = this.map;
+    const url = (kind) => new URL(`data/booths/${el.id}/${kind}.pmtiles?v=${el.v}`, location.href).href;
+    const src = (kind) => {
+      const id = `bt-${el.id}-${kind}`;
+      if (!m.getSource(id)) {
+        m.addSource(id, { type: 'vector', tiles: [`pmtiles://${url(kind)}/{z}/{x}/{y}`], minzoom: 10, maxzoom: 10, bounds: el.bbox, promoteId: 'uid' });
+      }
+      return id;
+    };
+    const sc = src('catchments');
+    const sp = src('booths');
+    const C = { source: sc, 'source-layer': 'catchments', minzoom };
+    const P = { source: sp, 'source-layer': 'booths', minzoom };
+    const font = [this.vs ? 'Noto Sans Bold' : 'Noto Sans Medium'];
+    m.addLayer({ id: 'catch-fill', type: 'fill', ...C, paint: { 'fill-color': NONE_RGBA, 'fill-opacity': 0 } }, 'z-catch');
+    m.addLayer({ id: 'catch-line', type: 'line', ...C, layout: { 'line-join': 'round' }, paint: {} }, 'z-catch');
+    m.addLayer({ id: 'catch-hl', type: 'line', ...C, filter: NOLOC, layout: { 'line-join': 'round' }, paint: { 'line-color': '#ffd166', 'line-width': 2.4 } }, 'z-catch');
+    m.addLayer({ id: 'catch-sel', type: 'line', ...C, filter: NOLOC, layout: { 'line-join': 'round' }, paint: { 'line-width': 3 } }, 'z-catch');
+    m.addLayer({ id: 'pin-halo', type: 'circle', ...P, paint: { 'circle-radius': PIN_R(1.4), 'circle-color': 'rgba(0,0,0,0.38)', 'circle-blur': 0.5 } }, 'unit-labels');
+    m.addLayer({
+      id: 'pin', type: 'circle', ...P,
+      paint: { 'circle-radius': PIN_R(), 'circle-stroke-color': '#ffffff', 'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 10, 0.4, 14, 0.9, 17, 1.4] },
+    }, 'unit-labels');
+    m.addLayer({ id: 'pin-sel', type: 'circle', ...P, filter: NOLOC, paint: { 'circle-radius': PIN_R(3.2), 'circle-color': NONE_RGBA, 'circle-stroke-width': 2.6 } }, 'unit-labels');
+    m.addLayer({ id: 'pin-hl', type: 'circle', ...P, filter: NOLOC, paint: { 'circle-radius': PIN_R(2.6), 'circle-color': NONE_RGBA, 'circle-stroke-color': '#ffd166', 'circle-stroke-width': 2.2 } }, 'unit-labels');
+    // several booths at one location: one count badge, on its first booth (the filter lists them, see
+    // _markFirstPins); the location's other pins (same point, or a few metres off) carry none
+    m.addLayer({
+      id: 'pin-badge', type: 'symbol', ...P, minzoom: Math.max(minzoom, 12.5), filter: ['boolean', false],
+      layout: { 'text-field': ['to-string', ['get', 'n_booths']], 'text-font': font, 'text-size': 10, 'text-offset': [0.95, -0.9], 'text-anchor': 'center', 'text-allow-overlap': true, 'text-ignore-placement': true },
+      paint: { 'text-color': '#ffffff', 'text-halo-color': 'rgba(0,0,0,0.85)', 'text-halo-width': 1.4 },
+    }, 'unit-labels');
+    m.addLayer({
+      id: 'pin-label', type: 'symbol', ...P, minzoom: Math.max(minzoom, 15.5),
+      layout: { 'text-field': ['get', 'booth'], 'text-font': font, 'text-size': 10.5, 'text-offset': [0, 1.15], 'text-anchor': 'top', 'text-optional': true },
+      paint: {},
+    }, m.getLayer('ms-fill') ? 'ms-fill' : undefined);
+  }
+
+  /** Badge filter: the lowest-uid booth of every multi-booth location in the loaded tiles. */
+  _markFirstPins() {
+    const src = `bt-${this.boothEl}-booths`;
+    if (!this.map.getSource(src) || !this.map.getLayer('pin-badge')) return;
+    const first = new Map();
+    for (const f of this.map.querySourceFeatures(src, { sourceLayer: 'booths', filter: ['>', ['get', 'n_booths'], 1] })) {
+      const u = f.properties.uid;
+      const l = f.properties.loc;
+      if (!first.has(l) || u < first.get(l)) first.set(l, u);
+    }
+    const uids = [...new Set(first.values())].sort((a, b) => a - b);
+    if (uids.join() === this._firstUids) return;
+    this._firstUids = uids.join();
+    this.map.setFilter('pin-badge', uids.length ? ['match', ['get', 'uid'], uids, true, false] : ['boolean', false]);
+  }
+
+  _removeBoothLayers() {
+    this._firstUids = null;
+    for (const id of BOOTH_LAYERS) if (this.map.getLayer(id)) this.map.removeLayer(id);
+  }
+
+  _paintBooths() {
+    const m = this.map;
+    const b = this.booth;
+    if (!b) return;
+    const vis = (ids, on) => ids.forEach((id) => m.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'));
+    vis(['pin-halo', 'pin', 'pin-sel', 'pin-hl', 'pin-badge', 'pin-label'], b.pins);
+    vis(['catch-fill', 'catch-line', 'catch-hl', 'catch-sel'], b.catchMode !== 'off');
+    const op = b.opacity ?? 0.72;
+    const fill = b.catchMode === 'fill';
+    // outline mode keeps the fill (invisible) so catchments can still be hovered and picked
+    m.setPaintProperty('catch-fill', 'fill-color', b.colour.expr);
+    m.setPaintProperty('catch-fill', 'fill-opacity', fill ? ['case', ['==', ['get', 'pop'], 0], op * 0.38, op] : 0);
+    const ink = this.dark ? '255,255,255' : '38,34,28';
+    m.setPaintProperty('catch-line', 'line-color', `rgba(${ink},${fill ? 0.4 : 0.55})`);
+    m.setPaintProperty('catch-line', 'line-width', ['interpolate', ['linear'], ['zoom'], 10, 0.3, 12, 0.55, 14, 0.85, 17, 1.4]);
+    m.setPaintProperty('catch-sel', 'line-color', this.pal.selection);
+    m.setPaintProperty('pin', 'circle-color', b.colour.pinExpr);
+    m.setPaintProperty('pin-sel', 'circle-stroke-color', this.pal.selection);
+    m.setPaintProperty('pin-label', 'text-color', this.pal.label);
+    m.setPaintProperty('pin-label', 'text-halo-color', this.pal.label_halo);
+    m.setPaintProperty('pin-label', 'text-halo-width', 1.3);
+  }
+
+  /** Outline the catchment and ring the pins of one location (hover) and of the selected one. */
+  setBoothHighlight(hlLoc, selLoc) {
+    if (!this.boothEl) return;
+    const f = (loc) => (loc == null ? NOLOC : ['==', ['get', 'loc'], loc]);
+    this.map.setFilter('catch-hl', f(hlLoc));
+    this.map.setFilter('pin-hl', f(hlLoc));
+    this.map.setFilter('catch-sel', f(selLoc));
+    this.map.setFilter('pin-sel', f(selLoc));
+  }
+
+  /** {pin, catch}: the booth pin nearest the point (within a few pixels) and the catchment under it. */
+  pickBooth(point, touch = false) {
+    const m = this.map;
+    const out = { pin: null, catch: null };
+    if (!this.boothEl || !this.booth) return out;
+    if (this.booth.pins && m.getZoom() >= (this.booth.minzoom ?? 10)) {
+      const r = touch ? 14 : 6;
+      const fs = m.queryRenderedFeatures([[point.x - r, point.y - r], [point.x + r, point.y + r]], { layers: ['pin'] });
+      let best = Infinity;
+      for (const f of fs) {
+        const q = m.project(f.geometry.coordinates);
+        const d = (q.x - point.x) ** 2 + (q.y - point.y) ** 2;
+        if (d < best) { best = d; out.pin = f; }
+      }
+    }
+    if (this.booth.catchMode !== 'off') out.catch = m.queryRenderedFeatures(point, { layers: ['catch-fill'] })[0] || null;
+    return out;
   }
 
   // ---- ruler ------------------------------------------------------------------------------------

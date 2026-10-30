@@ -1,5 +1,6 @@
 // Units (state / district / pc / ac): metadata from units.json, values per variable and level lazily
-// from data/units/v/<series>/<level>.json  ({"y": [years], "v": [[value per unit id] per year]}).
+// from data/units/v/<series>/<level>.json  ({"y": [years], "v": [[value per unit id] per year]}; official-
+// table series may add "x": ACs left out per unit and year, and in the AC file "e": extra columns).
 
 let VER = '';
 let U = null;
@@ -23,6 +24,18 @@ function unitFile(seriesId, level) {
     valueFiles.set(key, fetch(`data/units/v/${key}.json?v=${VER}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   }
   return valueFiles.get(key);
+}
+
+/**
+ * Extra fields of one series-year at a level (official-table series): {left: ACs left out of each
+ * unit's value, extra: {name: per-AC values}} (AC level), or null.
+ */
+export async function unitExtras(seriesId, level, year) {
+  const f = await unitFile(seriesId, level);
+  if (!f) return null;
+  const yi = f.y.indexOf(year ?? null);
+  if (yi < 0) return null;
+  return { left: f.x ? f.x[yi] : null, extra: f.e ? Object.fromEntries(Object.entries(f.e).map(([k, v]) => [k, v[yi]])) : {} };
 }
 
 /** Raw (untransformed) values of one series-year for every unit of a level, or null. */

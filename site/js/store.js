@@ -42,6 +42,9 @@ export function createStore(initial) {
 const HASH_KEYS = {
   sel: 's', level: 'l', res: 'h', scope: 'sc', var: 'v', year: 'y', mode: 'md', from: 'f',
   density: 'pk', scale: 'k', basemap: 'b', overlays: 'o', threeD: '3d', hex: 'x', compare: 'cmp', view: 'at',
+  // booth layers: pins on/off, catchments off/line/fill ('' = automatic), election, selected booth or
+  // location; boundary lines drawn besides the active level, and their width multipliers
+  pins: 'bp', catch: 'bc', bel: 'be', booth: 'bt', lines: 'ln', lw: 'lw',
 };
 
 const enc = {
@@ -49,6 +52,9 @@ const enc = {
   overlays: (v) => v.join(','),
   compare: (v) => (v ? `${v.kind}:${v.value}` : ''),
   view: (v) => (v ? v.join('/') : ''),
+  booth: (v) => (v ? `${v.el}:${v.k}${v.id}:${v.ac}` : ''),
+  lines: (v) => v.join(','),
+  lw: (v) => Object.entries(v || {}).filter(([, x]) => x !== 1).map(([l, x]) => `${l}:${x}`).join(','),
 };
 const dec = {
   sel: (s) => { const i = s.indexOf(':'); return i > 0 ? { level: s.slice(0, i), key: s.slice(i + 1) } : null; },
@@ -58,6 +64,9 @@ const dec = {
   year: (s) => (s ? +s : null), from: (s) => (s ? +s : null),
   density: (s) => s === '1', threeD: (s) => s === '1',
   view: (s) => s.split('/').map(Number),
+  booth: (s) => { const m = /^([a-z]{2}_[a-z]{2}\d{4}):([bc])(\d+):(\d+)$/.exec(s); return m ? { el: m[1], k: m[2], id: +m[3], ac: +m[4] } : null; },
+  lines: (s) => (s ? s.split(',') : []),
+  lw: (s) => Object.fromEntries(s.split(',').map((p) => p.split(':')).filter(([l, x]) => l && Number.isFinite(+x)).map(([l, x]) => [l, +x])),
 };
 
 export function readHash() {

@@ -15,6 +15,7 @@ import { initPanel, renderPanel } from './ui/panel.js';
 import { initControls, renderLens, updateLegend, renderTimeline, defaultCompareValue } from './ui/controls.js';
 import { initSearch } from './ui/search.js';
 import { initStatusBar } from './ui/statusbar.js';
+import { initBooths, boothView, boothColour, boothMinZoom, electionById, electionFor, detailFor } from './booths.js';
 import { initMeasure } from './ui/measure.js';
 import { plainLatLng } from './ui/geo.js';
 const EX = () => import('./ui/exporter.js'); // loaded on first export only
@@ -29,6 +30,7 @@ document.documentElement.style.setProperty('--side-w', `${cfg.ui.sidebar_width |
 if (cfg.ui.accent) document.documentElement.style.setProperty('--accent', cfg.ui.accent);
 initHexStore(cfg.version, cfg.chunks);
 initLens(cfg);
+initBooths(cfg);
 const [U, vs] = await Promise.all([loadUnits(cfg.version), loadVectorStyle(cfg.overlays.vector_style)]);
 
 const D = cfg.defaults;
@@ -36,6 +38,7 @@ const DEFAULTS = {
   level: D.level, res: D.hex === 'off' || D.hex === 'auto' ? D.hex : +D.hex, scope: D.scope || 'sel', sel: null, hex: null,
   basemap: D.basemap, overlays: D.overlays || [], var: D.variable || 'none', year: null, mode: 'value', from: null,
   density: false, scale: D.scale === 'india' ? 'india' : 'relative', threeD: false, compare: null, view: null,
+  pins: '', catch: '', bel: '', booth: null, lines: [], lw: { ac: 1, pc: 1 },
 };
 const hash = sanitize(readHash());
 
@@ -53,6 +56,12 @@ function sanitize(h) {
     compare: (v) => !!v && ['year', 'variable', 'basemap'].includes(v.kind),
     view: (v) => Array.isArray(v) && v.length === 3 && v.every(Number.isFinite),
     hex: (v) => typeof v === 'string' && h3.isValidCell(v),
+    pins: (v) => ['', 'on', 'off'].includes(v),
+    catch: (v) => ['', 'off', 'line', 'fill'].includes(v),
+    bel: (v) => v === '' || !!electionById(v),
+    booth: (v) => !!v && !!electionById(v.el),
+    lines: (v) => Array.isArray(v) && v.every((l) => !!cfg.boundaries.levels[l]),
+    lw: (v) => !!v && Object.entries(v).every(([l, x]) => !!cfg.boundaries.levels[l] && x >= 0.5 && x <= 4),
   };
   const out = { ...h };
   for (const [k, test] of Object.entries(ok)) if (k in out && !test(out[k])) delete out[k];
@@ -63,6 +72,8 @@ let pins = [];
 try { pins = JSON.parse(localStorage.getItem('indiahex.pins') || '[]'); } catch { /* private mode */ }
 let theme = D.theme || 'light';
 try { theme = localStorage.getItem('indiahex.theme') || theme; } catch { /* ignore */ }
+let lw0 = DEFAULTS.lw; // boundary widths: the link's, else this browser's last choice
+try { const saved = JSON.parse(localStorage.getItem('indiahex.lw') || 'null'); if (saved && typeof saved === 'object') lw0 = { ...lw0, ...saved }; } catch { /* ignore */ }
 
 let sel0 = null;
 if (hash.sel) {
@@ -70,7 +81,7 @@ if (hash.sel) {
   if (u) sel0 = { level: hash.sel.level, id: u.id };
 }
 const S = createStore({
-  ...DEFAULTS, ...hash, sel: sel0,
+  ...DEFAULTS, lw: lw0, ...hash, ...(hash.lw ? { lw: { ...DEFAULTS.lw, ...hash.lw } } : {}), sel: sel0,
   here: null, measuring: false,
   opacity: D.opacity ?? 0.72, theme, mask: !!D.dim_outside_selection, labels: true, stateLines: true, hexLines: true, lineScale: 1, cbSafe: false,
   pinned: pins, panel: 'place', tab: 'ac', filter: '', limit: 50, comparePos: 0.5,
@@ -81,7 +92,7 @@ if (hash.view && hash.view.length === 3 && hash.view.every(Number.isFinite)) ini
 const view = new MapView('map', { cfg, vs, view: initView });
 window.indiaHex = { S, view, cfg, ensureGeo: (l) => ensureGeo(l) }; // debug / test hook (tools/)
 
-const ctx = { cfg, S, view, cview: null, rt: { hexHint: '' }, geo: {}, feat: {}, act: {} };
+const ctx = { cfg, S, view, cview: null, rt: { hexHint: '', curState: -1 }, geo: {}, feat: {}, act: {} };
 let st0Ready = false;
 window.indiaHex.ctx = ctx;
 const rt = ctx.rt;
@@ -318,9 +329,123 @@ async function recolour() {
   if (t !== colTok) return;
   const { sc, scopeLabel, coverage } = applyMain();
   // comparing years: one shared scale so colours mean the same on both sides
-  if (applyCmp) applyCmp(st.compare.kind === 'year' ? sc : null);
+  rt.cmpSc = applyCmp ? applyCmp(st.compare.kind === 'year' ? sc : null).sc : null;
   rt.legend = { sc, lens, scopeLabel, coverage, scopeName: !lens.none && lens.states ? scopeName(lens) : '' };
+  applyBooths();
   updateLegend();
+  renderPanel();
+}
+
+// ---- booth pins and catchments ----------------------------------------------------------------------
+const AC_BY_NO = new Map(U.ac.map((a) => [`${U.state[a.st]?.key}|${a.no}`, a]));
+const acOf = (stateKey, no) => AC_BY_NO.get(`${stateKey}|${no}`) || null;
+const curStateKey = () => (rt.curState >= 0 ? U.state[rt.curState]?.key : null);
+
+/** Pins and catchments on both maps, coloured like the hexagons (compare side: its own lens). */
+function applyBooths() {
+  const st = S.get();
+  const lens = lensOf(st);
+  const bv = boothView(st, lens, curStateKey());
+  rt.booth = bv;
+  views().forEach((v, i) => {
+    const l = i === 0 ? lens : rt.cmpLens || lens;
+    const bvi = i === 0 ? bv : boothView(st, l, curStateKey());
+    v.setBooths(bvi ? { ...bvi, colour: boothColour(bvi.el, l, i === 0 ? rt.legend?.sc : rt.cmpSc || rt.legend?.sc), opacity: st.opacity, minzoom: boothMinZoom() } : null);
+  });
+  highlightBooths();
+  updateAcDetailSoon();
+}
+
+/** Selected location: a catchment's own; a booth's from its detail file (fetched once). */
+async function selectedLoc(st) {
+  const b = st.booth;
+  if (!b) return null;
+  if (b.k === 'c') return b.id;
+  if (rt.boothSel?.uid === b.id && rt.boothSel.el === b.el) return rt.boothSel.loc;
+  const d = await detailFor(electionById(b.el), b.ac);
+  const row = d?.booth.get(b.id);
+  rt.boothSel = { el: b.el, uid: b.id, loc: row ? row.loc : null };
+  return rt.boothSel.loc;
+}
+
+function highlightBooths() {
+  const st = S.get();
+  selectedLoc(st).then((sel) => {
+    const cur = S.get();
+    const selLoc = cur.booth && rt.booth && cur.booth.el === rt.booth.el.id ? sel : null;
+    views().forEach((v) => v.setBoothHighlight(rt.boothHover ?? null, selLoc));
+  });
+}
+
+// detailed AC outlines in view (the national AC layer is simplified to ~90 m)
+const acdCache = new Map();
+let acdTimer;
+const updateAcDetailSoon = () => { clearTimeout(acdTimer); acdTimer = setTimeout(updateAcDetail, 300); };
+async function updateAcDetail() {
+  const bv = rt.booth;
+  const on = bv && (bv.pins || bv.catchMode !== 'off') && view.map.getZoom() >= 11.5;
+  if (!on) { views().forEach((v) => v.setAcDetail([])); return; }
+  const b = view.map.getBounds();
+  const st = U.state.find((u) => u.key === bv.el.state);
+  const ids = U.ac.filter((a) => a.st === st?.id && a.bbox[0] <= b.getEast() && a.bbox[2] >= b.getWest() && a.bbox[1] <= b.getNorth() && a.bbox[3] >= b.getSouth()).slice(0, 80).map((a) => a.id);
+  const feats = (await Promise.all(ids.map((id) => {
+    if (!acdCache.has(id)) {
+      acdCache.set(id, fetch(`data/detail/ac/${id}.json?v=${cfg.version}`).then((r) => (r.ok ? r.json() : null))
+        .then((g) => (g ? { type: 'Feature', id, properties: {}, geometry: g } : null)).catch(() => null));
+    }
+    return acdCache.get(id);
+  }))).filter(Boolean);
+  if (rt.booth === bv) views().forEach((v) => v.setAcDetail(feats));
+}
+
+/** Booth and catchment hover text. */
+function boothTip(kind, f) {
+  const bv = rt.booth;
+  const el = bv.el;
+  const p = f.properties;
+  const ac = acOf(el.state, p.ac_no);
+  const lens = lensOf(S.get());
+  const col = boothColour(el, lens, rt.legend?.sc);
+  let val = '';
+  if (col.kind === 'field' && p[col.field] != null) {
+    const x = p[col.field] / col.factor;
+    val = `${esc(lens.label)}: <b>${col.field === 'margin_pm' ? `${x > 0 ? '+' : x < 0 ? '−' : ''}${Math.abs(x).toFixed(1)} pp` : `${(x * 100).toFixed(1)}%`}</b>`;
+  } else {
+    const c = el.lead.find((x) => x.code === p.lead_code);
+    val = c ? `Leading: <b>${esc(c.label)}</b>` : 'No votes';
+  }
+  const head = kind === 'pin'
+    ? `<div class="t1">Booth ${esc(p.booth)}</div><div class="t2">${ac ? esc(ac.name) : `AC ${p.ac_no}`} · ${p.n_booths > 1 ? `${p.n_booths} booths here` : 'one booth here'}</div>`
+    : `<div class="t1">Polling location${p.pop === 0 ? ' · empty land' : ''}</div><div class="t2">${ac ? esc(ac.name) : `AC ${p.ac_no}`} · area its booths serve</div>`;
+  return `${head}<div class="t3">${val}</div><div class="t2">${esc(el.state_name)} ${esc(el.label)} · EVM votes</div>`;
+}
+
+const esc = (x) => String(x ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/** Which part of the booth layers is under the pointer, in pick order (null: none). */
+function boothTarget(point, hexHit) {
+  const bp = view.pickBooth(point, window.matchMedia('(pointer: coarse)').matches);
+  if (bp.pin) return { kind: 'pin', f: bp.pin };
+  if (bp.catch && (rt.booth?.catchMode === 'fill' || !hexHit)) return { kind: 'catch', f: bp.catch };
+  return null;
+}
+
+// "current state": the selection's, else the clicked hexagon's, else the one at the view centre
+let curTok = 0;
+async function updateCurState() {
+  const t = ++curTok;
+  const st = S.get();
+  let s = -1;
+  if (st.sel) s = st.sel.level === 'state' ? st.sel.id : unit(st.sel).st;
+  else if (st.hex) s = (await findCell(st.hex).catch(() => null))?.s ?? -1;
+  else if (view.map.getZoom() >= 5) {
+    const c = view.map.getCenter();
+    s = (await findCell(h3.latLngToCell(c.lat, c.lng, 6)).catch(() => null))?.s ?? -1;
+  }
+  if (t !== curTok || s === rt.curState) return;
+  rt.curState = s;
+  applyBooths();
+  renderLens();
   renderPanel();
 }
 
@@ -365,9 +490,12 @@ const hexInfoCache = new Map();
  * also every series of that election (its group) for the year on the map.
  */
 async function hexInfo(h3id) {
-  const lens = lensOf(S.get());
+  const st = S.get();
+  const lens = lensOf(st);
   const scoped = !lens.none && lens.states ? lens : null;
-  const key = scoped ? `${h3id}|${lens.id}|${lens.year}` : h3id;
+  const c0 = await findCell(h3id);
+  const el = c0 ? electionFor(U.state[c0.s]?.key, st, lens) : null;
+  const key = `${h3id}|${scoped ? `${lens.id}|${lens.year}` : ''}|${el ? el.id : ''}`;
   if (hexInfoCache.has(key)) return hexInfoCache.get(key);
   const c = await findCell(h3id);
   if (!c) return null;
@@ -387,7 +515,14 @@ async function hexInfo(h3id) {
     const v = await hexRaw(cs, s, y);
     return { s, v: v ? v[0] : NaN, year: y };
   }))).filter(Boolean);
-  const info = { ...c, area: cs.area, lat, lng, figs, group };
+  // the election in effect here (variable on the map, chip, or the latest): booths, electors, votes
+  let elect = null;
+  if (el && !(group && electionById(el.id)?.prefix && lens.id.startsWith(el.prefix))) {
+    const ss = ['booths', 'electors', 'votes'].map((b) => seriesById(`${el.prefix}${b}`)).filter((s) => s && (s.res_years[String(c.res)] || []).includes(el.year));
+    const vals = await Promise.all(ss.map((s) => hexRaw(cs, s, el.year)));
+    elect = { el, figs: ss.map((s, j) => ({ s, v: vals[j] ? vals[j][0] : NaN, year: el.year })) };
+  }
+  const info = { ...c, area: cs.area, lat, lng, figs, group, elect };
   hexInfoCache.set(key, info);
   return info;
 }
@@ -410,8 +545,9 @@ async function setCompare(on) {
   if (on && !ctx.cview) {
     mapB.hidden = false;
     const c = view.map.getCenter();
-    ctx.cview = new MapView('mapB', { cfg, vs, interactive: false, view: { center: [c.lng, c.lat], zoom: view.map.getZoom(), pitch: view.map.getPitch() } });
-    await ctx.cview.ready;
+    const cv = new MapView('mapB', { cfg, vs, interactive: false, view: { center: [c.lng, c.lat], zoom: view.map.getZoom(), pitch: view.map.getPitch() } });
+    await cv.ready;
+    ctx.cview = cv; // only once its layers exist: views() feeds every update to it from here on
     for (const [level, fc] of Object.entries(ctx.geo)) ctx.cview.setBoundaryData(level, fc);
     mirror();
     view.map.on('move', syncCompare);
@@ -448,8 +584,9 @@ function mirror() {
   const bmId = st.compare?.kind === 'basemap' ? st.compare.value : st.basemap;
   cv.setBasemap(cfg.basemaps.find((b) => b.id === bmId) || cfg.basemaps[0]);
   cv.setOverlays(effectiveOverlays(st, bmId));
-  cv.setLevel(st.level, st.stateLines);
+  cv.setLevel(st.level, st.stateLines, st.lines);
   cv.setFillOpacity(st.opacity);
+  cv.setLineWidths(st.lw);
   cv.setLineScale(st.lineScale);
   cv.setLabels(U[st.level], cfg.boundaries.levels[st.level].label_minzoom, st.labels);
   cv.setSelection(st.sel ? rt.selFeat : null, st.mask);
@@ -464,7 +601,38 @@ function effectiveOverlays(st, bmId) {
 
 // ---- actions used by UI modules ------------------------------------------------------------------
 ctx.act = {
-  select, clearSelection, goToHex, hexInfo, toast,
+  select, clearSelection, goToHex, hexInfo, toast, acOf,
+  electionHere: (stateId) => electionFor(U.state[stateId]?.key, S.get(), lensOf(S.get())),
+  /** Pick a variable; one of another state (elections) flies there. */
+  pickVar(id) {
+    const st = S.get();
+    S.set({ var: id, mode: 'value', density: false });
+    const s = seriesById(id);
+    if (!s?.states?.length) return;
+    const ids = U.state.filter((u) => s.states.includes(u.key)).map((u) => u.id);
+    if (!ids.length || ids.includes(rt.curState)) return;
+    if (st.sel) select('state', ids[0]);
+    else fit(U.state[ids[0]].bbox);
+  },
+  /** An election chip: with an election variable on the map, the same measure in that election. */
+  pickElection(id) {
+    const el = electionById(id);
+    const st = S.get();
+    const lens = lensOf(st);
+    if (!el) return;
+    if (!lens.none && lens.states && lens.series.menu) {
+      const cur = cfg.booths.elections.find((e) => e.prefix && lens.id.startsWith(e.prefix));
+      const bare = cur ? lens.id.slice(cur.prefix.length) : '';
+      const same = seriesById(`${el.prefix}${bare}`);
+      const next = same && same.years.includes(el.year) ? same : seriesById(`${el.prefix}lead`);
+      if (next) { S.set({ var: next.id, year: el.year, bel: id }); return; }
+    }
+    // no election on the map: the chip shows that election's pins, and flies there from elsewhere
+    S.set({ bel: id, ...(rt.booth?.pins || st.pins === 'off' ? {} : { pins: 'on' }) });
+    const target = U.state.find((u) => u.key === el.state);
+    if (target && target.id !== rt.curState) { if (st.sel) select('state', target.id); else fit(target.bbox); }
+  },
+  selectBooth(el, k, id, ac) { S.set({ booth: { el, k, id: +id, ac: +ac }, hex: null, panel: 'place' }); if (isMobile()) $('#side').classList.remove('peek'); },
   prefetchYear(y) {
     const st = S.get();
     if (ctx.cs) hexValues(ctx.cs, lensOf(st, { year: y })).catch(() => {});
@@ -498,6 +666,8 @@ ctx.act = {
       navigator.clipboard?.writeText(text).then(() => toast(`Copied ${text}`, { ttl: 2000 }));
     }
     else if (action === 'closehex') S.set({ hex: null, here: null });
+    else if (action === 'closebooth') S.set({ booth: null });
+    else if (action === 'booth') ctx.act.selectBooth(data.el, data.k, data.id, data.ac);
     else if (action === 'more') S.set({ limit: 100000 });
     else if (action === 'pin' && st.sel) {
       const key = `${st.sel.level}:${st.sel.id}`;
@@ -586,8 +756,19 @@ function wireMap() {
     const st = S.get();
     if (st.measuring) return; // the ruler owns the pointer: no hover, no picking
     const p = view.pick(e.point, st.level);
+    const bt = boothTarget(e.point, p.hex != null);
+    const hl = bt ? bt.f.properties.loc : null;
+    if (hl !== (rt.boothHover ?? null)) { rt.boothHover = hl; highlightBooths(); }
     if (hoverUnit !== p.unit) { view.setUnitHover(st.level, hoverUnit, false); hoverUnit = p.unit; view.setUnitHover(st.level, hoverUnit, true); }
-    m.getCanvas().style.cursor = p.hex != null || p.unit != null ? 'pointer' : '';
+    m.getCanvas().style.cursor = bt || p.hex != null || p.unit != null ? 'pointer' : '';
+    if (bt) {
+      tip.innerHTML = boothTip(bt.kind, bt.f);
+      tip.hidden = false;
+      const r = m.getContainer().getBoundingClientRect();
+      tip.style.left = `${Math.min(e.point.x + 14, r.width - tip.offsetWidth - 8)}px`;
+      tip.style.top = `${Math.min(e.point.y + 14, r.height - tip.offsetHeight - 8)}px`;
+      return;
+    }
     if (p.hex == null && p.unit == null) { tip.hidden = true; return; }
     const lens = lensOf(st);
     let html = '';
@@ -612,14 +793,27 @@ function wireMap() {
     tip.style.left = `${Math.min(e.point.x + 14, r.width - tip.offsetWidth - 8)}px`;
     tip.style.top = `${Math.min(e.point.y + 14, r.height - tip.offsetHeight - 8)}px`;
   });
-  m.getCanvas().addEventListener('mouseleave', () => { tip.hidden = true; view.setUnitHover(S.get().level, hoverUnit, false); hoverUnit = null; });
+  m.getCanvas().addEventListener('mouseleave', () => {
+    tip.hidden = true; view.setUnitHover(S.get().level, hoverUnit, false); hoverUnit = null;
+    if (rt.boothHover != null) { rt.boothHover = null; highlightBooths(); }
+  });
 
+  m.on('zoomend', () => updateLegend()); // booth layers' "zoom in" hint
   m.on('click', (e) => {
     const st = S.get();
     if (st.measuring) return; // clicks add ruler points instead of selecting
     const p = view.pick(e.point, st.level);
     const inSel = p.hex != null && ctx.cs && (!st.sel || ctx.cs[LEVEL_FIELD[st.sel.level]][p.hex] === st.sel.id);
-    if (p.hex != null && inSel) { S.set({ hex: ctx.cs.h[p.hex] }); if (isMobile()) $('#side').classList.remove('peek'); return; }
+    // pick order: pin, filled catchment, hexagon, outlined catchment, unit
+    const bt = boothTarget(e.point, p.hex != null && inSel);
+    if (bt) {
+      const f = bt.f.properties;
+      if (bt.kind === 'pin') rt.boothSel = { el: rt.booth.el.id, uid: f.uid, loc: f.loc };
+      ctx.act.selectBooth(rt.booth.el.id, bt.kind === 'pin' ? 'b' : 'c', bt.kind === 'pin' ? f.uid : f.loc, f.ac_no);
+      return;
+    }
+    if (p.hex != null && inSel) { S.set({ hex: ctx.cs.h[p.hex], booth: null }); if (isMobile()) $('#side').classList.remove('peek'); return; }
+    if (st.booth) S.set({ booth: null });
     if (p.unit != null) {
       if (st.sel && st.sel.level === st.level && st.sel.id === p.unit) { if (st.hex) S.set({ hex: null }); return; }
       select(st.level, p.unit);
@@ -628,6 +822,8 @@ function wireMap() {
 
   m.on('moveend', () => {
     const st = S.get();
+    updateCurState();
+    updateAcDetailSoon();
     if (st.res !== 'off' && (st.scope === 'view' || !st.sel)) updateCellsSoon(250);
     if (!st.sel) S.set({ view: [+m.getZoom().toFixed(2), +m.getCenter().lat.toFixed(4), +m.getCenter().lng.toFixed(4)] });
   });
@@ -705,10 +901,11 @@ S.on(['basemap'], (st, prev) => {
   recolour();
 });
 S.on(['overlays'], (st) => { view.setOverlays(effectiveOverlays(st, st.basemap)); mirror(); });
-S.on(['level', 'stateLines', 'labels'], async (st, prev, changed) => {
+S.on(['level', 'stateLines', 'labels', 'lines'], async (st, prev, changed) => {
   if (st.level !== 'state') rt.drill = st.level;
+  for (const l of st.lines) ensureGeo(l);
   views().forEach((v) => {
-    v.setLevel(st.level, st.stateLines);
+    v.setLevel(st.level, st.stateLines, st.lines);
     v.setLabels(U[st.level], cfg.boundaries.levels[st.level].label_minzoom, st.labels);
   });
   if (!ctx.geo[st.level]) { toast('Loading boundaries…', { spin: true }); await ensureGeo(st.level); toast(''); }
@@ -726,6 +923,13 @@ S.on(['var', 'year', 'mode', 'from', 'density', 'scale', 'cbSafe', 'hexLines', '
 });
 S.on(['opacity'], (st) => views().forEach((v) => v.setFillOpacity(st.opacity)));
 S.on(['lineScale'], (st) => views().forEach((v) => v.setLineScale(st.lineScale)));
+S.on(['lw'], (st) => {
+  views().forEach((v) => v.setLineWidths(st.lw));
+  try { localStorage.setItem('indiahex.lw', JSON.stringify(st.lw)); } catch { /* ignore */ }
+});
+S.on(['pins', 'catch', 'bel', 'res', 'opacity'], () => applyBooths());
+S.on(['booth'], () => highlightBooths());
+S.on(['sel', 'hex'], () => updateCurState());
 S.on(['threeD'], (st) => {
   view.map.easeTo({ pitch: st.threeD ? (cfg.hex.pitch_3d ?? 52) : 0, duration: 900 });
 });
@@ -735,7 +939,7 @@ S.on(['compare'], async (st, prev) => {
 });
 S.on(['comparePos'], positionSwipe);
 S.on(['pinned'], (st) => { try { localStorage.setItem('indiahex.pins', JSON.stringify(st.pinned)); } catch { /* ignore */ } });
-S.on(['sel', 'hex', 'panel', 'tab', 'filter', 'limit', 'pinned', 'level'], () => renderPanel());
+S.on(['sel', 'hex', 'booth', 'panel', 'tab', 'filter', 'limit', 'pinned', 'level', 'bel'], () => renderPanel());
 S.on(['measuring'], (st) => {
   if (!st.measuring) return;
   $('#tip').hidden = true;
@@ -758,7 +962,9 @@ view.setFillOpacity(st0.opacity);
 ensureGeo('state');
 toast('Loading boundaries…', { spin: true });
 ensureGeo(st0.level).then(() => { if ($('#toast').textContent.startsWith('Loading boundaries')) toast(''); recolour(); });
-view.setLevel(st0.level, st0.stateLines);
+view.setLevel(st0.level, st0.stateLines, st0.lines);
+view.setLineWidths(st0.lw);
+for (const l of st0.lines) ensureGeo(l);
 view.setLabels(U[st0.level], cfg.boundaries.levels[st0.level].label_minzoom, st0.labels);
 initPanel(ctx);
 initControls(ctx);
@@ -777,6 +983,7 @@ if (isMobile() && !st0.sel) $('#side').classList.add('peek'); // phones open on 
 renderPanel(); // sidebar first; hexagons follow
 await updateCells();
 if (hash.hex && h3.isValidCell(hash.hex)) S.set({ hex: hash.hex });
+updateCurState();
 renderLens();
 renderTimeline();
 // warm the other boundary layers once the first view is done, so they don't compete with it

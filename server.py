@@ -39,6 +39,9 @@ for _stream in (sys.stdout, sys.stderr):  # Windows consoles default to cp1252
 from pipeline.build import build  # noqa: E402
 from pipeline.catalog import discover  # noqa: E402
 from pipeline.config import CONFIG_PATH, SITE, load_config  # noqa: E402
+from pipeline.util import dir_size  # noqa: E402
+
+PAGES_LIMIT_MB = 1000   # GitHub Pages refuses larger sites
 
 COMPRESSIBLE = {".json", ".geojson", ".js", ".css", ".html", ".svg"}
 TYPES = {".js": "text/javascript", ".css": "text/css", ".html": "text/html", ".svg": "image/svg+xml",
@@ -166,8 +169,20 @@ def push_source(message):
     print("Code pushed to GitHub.")
 
 
+def size_gate(cfg):
+    """Refuse to publish a site over GitHub's 1 GB; warn above the budget (variables.budget_mb)."""
+    mb = dir_size(SITE) / 1e6
+    budget = cfg["variables"].get("budget_mb", 950)
+    if mb > PAGES_LIMIT_MB:
+        sys.exit(f"site/ is {mb:.0f} MB, over GitHub Pages' {PAGES_LIMIT_MB} MB limit: not publishing. Cut variables or move files out first.")
+    if mb > budget:
+        print(f"⚠ site/ is {mb:.0f} MB, over the {budget} MB budget (limit {PAGES_LIMIT_MB} MB). Publishing anyway.")
+    return mb
+
+
 def publish(cfg):
     """Push site/ as a single orphan commit to the gh-pages branch (no data history piles up)."""
+    size_gate(cfg)
     repo = (cfg.get("publish") or {}).get("repo")
     branch = (cfg.get("publish") or {}).get("branch", "gh-pages")
     if not repo:
@@ -217,6 +232,7 @@ def main():
     if not a.no_build:
         build(cfg, force=a.force)
     if a.deploy:
+        size_gate(cfg)   # before anything is pushed
         push_source(a.message)
         return publish(cfg)
     if a.publish:
