@@ -17,6 +17,8 @@ or phone.
 | H6 hexagons (≈36 km² each) | 89,284 |
 | H7 hexagons (≈5.2 km² each) | 624,978 |
 | H8 hexagons (≈0.74 km² each) | 4,374,944 |
+| Polling booths (pins, zoom 10+) | 50,697–58,023 per Karnataka election; 90,712 for Bihar 2025 |
+| Polling-location catchments (zoom 10+) | 32,746–55,541 per Karnataka election; 46,410 for Bihar 2025 |
 
 Each hexagon belongs to the constituency, district and state that contains its centre. Values for a
 constituency, district or state are aggregated from its H8 hexagons, except for elections, where they
@@ -24,24 +26,25 @@ are the official results.
 
 ## Data
 
-85 variables, many of them yearly:
+53 variables, many of them yearly:
 
 - **People:** population, 2010–2030 (2025 and 2030 are projections).
 - **Economy:** night-time lights, 2012–2025.
-- **Built environment:** built-up surface, volume, share and average building height, 2015, 2020
-  and 2025, split into residential and non-residential.
+- **Built environment:** built-up share and average building height, 2015, 2020 and 2025.
 - **Land cover:** trees, crops, built area, open land and water, 2017–2024; industrial land use.
 - **Forest:** forest cover, forest loss, tree canopy and permanent water, 2012–2025.
-- **Commerce:** points of interest in 16 categories (retail, food, finance, health, education,
-  transport and more).
-- **Property:** median sale and rent prices and listing counts, residential and commercial; and
-  locality sale rates and rents from Housing.com, quarterly from 2021 (monthly in 2026), for Mumbai,
-  Pune, Bengaluru, Gurugram, Ahmedabad, Hyderabad, Chennai and Kolkata.
+- **Commerce:** all points of interest and commercial ones.
+- **Property:** the median residential sale rate per sq ft; and locality sale rates and rents from
+  Housing.com, quarterly from 2021 (monthly in 2026), for Mumbai, Pune, Bengaluru, Gurugram,
+  Ahmedabad, Hyderabad, Chennai and Kolkata.
 - **Elections:** Karnataka Lok Sabha 2014, 2019 and 2024 and Assembly 2018 and 2023; Bihar Assembly
   2025. Vote shares of parties and alliances, the margin between the two main sides, turnout, votes,
   electors and the leading party. Hexagon values are modelled from booth results (Form 20) spread over
   where voters live; constituency, district and state values are the official results. Karnataka
   hexagons are left grey where an Assembly constituency's booth data is incomplete.
+- **Polling booths:** every booth with coordinates as a pin, and each polling location's catchment
+  (the area where the people it serves live), with booth-level results: EVM votes from Form 20,
+  without postal ballots. The number of booths is a variable too, and every card shows it.
 
 Sources: GHSL (population, built-up), NASA Black Marble (night lights), Esri 10 m Land Cover,
 Hansen Global Forest Change, OpenStreetMap (POIs, industrial land), property listing portals, and for
@@ -59,6 +62,12 @@ Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
   - show change between two years or values per km²;
   - use breaks relative to the view or the same for all of India.
 - **Click a hexagon** for its own values and the constituencies it belongs to.
+- **Zoom into a polling booth:** from zoom 10, booth pins and their catchments appear with the
+  election on the map (or switch them on in Layers). Hover for a booth's result, click for its card:
+  booth number, AC and PC, every party's votes, the leading party and margin, and the other booths
+  at the same location.
+- **Stack layers:** hexagons, booth catchments (outline or fill), pins, and Assembly and Lok Sabha
+  lines together, each line width adjustable.
 - **Read rankings:** each place shows its value, its rank within its state and across India, and how
   its constituencies compare.
 - **Compare:** swipe between two years, variables or basemaps, pin places to see them side by side,
