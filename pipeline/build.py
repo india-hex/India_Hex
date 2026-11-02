@@ -15,7 +15,7 @@ import numpy as np
 
 from . import catalog as cat
 from . import booths, geo, hexes, official
-from .config import DATA, SITE
+from .config import DATA, ROOT, SITE
 from .util import dir_size, file_sig, log, obj_sig
 
 STATE_PATH = DATA / ".build.json"
@@ -39,6 +39,7 @@ def build(cfg, force=False, only_config=False):
     st.setdefault("bins", {}), st.setdefault("q", {}), st.setdefault("agg", {}), st.setdefault("index", {})
     st.setdefault("chunks", {})
 
+    _sync_shell(cfg)
     log("catalog: discovering variables")
     series = cat.discover(cfg, verbose=True)
     log(f"  {len(series)} series, {sum(len(s.years) or 1 for s in series)} series-years")
@@ -219,6 +220,52 @@ def build(cfg, force=False, only_config=False):
     return series
 
 
+SHELL_SKIP = ("config.json", ".nojekyll")
+
+
+def _sync_shell(cfg):
+    """A site built into its own folder (`output`, e.g. the elections site) gets the app itself: every
+    file of `shell.from` (default site/) except its data and config.json, then the files of
+    `shell.overlay` on top, then the `shell.html` edits ([old, new] pairs) applied to index.html.
+    Files are written only when their bytes change; app files no longer in the source are removed."""
+    sh = cfg.get("shell")
+    if not sh:
+        return
+    src = ROOT / sh.get("from", "site")
+    if src.resolve() == SITE.resolve():
+        raise ValueError("shell.from is the output folder itself")
+    files = {}
+    for base in [src] + ([ROOT / sh["overlay"]] if sh.get("overlay") else []):
+        for f in base.rglob("*"):
+            rel = f.relative_to(base).as_posix()
+            if f.is_file() and not rel.startswith("data/") and rel not in SHELL_SKIP:
+                files[rel] = f
+    written = 0
+    for rel, f in files.items():
+        data = f.read_bytes()
+        if rel == "index.html" and sh.get("html"):
+            text = data.decode("utf-8")
+            for old, new in sh["html"]:
+                if old not in text:
+                    raise ValueError(f"shell.html: {old!r} is not in {f}")
+                text = text.replace(old, new, 1)
+            data = text.encode("utf-8")
+        out = SITE / rel
+        if not out.exists() or out.read_bytes() != data:
+            out.parent.mkdir(parents=True, exist_ok=True)
+            if out.exists():
+                os.chmod(out, stat.S_IWRITE)
+            out.write_bytes(data)
+            written += 1
+    stale = [f for f in SITE.rglob("*") if f.is_file() and (r := f.relative_to(SITE).as_posix()) not in files
+             and not r.startswith("data/") and r not in SHELL_SKIP]
+    for f in stale:
+        os.chmod(f, stat.S_IWRITE)
+        f.unlink()
+    if written or stale:
+        log(f"app files: {written} written, {len(stale)} removed (from {sh.get('from', 'site')}/{' + ' + sh['overlay'] if sh.get('overlay') else ''})")
+
+
 def _rmtree(d):
     """shutil.rmtree that also removes read-only entries: OneDrive marks its folders read-only
     (and robocopy keeps the flag), and Windows refuses to delete those."""
@@ -344,5 +391,15 @@ def write_client_config(cfg, series, st):
     bc = booths.client_config(cfg, st, series)
     if bc:
         client["booths"] = bc   # sparse datasets: the index chunks in their files, in file order
-    (SITE / "config.json").write_text(json.dumps(client, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    out = SITE / "config.json"
+    text = json.dumps(client, ensure_ascii=False, separators=(",", ":"))
+    try:  # nothing changed: keep the version stamp, so a rebuild reproduces the published file
+        old = json.loads(out.read_text(encoding="utf-8"))
+        new = json.loads(text)
+        if {k: v for k, v in old.items() if k != "version"} == {k: v for k, v in new.items() if k != "version"}:
+            client["version"] = old["version"]
+            text = json.dumps(client, ensure_ascii=False, separators=(",", ":"))
+    except (OSError, ValueError, KeyError):
+        pass
+    out.write_text(text, encoding="utf-8")
     log(f"  config.json: {len(cat_out)} variables in {len(groups)} groups")

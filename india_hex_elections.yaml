@@ -1,0 +1,54 @@
+# ============================================================================================
+# India Hex · Elections: the same app as india_hex.yaml, with population and the election data
+# only, plus each polling location's actual catchment (the model's split of every 100 m cell)
+# shown on click.
+#
+#   python server.py --config india_hex_elections.yaml --port 8002      build + preview
+#   python server.py --config india_hex_elections.yaml --deploy -m "…"  publish (own repository)
+#
+# Everything not set here comes from india_hex.yaml (`extends`): sections merge, lists replace,
+# and null removes a key.
+# ============================================================================================
+extends: india_hex.yaml
+output: site_elections            # build folder (the main site builds into site/)
+
+site:
+  title: India Hex · Elections
+  tagline: Votes, polling booths and the places they serve, on H3 hexagons
+  data_credit: Election Commission of India (results, Form 20) · CEO Bihar (Form 20) · TCPD Lokdhaba · OpenCity · WorldPop R2025A · GHSL (population)
+  links:
+    - {label: Full map (every variable), url: "https://india-hex.github.io/India_Hex/"}
+
+variables:
+  auto_discover: false
+  datasets:
+    ntl: {exclude: ["*"]}         # kept for the cell set and geography; no night-light series
+    built: null
+    landcover: null
+    forest: null
+    industrial: null
+    poi: null
+    property: null
+    property_quarterly: null
+  featured: [population]
+  h8: [population]
+
+booths:
+  split: true                     # copy each election's split files (actual catchments) too
+
+# The app itself: site/'s files, the overlay's (footprint layer and cards, styles, manifest) on top,
+# and these edits to index.html.
+shell:
+  from: site
+  overlay: sites/elections
+  html:
+    - ['<title>India Hex</title>', '<title>India Hex · Elections</title>']
+    - ['content="States, districts, Lok Sabha and Assembly constituencies of India with H3 hexagon data."',
+       'content="Karnataka and Bihar election results, polling booths and their actual catchments, with population, on H3 hexagons."']
+    - ['title="All of India">India <em>Hex</em></a>', 'title="All of India">India <em>Hex</em><span class="wm-sub">Elections</span></a>']
+    - ['<link rel="stylesheet" href="css/app.css">', "<link rel=\"stylesheet\" href=\"css/app.css\">\n  <link rel=\"stylesheet\" href=\"css/elections.css\">"]
+    - ['<script type="module" src="js/main.js"></script>', "<script type=\"module\" src=\"js/main.js\"></script>\n  <script type=\"module\" src=\"js/elections/footprint.js\"></script>"]
+
+publish:
+  repo: https://github.com/india-hex/Elections.git
+  gitdir: .publish_elections.git

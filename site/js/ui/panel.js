@@ -431,7 +431,7 @@ function about() {
     <p class="note">Sources: ${esc(s.data_credit || '')}. A hexagon belongs to the unit that contains its centre. Unit values are aggregated from H8 cells.</p>
     <p class="note">Elections (Karnataka, Bihar): hexagon values are modelled from booth results spread over where voters live. Values for constituencies, districts and states are the official ECI results, not hexagon aggregates; a district combines the ACs that lie mostly inside it, so district values are approximate.</p>
     <p class="note">Booths: from zoom 10, every polling booth with coordinates is a pin, and each polling location has a catchment: the area where the people it serves live. Booth results are EVM votes from Form 20 (no postal ballots). Booth counts are counted where the pins lie; an AC without complete booth data has no count.</p>
-    <p class="note">${s.author ? `${esc(s.author)} · ` : ''}${s.github ? `<a href="${esc(s.github)}" target="_blank" rel="noopener">Source code</a> · ` : ''}Data version ${esc(CTX.cfg.version)}</p>
+    <p class="note">${(s.links || []).map((l) => `<a href="${esc(l.url)}">${esc(l.label)}</a> · `).join('')}${s.author ? `${esc(s.author)} · ` : ''}${s.github ? `<a href="${esc(s.github)}" target="_blank" rel="noopener">Source code</a> · ` : ''}Data version ${esc(CTX.cfg.version)}</p>
     <button class="textbtn" data-act="back" style="margin-top:16px">Back</button>`;
 }
 

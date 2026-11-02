@@ -1,6 +1,7 @@
 # India Hex
 
 **Live map: https://india-hex.github.io/India_Hex/**
+· Elections map: https://india-hex.github.io/Elections/
 
 India Hex is an interactive map of India's states, districts, Lok Sabha and Assembly constituencies,
 with economic, land and election data at three sizes of H3 hexagon. It runs in any modern browser, on desktop
@@ -83,6 +84,15 @@ Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
 - **Share:** every view has its own link. The site works on phones and can be added to the home
   screen.
 
+## Elections map
+
+A second site from the same code, with population and the election data only: Karnataka Lok Sabha
+2014, 2019 and 2024 and Assembly 2018 and 2023, and Bihar Assembly 2025. Click a polling booth or its
+catchment to see the **actual catchment**: every 100 m cell shaded by the share of its electors that
+the model assigns to that polling location. Most cells are split between several locations; the
+catchment outlines draw each cell with one location only. From zoom 14, click any cell to see how its
+electors are split.
+
 ## Run it yourself
 
 The site is built from a single settings file, `india_hex.yaml`, which controls basemaps, colours,
@@ -93,6 +103,7 @@ pip install duckdb geopandas shapely h3 pandas numpy pyyaml
 python server.py            # build and preview at http://localhost:8000
 python server.py --list     # list every variable found in the source data
 python server.py --deploy   # after any change: rebuild, push the code and update the live site
+python server.py --config india_hex_elections.yaml --deploy   # the same for the elections map
 ```
 
 Building needs the source data (H3 parquet files and boundary files), which isn't included in this

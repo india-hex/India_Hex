@@ -16,6 +16,8 @@ site:
   tagline: Constituencies, districts and H3 hexagons of India
   author: ""                 # shown in the About panel when set
   github: https://github.com/india-hex/India_Hex   # shown in the About panel
+  links:                     # sibling sites, in the menu and the About panel
+    - {label: Elections map, url: "https://india-hex.github.io/Elections/"}
   data_credit: GHSL · NASA Black Marble · Esri Land Cover · Hansen GFC · OpenStreetMap · property portals · Election Commission of India (results, Form 20) · CEO Bihar (Form 20) · TCPD Lokdhaba · OpenCity · WorldPop R2025A
 
 # Where the source data lives.

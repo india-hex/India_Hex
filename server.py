@@ -11,6 +11,8 @@
                                    command after any change to code, india_hex.yaml or the data
   python server.py --deploy -m "what changed"   (optional commit message)
   python server.py --port 8080
+  python server.py --config india_hex_elections.yaml ...   another site from the same code: its own
+                                   settings file, build folder (`output`) and GitHub Pages repository
 
 Needs: duckdb geopandas shapely>=2.1 h3>=4 pandas numpy pyyaml
 """
@@ -36,6 +38,12 @@ for _stream in (sys.stdout, sys.stderr):  # Windows consoles default to cp1252
     except AttributeError:
         pass
 
+# --config picks the settings file before the pipeline reads it (pipeline.config resolves the paths)
+for _i, _a in enumerate(sys.argv):
+    _cfg = sys.argv[_i + 1] if _a == "--config" and _i + 1 < len(sys.argv) else _a[9:] if _a.startswith("--config=") else None
+    if _cfg:
+        os.environ["INDIA_HEX_CONFIG"] = str(Path(_cfg).resolve())
+
 from pipeline.build import build  # noqa: E402
 from pipeline.catalog import discover  # noqa: E402
 from pipeline.config import CONFIG_PATH, SITE, load_config  # noqa: E402
@@ -46,7 +54,7 @@ PAGES_LIMIT_MB = 1000   # GitHub Pages refuses larger sites
 COMPRESSIBLE = {".json", ".geojson", ".js", ".css", ".html", ".svg"}
 TYPES = {".js": "text/javascript", ".css": "text/css", ".html": "text/html", ".svg": "image/svg+xml",
          ".json": "application/json", ".geojson": "application/geo+json", ".bin": "application/octet-stream",
-         ".png": "image/png", ".webmanifest": "application/manifest+json"}
+         ".png": "image/png", ".webmanifest": "application/manifest+json", ".gz": "application/gzip"}
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -187,7 +195,7 @@ def publish(cfg):
     branch = (cfg.get("publish") or {}).get("branch", "gh-pages")
     if not repo:
         sys.exit("Set publish.repo in india_hex.yaml (e.g. https://github.com/<user>/India_Hex.git)")
-    gitdir = ROOT / ".publish.git"
+    gitdir = ROOT / ((cfg.get("publish") or {}).get("gitdir") or ".publish.git")
     env = {**os.environ, "GIT_DIR": str(gitdir), "GIT_WORK_TREE": str(SITE)}
     run = lambda *a: subprocess.run(["git", *a], env=env, check=True, capture_output=True, text=True).stdout.strip()
     if not gitdir.exists():
@@ -216,6 +224,7 @@ def publish(cfg):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--config", help="settings file (default india_hex.yaml)")
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--no-build", action="store_true")
     ap.add_argument("--build-only", action="store_true")

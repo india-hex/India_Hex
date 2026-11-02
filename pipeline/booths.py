@@ -7,7 +7,9 @@ india_hex.yaml `booths.sources` lists folders holding, per election `<st>_<tag>`
   <st>_<tag>_details/ac_NNN.json per-AC booth and location rows, loaded when a booth is clicked
   <st>_<tag>_catchments.parquet  read for each location's populated / empty area (added to the details)
 
-Published as data/booths/<st>_<tag>/{booths.pmtiles, catchments.pmtiles, ac_NNN.json}. Files are copied
+Published as data/booths/<st>_<tag>/{booths.pmtiles, catchments.pmtiles, ac_NNN.json}. With
+`booths.split: true` (elections site) also split/<st>_<tag>/ac_NNN.{cells,split}.bin.gz and index.json:
+each 100 m cell's electors and their split between polling locations (served as-is, gzip). Files are copied
 (never linked: the drives differ and git would store links) when their sources' signature changes, and
 anything else under data/booths/ is removed. config.json "booths" describes each election for the browser.
 """
@@ -65,8 +67,21 @@ def sync(cfg, st):
     """Copy changed elections into data/booths/<id>/ and remove anything stale. Returns the expected files."""
     st.setdefault("booths", {})
     expected = set()
+    split = bool((cfg.get("booths") or {}).get("split"))
+    st.setdefault("booth_split", {})
     for el, src, meta in elections(cfg):
         d = OUT / el
+        if split:   # the actual (fractional) catchments: copied as they are, by signature
+            sfiles = sorted((src / "split" / el).glob("ac_*.bin.gz")) + [src / "split" / el / "index.json"]
+            snames = [f"split/{f.name}" for f in sfiles]
+            expected |= {f"{el}/{n}" for n in snames}
+            ssig = obj_sig(sorted((f.name, file_sig(f)) for f in sfiles))
+            if st["booth_split"].get(el) != ssig or not all((d / n).exists() for n in snames):
+                log(f"booths: {el}: copying {len(sfiles) - 1} split files")
+                (d / "split").mkdir(parents=True, exist_ok=True)
+                for f, n in zip(sfiles, snames):
+                    shutil.copyfile(f, d / n)
+                st["booth_split"][el] = ssig
         sig = _source_sig(el, src, meta)
         names = ["booths.pmtiles", "catchments.pmtiles"] + [p.name for p in sorted((src / f"{el}_details").glob("ac_*.json"))]
         expected |= {f"{el}/{n}" for n in names}
@@ -95,6 +110,9 @@ def sync(cfg, st):
                 os.chmod(dd, stat.S_IWRITE)   # OneDrive folders are read-only, which blocks rmdir
                 dd.rmdir()
     st["booths"] = {k: v for k, v in st["booths"].items() if any(e.startswith(f"{k}/") for e in expected)}
+    st["booth_split"] = {k: v for k, v in st["booth_split"].items() if split and k in st["booths"]}
+    if not st["booth_split"]:
+        st.pop("booth_split")
     if removed:
         log(f"booths: removed {removed} stale files")
     return expected
@@ -103,6 +121,7 @@ def sync(cfg, st):
 def client_config(cfg, st, series):
     """config.json "booths": one entry per election, coupled to its election series by prefix and year."""
     bcfg = cfg.get("booths") or {}
+    split = bool(bcfg.get("split"))
     datasets = cfg["variables"]["datasets"]
     out = []
     for el, src, meta in elections(cfg):
@@ -127,4 +146,7 @@ def client_config(cfg, st, series):
             "counts": {k: meta["counts"].get(k) for k in ("booths", "booths_located_pins", "booths_unlocated", "locations_with_catchment")},
             "no_catchments": meta["counts"].get("acs_without_catchments", []),
         })
+        if split:   # split files: their own signature joins the version, and the browser knows they exist
+            out[-1]["v"] = obj_sig(out[-1]["v"], (st.get("booth_split") or {}).get(el, ""))
+            out[-1]["split"] = True
     return {"minzoom": bcfg.get("minzoom", 10), "elections": out} if out else None

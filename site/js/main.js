@@ -856,12 +856,14 @@ function wireMenu() {
   const menu = $('#menu');
   const items = [
     ['about', 'About'],
+    ...(cfg.site.links || []).map((l, i) => [`link${i}`, l.label]), // sibling sites (india_hex.yaml site.links)
     ...(cfg.site.github ? [['github', 'Source on GitHub']] : []),
     ['theme', 'Switch light / dark'],
     ['copy', 'Copy link to this view'],
     ['reset', 'Reset everything'],
   ];
-  menu.innerHTML = items.map(([id, l]) => (id === 'github' ? `<a href="${cfg.site.github}" target="_blank" rel="noopener">${l}</a>` : `<button data-m="${id}">${l}</button>`)).join('');
+  const href = (id) => (id === 'github' ? cfg.site.github : id.startsWith('link') ? cfg.site.links[+id.slice(4)].url : null);
+  menu.innerHTML = items.map(([id, l]) => (href(id) ? `<a href="${href(id)}"${id === 'github' ? ' target="_blank" rel="noopener"' : ''}>${l}</a>` : `<button data-m="${id}">${l}</button>`)).join('');
   $('#menuBtn').onclick = (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; };
   document.addEventListener('click', () => { menu.hidden = true; });
   menu.addEventListener('click', (e) => {

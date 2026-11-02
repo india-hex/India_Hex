@@ -3,6 +3,9 @@ site/data/
 site/config.json
 site/.nojekyll
 .publish.git/
+# the elections site (india_hex_elections.yaml): built whole from site/ + sites/elections and the data
+site_elections/
+.publish_elections.git/
 
 # Scratch output
 design/frames/
@@ -18,3 +21,5 @@ ELECTIONS_BRIEF_india_hex.md
 ELECTIONS_RESULT.md
 BOOTHS_BRIEF_india_hex.md
 BOOTHS_RESULT.md
+ELECTIONS_SITE_BRIEF.md
+ELECTIONS_SITE_RESULT.md
