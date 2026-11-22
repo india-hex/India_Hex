@@ -95,6 +95,7 @@ class Election:
     def __init__(self, root, entry):
         e = entry if isinstance(entry, dict) else {"key": entry}
         self.key = e["key"]
+        self.has_booths = e.get("has_booths") is True   # results/elections.json: true only once the build is complete
         self.root = Path(root)
         self.st = self.key[:2].upper()
         self.dir = self.root / (e.get("layers") or f"{self.st}/outputs/maps/elections/{self.key}/")
@@ -537,7 +538,7 @@ def discover(b):
         if why:
             skipped.append((k, why))
             continue
-        out.append({"key": k, "layers": e.get("layers"), **(over.get(k) or {})})
+        out.append({"key": k, "layers": e.get("layers"), "has_booths": e.get("has_booths") is True, **(over.get(k) or {})})
     return out, skipped
 
 
@@ -564,20 +565,25 @@ BOOTH_FILES = ("booths/{key}_booth_layers.json", "booths/{key}_booths.pmtiles", 
                "booths/{key}_catchments.parquet")
 
 
+BOOTH_PARTS = ("hex", "booths", "details", "counts", "split")
+
+
 def booth_sources(cfg):
-    """booths.sources entries for elections whose booth layers have landed (LAYOUT sections 4-7): manifest
-    parts booths + details present and every file the site copies on disk. Others are left out until then."""
+    """booths.sources entries for elections whose booth layers are complete. Gate (the producer's rule):
+    results/elections.json has_booths is true (set only after the last build stage, split/checks.json), the
+    manifest lists every part (hex, booths, details, counts, split) as present, and every file the site copies
+    is on disk. booth_layers.json and the tiles alone are not enough: they are written before counts and split."""
     out = []
     for d in datasets(cfg):
         for e in d.els:
             parts = e.manifest.get("parts") or {}
             files = [e.dir / f.format(key=e.key) for f in BOOTH_FILES]
-            if (parts.get("booths") or {}).get("present") and (parts.get("details") or {}).get("present") \
+            if e.has_booths and all((parts.get(p) or {}).get("present") for p in BOOTH_PARTS) \
                     and all(f.exists() for f in files):
                 out.append({"path": str(e.dir), "layout": "bcexport", "key": e.key, "shard": f"data-{e.st.lower()}"})
             elif (parts.get("booths") or {}).get("present") and e.key not in _WARNED:
                 _WARNED.add(e.key)
-                log(f"bcexport: {e.key}: booth layers incomplete on disk (still building?); not published yet")
+                log(f"bcexport: {e.key}: booth layers not complete yet (elections.json has_booths / manifest parts); not published")
     return out
 
 
