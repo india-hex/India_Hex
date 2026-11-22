@@ -27,6 +27,7 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.parse
 from io import BytesIO
 from pathlib import Path
 
@@ -44,9 +45,9 @@ for _i, _a in enumerate(sys.argv):
     if _cfg:
         os.environ["INDIA_HEX_CONFIG"] = str(Path(_cfg).resolve())
 
-from pipeline.build import build  # noqa: E402
+from pipeline.build import build, shard_names  # noqa: E402
 from pipeline.catalog import discover  # noqa: E402
-from pipeline.config import CONFIG_PATH, SITE, load_config  # noqa: E402
+from pipeline.config import CONFIG_PATH, SHARDS, SITE, load_config  # noqa: E402
 from pipeline.util import dir_size  # noqa: E402
 
 PAGES_LIMIT_MB = 1000   # GitHub Pages refuses larger sites
@@ -65,6 +66,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def log_message(self, fmt, *args):
         pass
+
+    def translate_path(self, path):
+        """/<shard>/… (a data repository, served on GitHub Pages beside the app) → shards/<shard>/…"""
+        p = urllib.parse.unquote(path.split("?", 1)[0].split("#", 1)[0]).lstrip("/")
+        head, _, rest = p.partition("/")
+        if head.startswith("data-") and (SHARDS / head).is_dir():
+            base = (SHARDS / head).resolve()
+            out = (base / rest).resolve()
+            return str(out) if out == base or base in out.parents else str(base / "__outside__")
+        return super().translate_path(path)
 
     def end_headers(self):
         self.send_header("Cache-Control", "no-cache")
@@ -177,26 +188,49 @@ def push_source(message):
     print("Code pushed to GitHub.")
 
 
-def size_gate(cfg):
-    """Refuse to publish a site over GitHub's 1 GB; warn above the budget (variables.budget_mb)."""
-    mb = dir_size(SITE) / 1e6
+def size_gate(cfg, tree=SITE):
+    """Refuse to publish a tree over GitHub's 1 GB; warn above the budget (variables.budget_mb)."""
+    mb = dir_size(tree) / 1e6
     budget = cfg["variables"].get("budget_mb", 950)
+    name = tree.relative_to(ROOT).as_posix() if ROOT in tree.parents else str(tree)
     if mb > PAGES_LIMIT_MB:
-        sys.exit(f"site/ is {mb:.0f} MB, over GitHub Pages' {PAGES_LIMIT_MB} MB limit: not publishing. Cut variables or move files out first.")
+        sys.exit(f"{name}/ is {mb:.0f} MB, over GitHub Pages' {PAGES_LIMIT_MB} MB limit: not publishing. Cut variables or move files out first.")
     if mb > budget:
-        print(f"⚠ site/ is {mb:.0f} MB, over the {budget} MB budget (limit {PAGES_LIMIT_MB} MB). Publishing anyway.")
+        print(f"⚠ {name}/ is {mb:.0f} MB, over the {budget} MB budget (limit {PAGES_LIMIT_MB} MB). Publishing anyway.")
     return mb
 
 
+def targets(cfg):
+    """(tree, repo, gitdir) for every repository a deploy publishes: the data repositories first, so
+    the data is live before the app that reads it, then the app."""
+    pub = cfg.get("publish") or {}
+    out = []
+    tmpl = (cfg.get("shards") or {}).get("repo")
+    for name in shard_names(cfg, discover(cfg)) if tmpl and not cfg.get("redirect") else []:
+        out.append((SHARDS / name, tmpl.format(name=name), ROOT / f".publish_{name}.git"))
+    out.append((SITE, pub.get("repo"), ROOT / (pub.get("gitdir") or ".publish.git")))
+    return out
+
+
 def publish(cfg):
-    """Push site/ as a single orphan commit to the gh-pages branch (no data history piles up)."""
-    size_gate(cfg)
-    repo = (cfg.get("publish") or {}).get("repo")
+    """Publish the data repositories, then the app (see targets)."""
+    ts = targets(cfg)
+    for tree, _, _ in ts:
+        size_gate(cfg, tree)
+    for tree, repo, gitdir in ts:
+        publish_tree(cfg, tree, repo, gitdir)
+
+
+def publish_tree(cfg, tree, repo, gitdir):
+    """Push one tree as a single orphan commit to the gh-pages branch (no data history piles up)."""
     branch = (cfg.get("publish") or {}).get("branch", "gh-pages")
     if not repo:
         sys.exit("Set publish.repo in india_hex.yaml (e.g. https://github.com/<user>/India_Hex.git)")
-    gitdir = ROOT / ((cfg.get("publish") or {}).get("gitdir") or ".publish.git")
-    env = {**os.environ, "GIT_DIR": str(gitdir), "GIT_WORK_TREE": str(SITE)}
+    m = re.match(r"https://github\.com/([^/]+)/([^/.]+)", repo)
+    if m and subprocess.run(["gh", "repo", "view", f"{m.group(1)}/{m.group(2)}", "--json", "name"], capture_output=True).returncode != 0:
+        sys.exit(f"Repository {m.group(1)}/{m.group(2)} does not exist (or gh is not signed in). Create it first "
+                 f"(public, no README), then deploy again.")
+    env = {**os.environ, "GIT_DIR": str(gitdir), "GIT_WORK_TREE": str(tree)}
     run = lambda *a: subprocess.run(["git", *a], env=env, check=True, capture_output=True, text=True).stdout.strip()
     if not gitdir.exists():
         subprocess.run(["git", "init", "--bare", str(gitdir)], check=True, capture_output=True)
@@ -209,8 +243,8 @@ def publish(cfg):
         run("config", "user.name", pub["git_name"])
     if email:
         run("config", "user.email", email)
-    (SITE / ".nojekyll").write_text("")
-    print("Staging site/ …")
+    (tree / ".nojekyll").write_text("")
+    print(f"Staging {tree.name}/ …")
     run("add", "-A", "--", ".")
     tree = run("write-tree")
     commit = run("commit-tree", tree, "-m", f"Publish {time.strftime('%Y-%m-%d %H:%M')}")
@@ -241,7 +275,8 @@ def main():
     if not a.no_build:
         build(cfg, force=a.force)
     if a.deploy:
-        size_gate(cfg)   # before anything is pushed
+        for tree, _, _ in targets(cfg):
+            size_gate(cfg, tree)   # before anything is pushed
         push_source(a.message)
         return publish(cfg)
     if a.publish:

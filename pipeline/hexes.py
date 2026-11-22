@@ -29,7 +29,7 @@ import h3
 import numpy as np
 import pandas as pd
 
-from .config import DATA
+from .config import DATA, data_dir
 from .util import log
 
 U8_MISSING, U16_MISSING = 255, 65535
@@ -254,7 +254,7 @@ def chunks_of(positions, start):
 
 def write_series(res, series, arrays_by_year, q, chunks=None, start=None):
     """Dense: one value per index cell. Sparse (chunks given): only those chunks' cells, in order."""
-    out = DATA / "hex" / f"h{res}" / "v"
+    out = data_dir(series.shard) / "hex" / f"h{res}" / "v"
     out.mkdir(parents=True, exist_ok=True)
     for y in series.res_years[res]:
         enc = encode(arrays_by_year[y], q)
@@ -263,9 +263,9 @@ def write_series(res, series, arrays_by_year, q, chunks=None, start=None):
         (out / series.bin_name(y)).write_bytes(enc.tobytes())
 
 
-def read_series(res, name, q, n, chunks=None, start=None):
+def read_series(res, name, q, n, chunks=None, start=None, shard=None):
     """Decoded values of a published file for every index cell (NaN outside a sparse file's chunks)."""
-    v = decode((DATA / "hex" / f"h{res}" / "v" / name).read_bytes(), q)
+    v = decode((data_dir(shard) / "hex" / f"h{res}" / "v" / name).read_bytes(), q)
     if chunks is None:
         return v
     full = np.full(n, np.nan)

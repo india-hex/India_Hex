@@ -15,7 +15,7 @@ import numpy as np
 
 from . import catalog as cat
 from . import booths, geo, hexes, official
-from .config import DATA, ROOT, SITE
+from .config import DATA, ROOT, SHARDS, SITE, data_dir
 from .util import dir_size, file_sig, log, obj_sig
 
 STATE_PATH = DATA / ".build.json"
@@ -33,7 +33,60 @@ def _save_state(st):
     STATE_PATH.write_text(json.dumps(st, indent=1))
 
 
+REDIRECT_JS = """// Forward an old link to the app, keeping its view (the URL hash) and adding the preset keys.
+const add = %s;
+const withBooth = %s;   // added too when the link selects a booth: its footprint needs the booth layers
+const p = new URLSearchParams(location.hash.slice(1));
+for (const [k, v] of Object.entries({ ...add, ...(p.has('bt') ? withBooth : {}) })) if (!p.has(k)) p.set(k, v);
+const h = p.toString().replace(/%%7C/gi, '|').replace(/%%3A/gi, ':').replace(/%%2C/gi, ',').replace(/%%2F/gi, '/');
+location.replace(new URL(%s, location.origin + %s).href + (h ? `#${h}` : ''));  // from deep links too
+"""
+
+REDIRECT_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <meta name="robots" content="noindex">
+  <title>{title}</title>
+  <link rel="canonical" href="{to}">
+  <script src="{base}go.js"></script>
+</head>
+<body style="font: 15px/1.5 system-ui, sans-serif; margin: 3rem auto; max-width: 34rem; padding: 0 1rem; color: #222">
+  <p>India Hex · Elections is now part of <a href="{to}">India Hex</a>: booth pins, catchments and footprints are in Layers → Booths.</p>
+</body>
+</html>
+"""
+
+
+def write_redirect(cfg):
+    """A site that only forwards (`redirect` in its settings): index.html and 404.html (deep links) plus
+    go.js, which keeps the URL hash. Everything else in the build folder is removed."""
+    r = cfg["redirect"]
+    repo = ((cfg.get("publish") or {}).get("repo") or "").rstrip("/").removesuffix(".git")
+    base = f"/{repo.rsplit('/', 1)[-1]}/" if repo else "/"   # the old site's path, e.g. /Elections/
+    files = {"index.html": REDIRECT_HTML.format(title=r.get("title", "Moved"), to=r["to"], base=base),
+             "go.js": REDIRECT_JS % (json.dumps(r.get("add") or {}), json.dumps(r.get("add_with_booth") or {}), json.dumps(r["to"]), json.dumps(base))}
+    files["404.html"] = files["index.html"]
+    SITE.mkdir(parents=True, exist_ok=True)
+    for f in SITE.rglob("*"):
+        if f.is_file() and f.relative_to(SITE).as_posix() not in files and f.name != ".nojekyll":
+            os.chmod(f, stat.S_IWRITE)
+            f.unlink()
+    for d in sorted((p for p in SITE.rglob("*") if p.is_dir()), reverse=True):
+        if not any(d.iterdir()):
+            os.chmod(d, stat.S_IWRITE)
+            d.rmdir()
+    for name, text in files.items():
+        (SITE / name).write_text(text, encoding="utf-8")
+    log(f"redirect: {SITE.name}/ forwards to {r['to']}")
+
+
 def build(cfg, force=False, only_config=False):
+    if cfg.get("redirect"):
+        write_redirect(cfg)
+        return []
     t0 = time.time()
     st = {} if force else _load_state()
     st.setdefault("bins", {}), st.setdefault("q", {}), st.setdefault("agg", {}), st.setdefault("index", {})
@@ -152,9 +205,9 @@ def build(cfg, force=False, only_config=False):
                 ssig = obj_sig(st["index"].get(str(res)), file_sig(src), s.cols if not s.pivot else {str(k): list(v) for k, v in s.cols.items()},
                                s.dtype, s.fill_missing, s.res_years.get(res), s.pivot, *([extra] if extra else []))
                 key = f"{res}/{s.id}"
-                files_ok = all((DATA / "hex" / f"h{res}" / "v" / s.bin_name(y)).exists() for y in s.res_years.get(res, []))
+                files_ok = all((data_dir(s.shard) / "hex" / f"h{res}" / "v" / s.bin_name(y)).exists() for y in s.res_years.get(res, []))
                 for y in s.res_years.get(res, []):
-                    expected.add(f"h{res}/v/{s.bin_name(y)}")
+                    expected.add(f"{s.shard or ''}|h{res}/v/{s.bin_name(y)}")
                 need_bin = res in s.res_years and (st["bins"].get(key) != ssig or not files_ok)
                 aextra = {k: v for k, v in (("weight", s.weight), ("states", s.states), ("official", official.signature(s)),
                                             ("units_table", s.units_table), ("official_col", s.official_col)) if v}
@@ -186,11 +239,14 @@ def build(cfg, force=False, only_config=False):
 
     # ---- remove files no longer in the catalog ---------------------------------------------------
     removed = 0
-    for res in cfg.resolutions:
-        vdir = DATA / "hex" / f"h{res}" / "v"
-        for f in vdir.glob("*.bin") if vdir.exists() else []:
-            if f"h{res}/v/{f.name}" not in expected:
-                f.unlink(); removed += 1
+    roots = [(None, DATA)] + [(d.name, d / "data") for d in (sorted(SHARDS.iterdir()) if SHARDS.exists() else []) if d.is_dir()]
+    for shard, droot in roots:
+        for res in cfg.resolutions:
+            vdir = droot / "hex" / f"h{res}" / "v"
+            for f in vdir.glob("*.bin") if vdir.exists() else []:
+                if f"{shard or ''}|h{res}/v/{f.name}" not in expected:
+                    os.chmod(f, stat.S_IWRITE)
+                    f.unlink(); removed += 1
     ids_ok = {s.id for s in series}
     udir = DATA / "units" / "v"
     for d in udir.iterdir() if udir.exists() else []:
@@ -217,7 +273,17 @@ def build(cfg, force=False, only_config=False):
     size = dir_size(SITE) / 1e6
     budget = cfg["variables"].get("budget_mb", 950)
     log(f"done in {time.time() - t0:.0f}s · site is {size:.0f} MB" + (f"  ⚠ over the {budget} MB budget" if size > budget else ""))
+    for name in shard_names(cfg, series):
+        mb = dir_size(SHARDS / name) / 1e6 if (SHARDS / name).exists() else 0
+        log(f"  shard {name}: {mb:.0f} MB" + (f"  ⚠ over the {budget} MB budget" if mb > budget else ""))
     return series
+
+
+def shard_names(cfg, series=()):
+    """Every data repository in use: dataset `shard` keys and booth sources' `shard`."""
+    names = {s.shard for s in series if s.shard}
+    names |= {b.get("shard") for b in booths.source_list(cfg) if b.get("shard")}
+    return sorted(names)
 
 
 SHELL_SKIP = ("config.json", ".nojekyll")
@@ -310,7 +376,7 @@ def compute_breaks(series, st):
             if s.type == "categorical" or s.breaks:   # categories need none; fixed breaks are used as given
                 st["breaks"][key] = {"sig": st["bins"].get(f"{res}/{s.id}"), "b": [float(b) for b in s.breaks] if s.breaks else None}
                 continue
-            raw = (DATA / "hex" / f"h{res}" / "v" / name).read_bytes()
+            raw = (data_dir(s.shard) / "hex" / f"h{res}" / "v" / name).read_bytes()
             v = hexes.decode(raw, q)   # a sparse file holds only its chunks: same distribution
             v = np.sort(v[~np.isnan(v)])
             br = []
@@ -388,6 +454,10 @@ def write_client_config(cfg, series, st):
     }
     if chunks:
         client["chunks"] = chunks
+    names = shard_names(cfg, series)
+    if names:   # where each data repository is served, relative to the app (same origin on GitHub Pages)
+        tmpl = (cfg.get("shards") or {}).get("url", "../{name}/")
+        client["shards"] = {n: tmpl.format(name=n) for n in names}
     bc = booths.client_config(cfg, st, series)
     if bc:
         client["booths"] = bc   # sparse datasets: the index chunks in their files, in file order

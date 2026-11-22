@@ -69,6 +69,7 @@ export function initControls(ctx) {
     if (k === 'theme') S.set({ theme: e.target.checked ? 'dark' : 'light' });
     else if (k === 'hexOn') S.set({ res: e.target.checked ? ctx.rt.lastRes || 'auto' : 'off' });
     else if (k === 'pins') S.set({ pins: e.target.checked ? 'on' : 'off' });
+    else if (k === 'fp') S.set({ fp: e.target.checked });
     else if (line) { const cur = S.get().lines.filter((l) => l !== line); S.set({ lines: e.target.checked ? [...cur, line] : cur }); }
     else if (k) S.set({ [k]: e.target.checked });
   });
@@ -148,7 +149,7 @@ export function initControls(ctx) {
 
   S.on(null, (st, prev, changed) => {
     if (changed.has('res') && st.res !== 'off') ctx.rt.lastRes = st.res;
-    if (['level', 'res', 'scope', 'mask', 'labels', 'stateLines', 'hexLines', 'cbSafe', 'theme', 'sel', 'pins', 'catch', 'bel', 'lines', 'var', 'year'].some((k) => changed.has(k))) renderLens();
+    if (['level', 'res', 'scope', 'mask', 'labels', 'stateLines', 'hexLines', 'cbSafe', 'theme', 'sel', 'pins', 'catch', 'bel', 'lines', 'var', 'year', 'fp'].some((k) => changed.has(k))) renderLens();
     if (['var', 'year', 'mode', 'from', 'density', 'scale'].some((k) => changed.has(k))) { renderBar(); renderTimeline(); }
     if (['basemap', 'overlays'].some((k) => changed.has(k))) renderBases();
     if (['threeD', 'compare', 'measuring'].some((k) => changed.has(k))) renderTools();
@@ -215,31 +216,40 @@ export function renderLens() {
       <div class="slider">Boundaries<input type="range" id="lineScale" min="0.3" max="1.8" step="0.05" value="${st.lineScale}" aria-label="Boundary strength"></div>
     </details>`;
   document.getElementById('drawer').addEventListener('toggle', (e) => { rt.drawerOpen = e.target.open; });
+  document.getElementById('boothGroup')?.addEventListener('toggle', (e) => { rt.boothsOpen = e.target.open; });
   markShownRes();
 }
 
-/** Booth pins and catchments: switches, and election chips per state while they are on. */
+/**
+ * The Booths group: pins, catchments and footprints (each off until chosen), and the election chips.
+ * Collapsible; open by default, the viewer's choice is kept for the visit.
+ */
 function boothRows(st) {
   const els = boothElections();
   if (!els.length) return '';
   const bv = CTX.rt.booth;
-  const pinsOn = !!bv?.pins;
-  const mode = bv?.catchMode || 'off';
-  const on = pinsOn || mode !== 'off';
+  const pinsOn = st.pins === 'on';
+  const mode = ['line', 'fill'].includes(st.catch) ? st.catch : 'off';
   const states = [...new Set(els.map((e) => e.state))];
   const cur = bv?.el?.id;
-  const chips = on || !bv ? `<div class="echips">${states.map((k) => {
+  const chips = `<div class="echips">${states.map((k) => {
     const es = els.filter((e) => e.state === k).sort((a, b) => a.year - b.year);
     return `<div class="erow"><span>${esc(es[0].state_name)}</span>${es.map((e) => `<button data-k="bel" data-v="${e.id}" class="${e.id === cur ? 'on' : ''}" title="${esc(e.state_name)} ${esc(e.label)}">${e.house === 'Lok Sabha' ? 'LS' : 'AS'} ${e.year}</button>`).join('')}</div>`;
-  }).join('')}</div>` : '';
-  const hint = !bv ? '<span class="auto">Karnataka and Bihar: pick an election</span>'
-    : st.pins || st.catch ? '' : `<span class="auto">${bv.coupled ? 'automatic' : 'with election variables'}</span>`;
-  return `<div class="stack-row">
-      <div class="lab row">${tog('pins', 'Booth pins', pinsOn)}${hint}</div>
-      <div class="lab">Booth catchments <span class="hint2">from zoom ${CTX.cfg.booths.minzoom}</span></div>
+  }).join('')}</div>`;
+  const names = states.map((k) => els.find((e) => e.state === k).state_name);
+  const where = names.length > 2 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names.join(' and ');
+  const anySplit = els.some((e) => e.split);
+  const on = pinsOn || mode !== 'off';
+  const open = CTX.rt.boothsOpen ?? true;
+  return `<details class="stack-row bgroup" id="boothGroup"${open ? ' open' : ''}>
+      <summary class="lab"><span>Booths</span><span class="hint2">${on ? `${esc(bv?.el ? `${bv.el.state_name} ${bv.el.label}` : '')}` : `${esc(where)} · from zoom ${CTX.cfg.booths.minzoom}`}</span></summary>
+      <div class="lab row">${tog('pins', 'Booth pins', pinsOn)}</div>
+      <div class="lab">Booth catchments</div>
       ${seg('catch', [['off', 'Off'], ['line', 'Outline'], ['fill', 'Fill']], mode, 'sm')}
+      ${anySplit ? `<div class="lab row">${tog('fp', 'Footprint on click', !!st.fp)}</div>
+      <p class="hint3">Click a pin or catchment: every 100 m cell is shaded by the share of its electors that the model assigns to that polling location.</p>` : ''}
       ${chips}
-    </div>`;
+    </details>`;
 }
 
 /** Lens bar: what the map is coloured by. */

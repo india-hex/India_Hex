@@ -5,6 +5,8 @@
 // A sparse series (one or two states) stores only the chunks listed in config.json chunks[dataset][res],
 // back to back; any other chunk is missing for it and is never fetched.
 
+import { base } from './shards.js';
+
 let VER = '';
 let SPARSE = {}; // dataset -> res -> [chunk numbers in file order]
 const sparseSpans = new Map(); // `${dataset}/${res}` -> Map(k -> [first cell, end cell] in the file)
@@ -17,7 +19,7 @@ const MAX_VALUES = 6000;
 
 export function initHexStore(version, chunks = {}) { VER = version; SPARSE = chunks || {}; }
 
-const url = (res, file) => `data/hex/h${res}/${file}?v=${VER}`;
+const url = (res, file, shard) => `${base(shard)}data/hex/h${res}/${file}?v=${VER}`;
 
 export function manifest(res) {
   if (!manifests.has(res)) {
@@ -203,7 +205,7 @@ export async function values(cs, series, year) {
   const have = ks.filter((k) => span(k)); // a sparse file lacks most chunks: those are all missing
   const missing = have.filter((k) => !valueCache.has(`${cs.res}/${file}/${k}`));
   if (missing.length) {
-    const p = fetchChunks(url(cs.res, file), span, missing, width);
+    const p = fetchChunks(url(cs.res, file, series.shard), span, missing, width);
     for (const k of missing) valueCache.set(`${cs.res}/${file}/${k}`, p.then((b) => decodeValues(b.get(k), q)));
     p.catch(() => missing.forEach((k) => valueCache.delete(`${cs.res}/${file}/${k}`)));
   }

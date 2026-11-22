@@ -236,6 +236,7 @@ variables:
     # hold the state's cells). Unit values come from the official ECI results (units_table), not from
     # the hexagons; units outside `states` get none. Series ids carry the dataset prefix.
     karnataka_ae:
+      shard: data-ka
       root: D:/booth_catchment/KA/outputs/maps
       file: h{res}_karnataka_ae.parquet
       group: Karnataka Assembly (2018, 2023)
@@ -266,6 +267,7 @@ variables:
       caveat: &ka_caveat "Modelled from booth results spread over where voters live (method: booth catchments on the 100 m population grid). Shares of valid votes incl. NOTA, EVM + postal. Grey: AC booth data incomplete."
       na_label: &ka_na AC booth data incomplete
     karnataka_ge:
+      shard: data-ka
       root: D:/booth_catchment/KA/outputs/maps
       file: h{res}_karnataka_ge.parquet
       group: Karnataka Lok Sabha (2014, 2019, 2024)
@@ -282,6 +284,7 @@ variables:
       caveat: *ka_caveat
       na_label: *ka_na
     bihar_ae2025:
+      shard: data-br
       root: D:/booth_catchment/BR/outputs/maps
       file: h{res}_bihar_ae2025_model.parquet
       group: Bihar Assembly 2025
@@ -311,6 +314,7 @@ variables:
     # AC tables: an AC without complete booth data has none, and a PC / district / state sums its other
     # ACs and says how many it leaves out.
     karnataka_ae_booths:
+      shard: data-ka
       root: D:/booth_catchment/KA/outputs/maps/booths/counts
       file: h{res}_karnataka_ae_booths.parquet
       group: Karnataka Assembly (2018, 2023)
@@ -327,6 +331,7 @@ variables:
         extra: {located: "booths_located_{year}", unlocated: "booths_unlocated_{year}"}
       caveat: &booth_caveat "Booths with coordinates, counted where their pin lies. ACs with incomplete booth data are blank."
     karnataka_ge_booths:
+      shard: data-ka
       root: D:/booth_catchment/KA/outputs/maps/booths/counts
       file: h{res}_karnataka_ge_booths.parquet
       group: Karnataka Lok Sabha (2014, 2019, 2024)
@@ -340,6 +345,7 @@ variables:
         path: D:/booth_catchment/KA/outputs/maps/booths/counts/units/karnataka_ge{year}_booth_counts.parquet
       caveat: *booth_caveat
     bihar_ae2025_booths:
+      shard: data-br
       root: D:/booth_catchment/BR/outputs/maps/booths/counts
       file: h{res}_bihar_ae2025_booths.parquet
       group: Bihar Assembly 2025
@@ -501,10 +507,18 @@ variables:
 # copied into site/data/booths/ by the build. Each source folder holds <st>_<tag>_booth_layers.json.
 # --------------------------------------------------------------------------------------------
 booths:
-  sources:
-    - D:/booth_catchment/KA/outputs/maps/booths
-    - D:/booth_catchment/BR/outputs/maps/booths
+  sources:                   # each election's files go to its state's data repository (shards)
+    - {path: D:/booth_catchment/KA/outputs/maps/booths, shard: data-ka}
+    - {path: D:/booth_catchment/BR/outputs/maps/booths, shard: data-br}
   minzoom: 10                # pins and catchments from this zoom; hexagons serve lower zooms
+  split: true                # footprints: each 100 m cell's split between polling locations (on click)
+
+# Data repositories: heavy per-state election data (hexagon series, booth layers, footprints) is
+# published from its own GitHub Pages repository in the org, each under its own 1 GB, read on demand
+# from the same origin (https://india-hex.github.io/<name>/). Built into shards/<name>/.
+shards:
+  url: "../{name}/"                                    # from the app at /India_Hex/
+  repo: "https://github.com/india-hex/{name}.git"      # gh-pages branch, like the app
 
 features:
   search: true

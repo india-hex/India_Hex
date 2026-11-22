@@ -50,6 +50,7 @@ class Series:
     caveat: str = ""                # shown under the legend whenever the series is on the map
     na_label: str = ""              # missing cells inside `states` are drawn grey with this legend label
     menu: list | None = None        # picker tree path, e.g. [Elections, Karnataka, Assembly]
+    shard: str | None = None        # hexagon files published from this data repository (india_hex.yaml shards)
     # per-series settings
     weight: str | None = None       # agg wmean: weight column, "{year}" filled in (e.g. votes_{year})
     official_col: str | None = None  # column in units_table (default: the source column)
@@ -62,7 +63,7 @@ class Series:
     SERVER_ONLY = ("cols", "file", "pivot", "fill_missing", "dataset", "period", "root", "prefix", "units_table",
                    "weight", "official_col")
     # new fields are written to config.json only when set, so existing entries stay as they were
-    CLIENT_IF_SET = ("states", "sparse", "type", "categories", "breaks", "diverging", "featured", "caveat", "na_label", "menu")
+    CLIENT_IF_SET = ("states", "sparse", "type", "categories", "breaks", "diverging", "featured", "caveat", "na_label", "menu", "shard")
 
     @property
     def years(self):
@@ -187,7 +188,7 @@ def _datasets(cfg):
 OVERRIDE_KEYS = {"label", "unit", "note", "ramp", "format", "agg", "density", "dtype", "default_year", "weight",
                  "official_col", "type", "categories", "breaks", "diverging", "featured"}
 DATASET_KEYS = {"file", "group", "pivot", "segments", "period", "ignore", "fill_missing", "auto", "root", "prefix",
-                "states", "sparse", "units_table", "exclude", "h8", "lead", "caveat", "na_label", "menu"}
+                "states", "sparse", "units_table", "exclude", "h8", "lead", "caveat", "na_label", "menu", "shard"}
 
 
 def _check_keys(where, d, allowed):
@@ -288,7 +289,8 @@ def discover(cfg, verbose=False):
             s = Series(id=uid, dataset=ds_id, group=ds.get("group", "Other"), file=ds["file"], cols=colmap,
                        pivot=pivot, period=period, fill_missing=ds.get("fill_missing"), root=root, prefix=prefix,
                        states=ds.get("states"), sparse=bool(ds.get("sparse")), units_table=ds.get("units_table"),
-                       caveat=ds.get("caveat", ""), na_label=ds.get("na_label", ""), menu=ds.get("menu"))
+                       caveat=ds.get("caveat", ""), na_label=ds.get("na_label", ""), menu=ds.get("menu"),
+                       shard=ds.get("shard"))
             if categories is not None:
                 s.type, s.categories, s.dtype, s.format, s.agg, s.density, s.ramp = "categorical", categories, "u8", "cat", "lead", False, "cat"
                 s.label, s.note = ds["lead"].get("label", "Leading party"), ds["lead"].get("note", "")

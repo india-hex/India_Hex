@@ -367,6 +367,15 @@ input[type=range] { accent-color: var(--accent); width: 100%; }
 .lab .auto, .lab .hint2 { font-size: 10.5px; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
 .lab .hint2 { margin-left: auto; }
 .echips { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+/* the Booths group: a collapsible row of the stack */
+.bgroup > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 6px; color: var(--ink-2); margin-bottom: 0; }
+.bgroup > summary > span:first-of-type { font-weight: 600; }
+.bgroup > summary::-webkit-details-marker { display: none; }
+.bgroup > summary::before { content: '▸'; font-size: 10px; color: var(--ink-3); transition: transform .15s; display: inline-block; }
+.bgroup[open] > summary::before { transform: rotate(90deg); }
+.bgroup > summary .hint2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 62%; }
+.bgroup > .lab { margin-top: 8px; }
+.hint3 { font-size: 10.5px; color: var(--ink-3); line-height: 1.35; margin: 3px 0 0; }
 .erow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
 .erow span { font-size: 11px; color: var(--ink-3); width: 62px; }
 .erow button { font-size: 11px; padding: 3px 8px; min-height: 24px; border-radius: 999px; border: 1px solid var(--hair-2); color: var(--ink-2); font-variant-numeric: tabular-nums; }

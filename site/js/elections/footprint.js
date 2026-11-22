@@ -1,6 +1,7 @@
 /* global maplibregl */
-// India Hex · Elections: each polling location's actual catchment, drawn when a booth pin or catchment
-// is selected, and the split of a single 100 m cell between polling locations.
+// Footprints: each polling location's actual catchment, drawn when a booth pin or catchment is
+// selected while "Footprint on click" is on (Layers → Booths, store key `fp`), and the split of a
+// single 100 m cell between polling locations.
 //
 // The catchment polygons give every 100 m cell wholly to one location (a simplification). In the
 // model a cell's electors are split between several locations; per election and AC the build copies
@@ -12,9 +13,9 @@
 // Cells are the GHSL 100 m Mollweide grid (sphere R = 6378137): x = -18041000 + 100 col (west edge),
 // y = 9000000 - 100 row (north edge).
 //
-// This module only uses what the app exposes (window.indiaHex: store, map view, actions), so the main
-// site's files are untouched.
+// This module only uses what the app exposes (window.indiaHex: store, map view, actions).
 import { electionById, detailFor } from '../booths.js';
+import { base } from '../data/shards.js';
 import { RAMPS, esc } from '../scales.js';
 
 const R = 6378137;
@@ -120,7 +121,7 @@ const pad3 = (n) => String(n).padStart(3, '0');
 export function acData(el, ac) {
   const key = `${el.id}/${ac}`;
   if (acCache.has(key)) { const v = acCache.get(key); acCache.delete(key); acCache.set(key, v); return v; }
-  const url = (k) => `data/booths/${el.id}/split/ac_${pad3(ac)}.${k}.bin.gz?v=${el.v}`;
+  const url = (k) => `${base(el.shard)}data/booths/${el.id}/split/ac_${pad3(ac)}.${k}.bin.gz?v=${el.v}`;
   const t0 = performance.now();
   const p = Promise.all([fetch(url('cells')), fetch(url('split'))]).then(async ([a, b]) => {
     if (!a.ok || !b.ok) return null;
@@ -246,7 +247,7 @@ async function update() {
   const t = ++tok;
   const b = S.get().booth;
   const el = b ? electionById(b.el) : null;
-  if (!b || !el || !el.split) { clear(); return; }
+  if (!b || !el || !el.split || !S.get().fp) { clear(); return; }
   let loc = b.k === 'c' ? b.id : null;
   const det = await detailFor(el, b.ac);
   if (b.k === 'b') loc = det?.booth.get(b.id)?.loc ?? null;
@@ -416,7 +417,7 @@ const box = map.getContainer();
 let down = null;
 box.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; }, true);
 box.addEventListener('click', (e) => {
-  if (!(e.target instanceof HTMLCanvasElement) || S.get().measuring) return;
+  if (!(e.target instanceof HTMLCanvasElement) || S.get().measuring || !S.get().fp) return;
   if (down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 4) return;
   const r = box.getBoundingClientRect();
   const pt = { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -437,7 +438,7 @@ box.addEventListener('click', (e) => {
 }, true);
 
 // ---- hooks: selection, booth layers, the sidebar ------------------------------------------------------
-S.on(['booth'], () => { closeSplit(); update(); });
+S.on(['booth', 'fp'], () => { closeSplit(); update(); });
 const setBooths = view.setBooths.bind(view);
 view.setBooths = (b) => { setBooths(b); visible(); }; // footprint only with its own election's booth layers
 
@@ -446,28 +447,13 @@ function aboutNote() {
   if (!panel.querySelector('.steps') || panel.querySelector('.fp-about')) return;
   const p = document.createElement('p');
   p.className = 'note fp-about';
-  p.textContent = 'Actual catchments: click a booth pin or a catchment to see where its voters live in the model. Every 100 m cell is shaded by the share of its electors that the model assigns to that polling location; most cells are split between several locations, while the catchment outlines draw each cell with one location only (a simplification). From zoom 14, with catchments on, click any cell to see how its electors are split. Shares under 0.2% of a cell are not stored.';
+  p.textContent = 'Footprints (Layers → Booths → Footprint on click): click a booth pin or a catchment to see where its voters live in the model. Every 100 m cell is shaded by the share of its electors that the model assigns to that polling location; most cells are split between several locations, while the catchment outlines draw each cell with one location only (a simplification). From zoom 14, with catchments on, click any cell to see how its electors are split. Shares under 0.2% of a cell are not stored.';
   const notes = panel.querySelectorAll('.note');
   (notes[notes.length - 2] || panel.lastElementChild).after(p);
 }
 new MutationObserver(() => { injectCard(); aboutNote(); }).observe(document.getElementById('panel'), { childList: true, subtree: true });
 
-// The picker opens on the Elections tree (once per visit; the user's own opening and closing then stick).
-let treeOpened = false;
-new MutationObserver(() => {
-  if (treeOpened) return;
-  const root = document.querySelector('#pickerList details[data-node="Elections"]');
-  if (!root) return;
-  treeOpened = true;
-  root.open = true;
-  root.querySelectorAll(':scope > details.t2').forEach((d) => { d.open = true; });
-}).observe(document.getElementById('pickerList'), { childList: true });
-
 addLayers(); // empty until a footprint is shown: the first click then only loads data
-// Landing (no variable, no link to a place, desktop): open the picker on the Elections tree.
-if (S.get().var === 'none' && !S.get().sel && !location.hash && !window.matchMedia('(max-width: 820px)').matches) {
-  setTimeout(() => { if (S.get().var === 'none') document.getElementById('varBtn')?.click(); }, 400);
-}
 if (S.get().booth) update();
 // test hook (tools/): the decoder, geometry and the footprint in view
 window.indiaHexElections = { acData, footprintOf, decodeCells, decodeSplit, corner, cellRing, cellOf, cellIndex, byCell, state: () => fp };

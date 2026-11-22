@@ -42,9 +42,10 @@ export function createStore(initial) {
 const HASH_KEYS = {
   sel: 's', level: 'l', res: 'h', scope: 'sc', var: 'v', year: 'y', mode: 'md', from: 'f',
   density: 'pk', scale: 'k', basemap: 'b', overlays: 'o', threeD: '3d', hex: 'x', compare: 'cmp', view: 'at',
-  // booth layers: pins on/off, catchments off/line/fill ('' = automatic), election, selected booth or
-  // location; boundary lines drawn besides the active level, and their width multipliers
-  pins: 'bp', catch: 'bc', bel: 'be', booth: 'bt', lines: 'ln', lw: 'lw',
+  // booth layers: pins on/off, catchments off/line/fill (off unless chosen; '' in old links = off),
+  // election, selected booth or location; boundary lines drawn besides the active level, and their
+  // width multipliers; footprint of the selected booth on click
+  pins: 'bp', catch: 'bc', bel: 'be', booth: 'bt', lines: 'ln', lw: 'lw', fp: 'fp',
 };
 
 const enc = {
@@ -62,7 +63,7 @@ const dec = {
   compare: (s) => { const i = s.indexOf(':'); return i > 0 ? { kind: s.slice(0, i), value: s.slice(i + 1) } : null; },
   res: (s) => (/^\d$/.test(s) ? +s : s),
   year: (s) => (s ? +s : null), from: (s) => (s ? +s : null),
-  density: (s) => s === '1', threeD: (s) => s === '1',
+  density: (s) => s === '1', threeD: (s) => s === '1', fp: (s) => s === '1',
   view: (s) => s.split('/').map(Number),
   booth: (s) => { const m = /^([a-z]{2}_[a-z]{2}\d{4}):([bc])(\d+):(\d+)$/.exec(s); return m ? { el: m[1], k: m[2], id: +m[3], ac: +m[4] } : null; },
   lines: (s) => (s ? s.split(',') : []),

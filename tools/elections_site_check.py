@@ -9,7 +9,7 @@ booth-catchment project's reference decoder, in a headless browser running the s
   totals     50 random locations per election: the browser's drawn total (sum share x cell electors) and
              exact total equal the reference within 0.01%
 
-python tools/elections_site_check.py [--port 8002]   (serve the elections site first)
+python tools/elections_site_check.py [--port 8001]   (serve the site first; footprints are in the main app)
 """
 import gzip
 import importlib.util
@@ -27,8 +27,9 @@ from playwright.sync_api import sync_playwright  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 REF = Path("D:/booth_catchment/maps/booth_layers/split_catchments.py")
 GRID = "D:/economy_index_data/processed/grid/population/grid/*.parquet"
-PORT = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 8002
-SITE = ROOT / "site_elections"
+PORT = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 8001
+sys.path.insert(0, str(ROOT))
+from pipeline.config import SITE, find_data  # noqa: E402   (split files: site/data or a data repository)
 P = 1_000_000_007
 rng = random.Random(20261102)
 fails = []
@@ -52,7 +53,7 @@ def wsum(a):
 
 
 def py_ac(el, ac):
-    d = SITE / "data" / "booths" / el / "split"
+    d = find_data(f"booths/{el}/split")
     cb = gzip.decompress((d / f"ac_{ac:03d}.cells.bin.gz").read_bytes())
     sb = gzip.decompress((d / f"ac_{ac:03d}.split.bin.gz").read_bytes())
     row0, col0, n = np.frombuffer(cb, "<i4", 2, 0).tolist() + np.frombuffer(cb, "<u4", 1, 8).tolist()
@@ -123,7 +124,7 @@ def main():
         pg.goto(f"http://127.0.0.1:{PORT}/?t=check")
         pg.wait_for_function("() => window.indiaHexElections && window.indiaHex && window.indiaHex.cfg", timeout=60000)
         for el in els:
-            idx = json.loads((SITE / "data" / "booths" / el / "split" / "index.json").read_text())
+            idx = json.loads((find_data(f"booths/{el}/split") / "index.json").read_text())
             acs = sorted(int(a) for a in idx["acs"])
             pick = rng.sample(acs, min(20, len(acs)))
             ok_dec = 0

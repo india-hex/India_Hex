@@ -6,6 +6,9 @@ site/.nojekyll
 # the elections site (india_hex_elections.yaml): built whole from site/ + sites/elections and the data
 site_elections/
 .publish_elections.git/
+# data repositories (india_hex.yaml shards): built into shards/<name>/, published to india-hex/<name>
+shards/
+.publish_data-*.git/
 
 # Scratch output
 design/frames/
@@ -23,3 +26,7 @@ BOOTHS_BRIEF_india_hex.md
 BOOTHS_RESULT.md
 ELECTIONS_SITE_BRIEF.md
 ELECTIONS_SITE_RESULT.md
+update.md
+HANDOFF_*.md
+*_RESULT.md
+22.11.2026.txt

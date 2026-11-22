@@ -21,10 +21,8 @@ from pathlib import Path
 
 import duckdb
 
-from .config import DATA
+from .config import SHARDS, data_dir
 from .util import file_sig, log, obj_sig
-
-OUT = DATA / "booths"
 HOUSE = {"AE": "Assembly", "GE": "Lok Sabha"}
 # share columns of the detail rows, in display order: label and colour (election palette, D4)
 PARTIES = {
@@ -35,12 +33,18 @@ PARTIES = {
 }
 
 
+def source_list(cfg):
+    """booths.sources as [{path, shard}]: a plain path, or {path, shard: <data repository>}."""
+    return [s if isinstance(s, dict) else {"path": s} for s in (cfg.get("booths") or {}).get("sources") or []]
+
+
 def elections(cfg):
-    """[(id, source folder, booth_layers.json content)] for every election under booths.sources."""
+    """[(id, source folder, booth_layers.json content, shard)] for every election under booths.sources."""
     out = []
-    for src in (cfg.get("booths") or {}).get("sources") or []:
-        for meta in sorted(Path(src).glob("*_booth_layers.json")):
-            out.append((meta.name[: -len("_booth_layers.json")], Path(src), json.loads(meta.read_text(encoding="utf-8"))))
+    for src in source_list(cfg):
+        for meta in sorted(Path(src["path"]).glob("*_booth_layers.json")):
+            out.append((meta.name[: -len("_booth_layers.json")], Path(src["path"]), json.loads(meta.read_text(encoding="utf-8")),
+                        src.get("shard")))
     return out
 
 
@@ -66,15 +70,16 @@ def _areas(src, el):
 def sync(cfg, st):
     """Copy changed elections into data/booths/<id>/ and remove anything stale. Returns the expected files."""
     st.setdefault("booths", {})
-    expected = set()
+    expected = set()   # "<shard>|<election>/<file>"
     split = bool((cfg.get("booths") or {}).get("split"))
     st.setdefault("booth_split", {})
-    for el, src, meta in elections(cfg):
-        d = OUT / el
+    for el, src, meta, shard in elections(cfg):
+        d = data_dir(shard) / "booths" / el
+        tag = f"{shard or ''}|"
         if split:   # the actual (fractional) catchments: copied as they are, by signature
             sfiles = sorted((src / "split" / el).glob("ac_*.bin.gz")) + [src / "split" / el / "index.json"]
             snames = [f"split/{f.name}" for f in sfiles]
-            expected |= {f"{el}/{n}" for n in snames}
+            expected |= {f"{tag}{el}/{n}" for n in snames}
             ssig = obj_sig(sorted((f.name, file_sig(f)) for f in sfiles))
             if st["booth_split"].get(el) != ssig or not all((d / n).exists() for n in snames):
                 log(f"booths: {el}: copying {len(sfiles) - 1} split files")
@@ -84,7 +89,7 @@ def sync(cfg, st):
                 st["booth_split"][el] = ssig
         sig = _source_sig(el, src, meta)
         names = ["booths.pmtiles", "catchments.pmtiles"] + [p.name for p in sorted((src / f"{el}_details").glob("ac_*.json"))]
-        expected |= {f"{el}/{n}" for n in names}
+        expected |= {f"{tag}{el}/{n}" for n in names}
         if st["booths"].get(el) == sig and all((d / n).exists() for n in names):
             continue
         log(f"booths: {el}: copying tiles and {len(names) - 2} AC detail files")
@@ -100,16 +105,21 @@ def sync(cfg, st):
             (d / p.name).write_text(json.dumps(j, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         st["booths"][el] = sig
     removed = 0
-    if OUT.exists():
-        for f in OUT.rglob("*"):
-            if f.is_file() and f.relative_to(OUT).as_posix() not in expected:
+    roots = [(None, data_dir())] + [(p.name, p / "data") for p in (sorted(SHARDS.iterdir()) if SHARDS.exists() else []) if p.is_dir()]
+    for shard, droot in roots:
+        out = droot / "booths"
+        if not out.exists():
+            continue
+        for f in out.rglob("*"):
+            if f.is_file() and f"{shard or ''}|{f.relative_to(out).as_posix()}" not in expected:
+                os.chmod(f, stat.S_IWRITE)
                 f.unlink()
                 removed += 1
-        for dd in sorted((p for p in OUT.rglob("*") if p.is_dir()), reverse=True):
+        for dd in sorted((p for p in out.rglob("*") if p.is_dir()), reverse=True):
             if not any(dd.iterdir()):
                 os.chmod(dd, stat.S_IWRITE)   # OneDrive folders are read-only, which blocks rmdir
                 dd.rmdir()
-    st["booths"] = {k: v for k, v in st["booths"].items() if any(e.startswith(f"{k}/") for e in expected)}
+    st["booths"] = {k: v for k, v in st["booths"].items() if any(e.split("|", 1)[1].startswith(f"{k}/") for e in expected)}
     st["booth_split"] = {k: v for k, v in st["booth_split"].items() if split and k in st["booths"]}
     if not st["booth_split"]:
         st.pop("booth_split")
@@ -124,7 +134,7 @@ def client_config(cfg, st, series):
     split = bool(bcfg.get("split"))
     datasets = cfg["variables"]["datasets"]
     out = []
-    for el, src, meta in elections(cfg):
+    for el, src, meta, shard in elections(cfg):
         state = meta["state_name"].upper()
         house = HOUSE[meta["type"]]
         prefix = next((ds.get("prefix") for ds in datasets.values()
@@ -146,6 +156,8 @@ def client_config(cfg, st, series):
             "counts": {k: meta["counts"].get(k) for k in ("booths", "booths_located_pins", "booths_unlocated", "locations_with_catchment")},
             "no_catchments": meta["counts"].get("acs_without_catchments", []),
         })
+        if shard:
+            out[-1]["shard"] = shard   # files under the data repository's data/booths/<id>/
         if split:   # split files: their own signature joins the version, and the browser knows they exist
             out[-1]["v"] = obj_sig(out[-1]["v"], (st.get("booth_split") or {}).get(el, ""))
             out[-1]["split"] = True

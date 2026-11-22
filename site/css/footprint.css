@@ -1,6 +1,4 @@
-/* India Hex · Elections: the wordmark, and the actual-catchment footprint (js/elections/footprint.js):
    its legend under the lens bar, its lines in the booth card, and the cell split popup. */
-.wordmark .wm-sub { font-family: var(--body); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin-left: 9px; vertical-align: 3px; }
 
 .fp-legend { border-top: 1px solid var(--hair); }
 .fp-legend .fp-head { font-size: 11.5px; color: var(--ink-2); margin-bottom: 5px; }

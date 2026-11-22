@@ -25,6 +25,22 @@ def _output():
 
 SITE = ROOT / _output()
 DATA = SITE / "data"
+# Data shards: per-state data published from its own GitHub Pages repository (india_hex.yaml `shards`),
+# built into shards/<name>/ with the same layout as site/ (data/hex/h{res}/v/..., data/booths/...).
+SHARDS = ROOT / "shards"
+
+
+def data_dir(shard=None):
+    """site/data, or shards/<name>/data for data published from a shard repository."""
+    return SHARDS / shard / "data" if shard else DATA
+
+
+def find_data(rel):
+    """A published data file or folder (path under data/), wherever it is built: site/data or a shard."""
+    for root in [DATA] + (sorted(p / "data" for p in SHARDS.iterdir() if p.is_dir()) if SHARDS.exists() else []):
+        if (root / rel).exists():
+            return root / rel
+    return DATA / rel
 
 
 class Config(dict):

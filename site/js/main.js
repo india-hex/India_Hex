@@ -5,6 +5,7 @@
 //   chrome  (sidebar, controls) re-render from state.
 // Adding a feature = add state + a subscriber; nothing else needs to know.
 import { createStore, readHash, writeHash } from './store.js';
+import { initShards } from './data/shards.js';
 import { initHexStore, cellSet, findCell, chunksFor, manifest, values as hexRaw } from './data/hexstore.js';
 import { loadUnits, units, unit, LEVEL_FIELD } from './data/units.js';
 import { initLens, lensOf, hexValues, unitValues, resAvailable, indiaBreaks, seriesById } from './lens.js';
@@ -28,6 +29,7 @@ const cfg = await fetch('config.json', { cache: 'no-cache' }).then((r) => r.json
 document.title = cfg.site.title;
 document.documentElement.style.setProperty('--side-w', `${cfg.ui.sidebar_width || 392}px`);
 if (cfg.ui.accent) document.documentElement.style.setProperty('--accent', cfg.ui.accent);
+initShards(cfg);
 initHexStore(cfg.version, cfg.chunks);
 initLens(cfg);
 initBooths(cfg);
@@ -38,7 +40,7 @@ const DEFAULTS = {
   level: D.level, res: D.hex === 'off' || D.hex === 'auto' ? D.hex : +D.hex, scope: D.scope || 'sel', sel: null, hex: null,
   basemap: D.basemap, overlays: D.overlays || [], var: D.variable || 'none', year: null, mode: 'value', from: null,
   density: false, scale: D.scale === 'india' ? 'india' : 'relative', threeD: false, compare: null, view: null,
-  pins: '', catch: '', bel: '', booth: null, lines: [], lw: { ac: 1, pc: 1 },
+  pins: '', catch: '', bel: '', booth: null, lines: [], lw: { ac: 1, pc: 1 }, fp: false,
 };
 const hash = sanitize(readHash());
 
@@ -62,6 +64,7 @@ function sanitize(h) {
     booth: (v) => !!v && !!electionById(v.el),
     lines: (v) => Array.isArray(v) && v.every((l) => !!cfg.boundaries.levels[l]),
     lw: (v) => !!v && Object.entries(v).every(([l, x]) => !!cfg.boundaries.levels[l] && x >= 0.5 && x <= 4),
+    fp: (v) => typeof v === 'boolean',
   };
   const out = { ...h };
   for (const [k, test] of Object.entries(ok)) if (k in out && !test(out[k])) delete out[k];
@@ -627,8 +630,8 @@ ctx.act = {
       const next = same && same.years.includes(el.year) ? same : seriesById(`${el.prefix}lead`);
       if (next) { S.set({ var: next.id, year: el.year, bel: id }); return; }
     }
-    // no election on the map: the chip shows that election's pins, and flies there from elsewhere
-    S.set({ bel: id, ...(rt.booth?.pins || st.pins === 'off' ? {} : { pins: 'on' }) });
+    // no election on the map: the chip picks the election (layers stay as switched) and flies there
+    S.set({ bel: id });
     const target = U.state.find((u) => u.key === el.state);
     if (target && target.id !== rt.curState) { if (st.sel) select('state', target.id); else fit(target.bbox); }
   },

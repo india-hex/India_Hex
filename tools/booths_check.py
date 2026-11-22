@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from pipeline.booths import elections  # noqa: E402
 from pipeline.build import _decode_index  # noqa: E402
-from pipeline.config import DATA, load_config  # noqa: E402
+from pipeline.config import DATA, find_data, load_config  # noqa: E402
 
 cfg = load_config()
 UNITS = json.loads((DATA / "units.json").read_text(encoding="utf-8"))
@@ -191,7 +191,7 @@ def tile_lonlat(z, x, y, px, py, extent):
 
 # ---- checks ----------------------------------------------------------------------------------------
 def tile_checks(el, src, meta):
-    d = DATA / "booths" / el
+    d = find_data(f"booths/{el}")
     print(f"== {el}")
     pins, catch = {}, {}
     maxtile = maxraw = 0
@@ -275,7 +275,7 @@ def count_checks():
             dropped = {}
             for res in (8, 7, 6):
                 q = s["q"][str(res)]
-                raw = np.frombuffer((DATA / "hex" / f"h{res}" / "v" / f"{sid}_{y}.bin").read_bytes(), "<u2").astype(float)
+                raw = np.frombuffer(find_data(f"hex/h{res}/v/{sid}_{y}.bin").read_bytes(), "<u2").astype(float)
                 vals = np.where(raw == 65535, np.nan, q["offset"] + raw * q["scale"])
                 # pins in cells the site's index does not have (sea, outside the boundary) cannot be shown
                 if res not in ORDERS:
@@ -327,7 +327,7 @@ def count_checks():
 if __name__ == "__main__":
     duckdb.sql("INSTALL spatial; LOAD spatial;")
     want = set(sys.argv[1:])
-    for el, src, meta in elections(cfg):
+    for el, src, meta, _shard in elections(cfg):
         if not want or el in want:
             tile_checks(el, src, meta)
     if not want or "counts" in want:

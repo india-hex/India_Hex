@@ -18,7 +18,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 from pipeline.build import _decode_index  # noqa: E402  (index order only; values are decoded here)
-from pipeline.config import DATA, load_config  # noqa: E402
+from pipeline.config import DATA, find_data, load_config  # noqa: E402
 
 cfg = load_config()
 CC = json.loads((ROOT / "site" / "config.json").read_text(encoding="utf-8"))
@@ -47,7 +47,7 @@ def decode(raw, q):
 
 
 def full_values(res, name, q, chunks, start, n):
-    v = decode((DATA / "hex" / f"h{res}" / "v" / name).read_bytes(), q)
+    v = decode(find_data(f"hex/h{res}/v/{name}").read_bytes(), q)
     exp = sum(start[k + 1] - start[k] for k in chunks)
     check(len(v) == exp, f"h{res}/{name}: {len(v)} values, chunks hold {exp}")
     full = np.full(n, np.nan)

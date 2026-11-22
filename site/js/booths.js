@@ -4,6 +4,8 @@
 // state: an election variable on the map couples them to its state and year; otherwise the election
 // chips (`bel`) decide, and the layers stay off until switched on (`pins`, `catch`).
 
+import { base } from './data/shards.js';
+
 let CFG = null;
 let BY_ID = new Map();
 const details = new Map(); // `${el}/${ac}` -> Promise<detail>
@@ -46,20 +48,17 @@ export function electionFor(stateKey, st, lens) {
 }
 
 /**
- * What the booth layers show: {el, pins, catchMode, auto} or null. Auto ('' in the store): with an
- * election variable on the map, pins on and catchments as outlines over hexagons (filled without);
- * with any other variable, both off. Explicit choices win.
+ * What the booth layers show: {el, pins, catchMode} or null. Strict: pins only when switched on,
+ * catchments only when Outline or Fill is chosen, whatever the variable ('' in old links = off).
  */
 export function boothView(st, lens, curStateKey) {
   if (!CFG.booths) return null;
   const onMap = electionOfLens(lens);
   const el = onMap || electionById(st.bel) || (curStateKey ? electionFor(curStateKey, st, lens) : null);
   if (!el) return null;
-  const hexes = st.res !== 'off';
-  const pins = st.pins === 'on' ? true : st.pins === 'off' ? false : !!onMap;
-  let catchMode = st.catch || (onMap ? (hexes ? 'line' : 'fill') : 'off');
-  if (!['off', 'line', 'fill'].includes(catchMode)) catchMode = 'off';
-  return { el, pins, catchMode, coupled: !!onMap, auto: !st.pins && !st.catch };
+  const pins = st.pins === 'on';
+  const catchMode = ['line', 'fill'].includes(st.catch) ? st.catch : 'off';
+  return { el, pins, catchMode, coupled: !!onMap };
 }
 
 // ---- colours -------------------------------------------------------------------------------------
@@ -86,7 +85,8 @@ export function boothColour(el, lens, sc) {
   else if (lens.series.diverging && bare.endsWith('_margin_pp')) { field = 'margin_pm'; factor = 10; }
   if (!field || !el.fields.booths.includes(field) || !el.fields.catchments.includes(field)) return lead;
   const value = ['/', ['get', field], factor];
-  const step = ['step', value, sc.colors[0]];
+  // one class (every value in view the same, e.g. a party that did not stand here): one colour
+  const step = sc.breaks.length ? ['step', value, sc.colors[0]] : sc.colors[0];
   sc.breaks.forEach((b, i) => step.push(b, sc.colors[i + 1]));
   return {
     expr: ['case', ['has', field], step, NONE],
@@ -102,7 +102,7 @@ const pad3 = (n) => String(n).padStart(3, '0');
 export function detailFor(el, acNo) {
   const key = `${el.id}/${acNo}`;
   if (!details.has(key)) {
-    details.set(key, fetch(`data/booths/${el.id}/ac_${pad3(acNo)}.json?v=${el.v}`).then((r) => (r.ok ? r.json() : null)).then((j) => {
+    details.set(key, fetch(`${base(el.shard)}data/booths/${el.id}/ac_${pad3(acNo)}.json?v=${el.v}`).then((r) => (r.ok ? r.json() : null)).then((j) => {
       if (!j) return null;
       const rows = (fields, data) => data.map((r) => Object.fromEntries(fields.map((f, i) => [f, r[i]])));
       const booths = rows(j.booth_fields, j.booths);

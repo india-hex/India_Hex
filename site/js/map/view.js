@@ -7,6 +7,7 @@
 // catchments (before `z-catch`) · mask · overlays · boundary lines · selection · booth pins (before
 // `unit-labels`) · unit labels · symbol overlays · booth numbers · ruler.
 import { groupLayers } from './overlays.js';
+import { base } from '../data/shards.js';
 
 const EMPTY = { type: 'FeatureCollection', features: [] };
 const NOLOC = ['==', ['get', 'loc'], -1];
@@ -299,10 +300,10 @@ export class MapView {
       extruded: !!threeD,
       getFillColor: fill ? (i, { target }) => { const o = 4 * i; target[0] = fill[o]; target[1] = fill[o + 1]; target[2] = fill[o + 2]; target[3] = fill[o + 3]; return target; } : [0, 0, 0, 0],
       getLineColor: lineRGBA,
-      // outline width in metres (~4% of the cell edge): crisp up close, fades out when zoomed out
+      // outline width in metres (~5% of the cell edge): crisp up close, fades out when zoomed out
       lineWidthUnits: 'meters',
-      getLineWidth: { 6: 150, 7: 56, 8: 21 }[cs.res] || 30,
-      lineWidthMaxPixels: 1.4,
+      getLineWidth: { 6: 188, 7: 70, 8: 26 }[cs.res] || 38,
+      lineWidthMaxPixels: 1.75,
       getElevation: elev ? (i) => elev[i] : 0,
       elevationScale: 1,
       pickable: this.pickOn !== false,
@@ -342,7 +343,7 @@ export class MapView {
 
   _addBoothLayers(el, minzoom = 10) {
     const m = this.map;
-    const url = (kind) => new URL(`data/booths/${el.id}/${kind}.pmtiles?v=${el.v}`, location.href).href;
+    const url = (kind) => new URL(`${base(el.shard)}data/booths/${el.id}/${kind}.pmtiles?v=${el.v}`, location.href).href;
     const src = (kind) => {
       const id = `bt-${el.id}-${kind}`;
       if (!m.getSource(id)) {
