@@ -148,9 +148,55 @@ function foldButtons(root = document) {
   });
 }
 
+// ---- sidebar width (desktop): drag its right edge, 300–720 px, kept per viewer; double-click resets ----
+const SIDE_MIN = 300;
+const SIDE_MAX = 720;
+function setSideWidth(w, remember = false) {
+  if (w == null) document.documentElement.style.setProperty('--side-w', `${CTX.cfg.ui.sidebar_width || 392}px`);
+  else document.documentElement.style.setProperty('--side-w', `${Math.round(Math.min(SIDE_MAX, Math.max(SIDE_MIN, w)))}px`);
+  if (remember) {
+    try { if (w == null) localStorage.removeItem('indiahex.sidew'); else localStorage.setItem('indiahex.sidew', String(Math.round(w))); } catch { /* private mode */ }
+  }
+}
+
+function sideResizer() {
+  const side = $('#side');
+  const h = document.createElement('div');
+  h.className = 'side-resize';
+  h.id = 'sideResize';
+  h.setAttribute('role', 'separator');
+  h.setAttribute('aria-orientation', 'vertical');
+  h.title = 'Drag to resize the panel · double-click to reset';
+  side.appendChild(h);
+  let raf = 0;
+  const follow = (x) => {
+    setSideWidth(x - side.getBoundingClientRect().left);
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; CTX.view.map.resize(); CTX.cview?.map?.resize(); });
+  };
+  h.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    h.setPointerCapture(e.pointerId);   // the release never lands on the map as a click
+    document.body.classList.add('resizing');
+  });
+  h.addEventListener('pointermove', (e) => { if (document.body.classList.contains('resizing')) follow(e.clientX); });
+  const end = (e) => {
+    if (!document.body.classList.contains('resizing')) return;
+    document.body.classList.remove('resizing');
+    if (h.hasPointerCapture(e.pointerId)) h.releasePointerCapture(e.pointerId);
+    setSideWidth(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--side-w')), true);
+    resizeMaps();
+  };
+  h.addEventListener('pointerup', end);
+  h.addEventListener('pointercancel', end);
+  h.addEventListener('dblclick', () => { setSideWidth(null, true); resizeMaps(); });
+  try { const w = +localStorage.getItem('indiahex.sidew'); if (w) setSideWidth(w); } catch { /* ignore */ }
+}
+
 export function initPanels(ctx) {
   CTX = ctx;
   const app = $('#app');
+  sideResizer();
 
   // sidebar fold button (desktop) + the edge tab that brings it back
   const actions = $('.mast-actions');

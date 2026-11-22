@@ -172,10 +172,9 @@ function histogram(vals, mark, lens, ramp, sc) {
     const c = i === mb ? 'var(--accent)' : colourOf(x0, sc) || ramp[4];
     return `<rect x="${(i * bw + 0.5).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw - 1).toFixed(1)}" height="${h.toFixed(1)}" fill="${c}" opacity="${i === mb ? 1 : 0.75}"/>`;
   }).join('');
-  return `<svg class="hist" viewBox="0 0 ${W} ${H + 14}" width="100%">${rects}
-    <text x="0" y="${H + 12}" font-size="10" fill="var(--ink-3)">${esc(legendNum(lo, lens))}</text>
-    ${logAxis ? `<text x="${W / 2}" y="${H + 12}" font-size="10" fill="var(--ink-3)" text-anchor="middle">log scale</text>` : ''}
-    <text x="${W}" y="${H + 12}" font-size="10" fill="var(--ink-3)" text-anchor="end">${esc(legendNum(hi, lens))}</text></svg>`;
+  // bars stretch with the panel's width (it can be resized); the height and the axis labels stay fixed
+  return `<svg class="hist" viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none">${rects}</svg>
+    <div class="hist-ax"><span>${esc(legendNum(lo, lens))}</span>${logAxis ? '<span>log scale</span>' : ''}<span>${esc(legendNum(hi, lens))}</span></div>`;
 }
 
 /** State ids of a state-scoped (election) series and their names, or null. */
