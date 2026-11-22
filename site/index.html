@@ -17,7 +17,10 @@
   <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
   <link rel="stylesheet" href="vendor/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/explorer.css">
   <link rel="stylesheet" href="css/footprint.css">
+  <link rel="stylesheet" href="css/panels.css">
+  <link rel="stylesheet" href="css/results.css">
   <link rel="preload" href="config.json" as="fetch" crossorigin>
 </head>
 <body>
@@ -36,8 +39,8 @@
 
       <div class="search">
         <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <input id="search" type="search" placeholder="Search a place, constituency or variable" autocomplete="off" spellcheck="false" aria-label="Search">
-        <kbd>/</kbd>
+        <input id="search" type="search" placeholder="Search a place or variable" autocomplete="off" spellcheck="false" aria-label="Search">
+        <kbd id="searchKbd" title="Keyboard shortcut">Ctrl K</kbd>
         <div class="search-results" id="searchResults" hidden role="listbox"></div>
       </div>
 
@@ -52,9 +55,8 @@
       <div class="swipe" id="swipe" hidden><span class="swipe-grip"></span></div>
       <div class="compare-bar" id="compareBar" hidden></div>
 
-      <section class="lensbar" id="lensbar" aria-label="Colour the map by">
+      <section class="lensbar" id="lensbar" aria-label="What the map shows">
         <div class="lb-row" id="lbRow"></div>
-        <div class="picker" id="picker" hidden><input id="pickerQ" placeholder="Find a variable" aria-label="Find a variable"><div id="pickerList"></div></div>
         <div class="legend" id="legend"></div>
         <div class="timeline" id="timeline" hidden></div>
       </section>

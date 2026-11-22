@@ -206,7 +206,7 @@ def tile_checks(el, src, meta):
                 elif fid not in store:
                     store[fid] = (props, None)
     bp = duckdb.sql(f"SELECT *, ST_X(geometry) AS lon, ST_Y(geometry) AS lat FROM '{src / f'{el}_booths.parquet'}'").df()
-    cp = duckdb.sql(f"SELECT uid, loc_id, pop, lead_code, votes FROM '{src / f'{el}_catchments.parquet'}'").df()
+    cp = duckdb.sql(f"SELECT uid, loc_id, ac_no, pop, lead_code, votes FROM '{src / f'{el}_catchments.parquet'}'").df()
     check(len(pins) == len(bp), f"{el}: {len(pins)} pins in the tiles, {len(bp)} booth rows")
     check(len(catch) == len(cp), f"{el}: {len(catch)} catchment pieces in the tiles, {len(cp)} rows")
     check(set(pins) == set(bp.uid), f"{el}: pin uids differ from the parquet")
@@ -246,11 +246,20 @@ def tile_checks(el, src, meta):
         if row["loc"] != int(r.loc_id) or str(row["booth"]) != str(r.get("booth_id", row["booth"])):
             pass
     check(bad == 0, f"{el}: {bad} mismatches in 200 random booths")
-    # every pin's location has a catchment, except booths at locations without votes
+    # every pin's location has a catchment, except booths at locations without votes and pins in ACs whose
+    # catchments the producer withholds (bcexport: spread / unpublishable ACs, decision P4)
+    wh = meta.get("catchments_withheld") or {}
+    withheld = set(wh.get("spread_acs") or []) | set(wh.get("excluded_acs") or [])
     locs_with_catch = set(cp.loc_id)
     loc_votes = bp.groupby("loc_id").votes.sum()
     no_catch = bp[~bp.loc_id.isin(locs_with_catch)]
-    check((loc_votes.loc[no_catch.loc_id.unique()] == 0).all() if len(no_catch) else True, f"{el}: pins without a catchment at locations with votes")
+    in_withheld = no_catch.ac_no.isin(withheld) if "ac_no" in no_catch else pd.Series(False, index=no_catch.index)
+    check(not len(withheld) or set(cp.ac_no) .isdisjoint(withheld), f"{el}: catchments published in withheld ACs")
+    rest = no_catch[~in_withheld]
+    check((loc_votes.loc[rest.loc_id.unique()] == 0).all() if len(rest) else True, f"{el}: pins without a catchment at locations with votes")
+    if len(withheld):
+        print(f"   pins in withheld ACs {int(in_withheld.sum())} (ACs {sorted(withheld)}: no catchments by design)")
+    no_catch = rest
     # ties and no-vote booths
     ties = int((bp.lead_code == 9).sum())
     tie_tiles = sum(1 for p, _ in pins.values() if p.get("lead_code") == 9)

@@ -1,7 +1,6 @@
 # India Hex
 
 **Live map: https://india-hex.github.io/India_Hex/**
-· Elections map: https://india-hex.github.io/Elections/
 
 India Hex is an interactive map of India's states, districts, Lok Sabha and Assembly constituencies,
 with economic, land and election data at three sizes of H3 hexagon. It runs in any modern browser, on desktop
@@ -20,6 +19,7 @@ or phone.
 | H8 hexagons (≈0.74 km² each) | 4,374,944 |
 | Polling booths (pins, zoom 10+) | 50,697–58,023 per Karnataka election; 90,712 for Bihar 2025 |
 | Polling-location catchments (zoom 10+) | 32,746–55,541 per Karnataka election; 46,410 for Bihar 2025 |
+| AC and PC election results | 54 Assembly and Lok Sabha elections in 8 states, 2008–2026 |
 
 Each hexagon belongs to the constituency, district and state that contains its centre. Values for a
 constituency, district or state are aggregated from its H8 hexagons, except for elections, where they
@@ -27,7 +27,7 @@ are the official results.
 
 ## Data
 
-53 variables, many of them yearly:
+131 variables, many of them yearly, plus AC/PC results maps for 54 elections:
 
 - **People:** population, 2010–2030 (2025 and 2030 are projections).
 - **Economy:** night-time lights, 2012–2025.
@@ -38,11 +38,18 @@ are the official results.
 - **Property:** the median residential sale rate per sq ft; and locality sale rates and rents from
   Housing.com, quarterly from 2021 (monthly in 2026), for Mumbai, Pune, Bengaluru, Gurugram,
   Ahmedabad, Hyderabad, Chennai and Kolkata.
-- **Elections:** Karnataka Lok Sabha 2014, 2019 and 2024 and Assembly 2018 and 2023; Bihar Assembly
-  2025. Vote shares of parties and alliances, the margin between the two main sides, turnout, votes,
-  electors and the leading party. Hexagon values are modelled from booth results (Form 20) spread over
-  where voters live; constituency, district and state values are the official results. Karnataka
-  hexagons are left grey where an Assembly constituency's booth data is incomplete.
+- **Elections on hexagons:** Karnataka Lok Sabha 2014, 2019 and 2024 and Assembly 2018 and 2023;
+  Bihar Assembly 2025; Punjab Assembly 2017 and Lok Sabha 2014; Maharashtra Assembly 2014; Assam
+  Assembly 2016; Kerala Lok Sabha 2014. Vote shares of parties and alliances, the margin between the
+  two main sides, turnout, votes, electors and the leading party. Hexagon values are modelled from
+  booth results (Form 20) spread over where voters live; constituency, district and state values are
+  the official results. Hexagons are grey where most of their voters are in constituencies with
+  incomplete booth data.
+- **AC and PC results:** every Assembly and Lok Sabha election from 2008 in Assam, Bihar, Karnataka,
+  Kerala, Maharashtra, Punjab, Tamil Nadu and West Bengal: the winner, the top candidates, turnout,
+  NOTA, party and alliance shares and the change since the previous election, on each constituency's
+  card and as maps (winner, winning margin, vote shares). Lok Sabha results at Assembly level are
+  segment leads (EVM votes).
 - **Polling booths:** every booth with coordinates as a pin, and each polling location's catchment
   (the area where the people it serves live), with booth-level results: EVM votes from Form 20,
   without postal ballots. The number of booths is a variable too, and every card shows it.
@@ -50,7 +57,8 @@ are the official results.
 Sources: GHSL (population, built-up), NASA Black Marble (night lights), Esri 10 m Land Cover,
 Hansen Global Forest Change, OpenStreetMap (POIs, industrial land), property listing portals, and for
 elections the Election Commission of India (results, Form 20), CEO Bihar (Form 20), TCPD Lokdhaba,
-OpenCity and WorldPop.
+OpenCity and WorldPop. Booth locations: ECI polling-station locator (2017 scrape), Susewind 2014 (ECI
+psleci, CC BY-NC-SA), the Maharashtra 2026 polling-station list, and np-supplied points.
 Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
 
 ## What you can do
@@ -58,15 +66,20 @@ Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
 - **Explore by boundary:** click any state, district, Lok Sabha or Assembly constituency, or search
   by name or number.
 - **Overlay hexagons** at H6, H7 or H8, for the selected place or for everything in view.
-- **Colour the map** by any variable, as hexagons or whole constituencies:
+- **Choose what the map shows** in an explorer (press `/`): grouped and searchable, or as a sortable
+  table with each variable's years, resolution, coverage and source.
   - play through the years;
-  - show change between two years or values per km²;
-  - use breaks relative to the view or the same for all of India.
+  - show change between two years (on a scale centred on zero) or values per km²;
+  - use breaks relative to the view or the same for all of India; counts and shares start at zero.
+- **Fold any panel away:** the side panel, legend, layers, tools and cards each fold, and `\` hides
+  them all; on a phone the sheet swipes between three heights or away, and one button brings
+  everything back.
 - **Click a hexagon** for its own values and the constituencies it belongs to.
-- **Zoom into a polling booth:** from zoom 10, booth pins and their catchments appear with the
-  election on the map (or switch them on in Layers). Hover for a booth's result, click for its card:
-  booth number, AC and PC, every party's votes, the leading party and margin, and the other booths
-  at the same location.
+- **Zoom into a polling booth:** from zoom 10, switch on booth pins and catchments in Layers → Booths.
+  Hover for a booth's result, click for its card: booth number, AC and PC, every party's votes, the
+  leading party and margin, and the other booths at the same location. With **Footprint on click**,
+  a booth's actual catchment is drawn: every 100 m cell shaded by the share of its electors that the
+  model assigns to that polling location (from zoom 14, click any cell to see how it is split).
 - **Stack layers:** hexagons, booth catchments (outline or fill), pins, and Assembly and Lok Sabha
   lines together, each line width adjustable.
 - **Read rankings:** each place shows its value, its rank within its state and across India, and how
@@ -84,14 +97,11 @@ Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
 - **Share:** every view has its own link. The site works on phones and can be added to the home
   screen.
 
-## Elections map
+## Data repositories
 
-A second site from the same code, with population and the election data only: Karnataka Lok Sabha
-2014, 2019 and 2024 and Assembly 2018 and 2023, and Bihar Assembly 2025. Click a polling booth or its
-catchment to see the **actual catchment**: every 100 m cell shaded by the share of its electors that
-the model assigns to that polling location. Most cells are split between several locations; the
-catchment outlines draw each cell with one location only. From zoom 14, click any cell to see how its
-electors are split.
+The election data for each state is published from its own repository in this organisation
+(`data-ka`, `data-br`, `data-pb`, `data-mh`, `data-as`, `data-kl`) and read by the map on demand. The
+former elections map (`/Elections/`) now opens the same view here.
 
 ## Run it yourself
 
@@ -102,8 +112,7 @@ boundaries, variables and features.
 pip install duckdb geopandas shapely h3 pandas numpy pyyaml
 python server.py            # build and preview at http://localhost:8000
 python server.py --list     # list every variable found in the source data
-python server.py --deploy   # after any change: rebuild, push the code and update the live site
-python server.py --config india_hex_elections.yaml --deploy   # the same for the elections map
+python server.py --deploy   # after any change: rebuild, push the code, update the data repositories and the site
 ```
 
 Building needs the source data (H3 parquet files and boundary files), which isn't included in this

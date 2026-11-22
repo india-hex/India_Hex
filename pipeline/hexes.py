@@ -21,6 +21,8 @@ nothing else. Decoding (catalog `q` per series and resolution):
        categorical (t = "cat"): q = category code (position in the series' categories)
   u16  sqrt:   value = (q * scale) ** 2          (65535 = missing)
        linear: value = offset + q * scale
+  q["na"] (datasets with `na_cells`): this code marks an NA cell (no data, drawn grey), distinct from
+       missing: 254 for u8 and categories, 65534 for u16 (whose values then stop at 65533)
 """
 import json
 
@@ -33,6 +35,7 @@ from .config import DATA, data_dir
 from .util import log
 
 U8_MISSING, U16_MISSING = 255, 65535
+U8_NA, U16_NA = 254, 65534
 
 
 # ---------------------------------------------------------------------------------------------
@@ -52,6 +55,10 @@ def cell_table(cfg, res, h8_ac=None):
         # H6 has no AC column: take the AC of the H8 hexagon at the cell centre (source rule).
         centres = [h3.latlng_to_cell(la, ln, 8) for la, ln in zip(df.lat.values, df.lng.values)]
         df["ac_key"] = pd.Series(centres, index=df.index).map(h8_ac)
+    fixes = cfg.pc_fixes
+    if fixes:   # cells of these ACs belong to the PC of the delimitation order, not the PC map's
+        m = df.ac_key.isin(fixes.keys())
+        df.loc[m, "pc_key"] = df.loc[m, "ac_key"].map(fixes)
     return df
 
 
@@ -198,8 +205,15 @@ class SeriesReader:
         return out
 
 
-def quant_params(series, arrays):
-    """Shared decoding parameters for all years of one series at one resolution."""
+def quant_params(series, arrays, na=False):
+    """Shared decoding parameters for all years of one series at one resolution (na: reserve an NA code)."""
+    q = _quant_params(series, arrays, 65533 if na else 65534)
+    if na:
+        q["na"] = U8_NA if q["dtype"] == "u8" else U16_NA
+    return q
+
+
+def _quant_params(series, arrays, top):
     if series.type == "categorical":
         return {"dtype": "u8", "t": "cat", "scale": 1, "offset": 0}
     if series.dtype == "u8":
@@ -208,17 +222,29 @@ def quant_params(series, arrays):
     if not len(vals):
         return {"dtype": "u16", "t": "linear", "scale": 1, "offset": 0}
     vmin, vmax = float(vals.min()), float(vals.max())
-    if vmin >= 0 and vmax <= 65534 and np.all(np.mod(vals, 1) == 0):
+    if vmin >= 0 and vmax <= top and np.all(np.mod(vals, 1) == 0):
         return {"dtype": "u16", "t": "linear", "scale": 1, "offset": 0}
     if vmin >= 0:
-        return {"dtype": "u16", "t": "sqrt", "scale": (np.sqrt(vmax) / 65534) or 1, "offset": 0}
-    return {"dtype": "u16", "t": "linear", "scale": ((vmax - vmin) / 65534) or 1, "offset": vmin}
+        return {"dtype": "u16", "t": "sqrt", "scale": (np.sqrt(vmax) / top) or 1, "offset": 0}
+    return {"dtype": "u16", "t": "linear", "scale": ((vmax - vmin) / top) or 1, "offset": vmin}
 
 
-def encode(v, q):
+def encode(v, q, na_mask=None):
+    """na_mask (bool per cell, with q["na"]): those cells get the NA code whatever their value."""
+    out = _encode(v, q)
+    if na_mask is not None:
+        if "na" not in q:
+            raise ValueError("encode: an NA mask needs q['na']")
+        out[np.asarray(na_mask, bool)] = q["na"]
+    return out
+
+
+def _encode(v, q):
     v = np.asarray(v, dtype="float64")
     nan = np.isnan(v)
     if q.get("t") == "cat":
+        if np.nanmax(v, initial=0) >= U8_NA:
+            raise ValueError("encode: too many categories")
         out = np.nan_to_num(v).astype(np.uint8)
         out[nan] = U8_MISSING
         return out
@@ -228,7 +254,7 @@ def encode(v, q):
         return out
     x = np.nan_to_num(v)
     x = np.sqrt(np.clip(x, 0, None)) / q["scale"] if q["t"] == "sqrt" else (x - q["offset"]) / q["scale"]
-    out = np.clip(np.round(x), 0, 65534).astype("<u2")
+    out = np.clip(np.round(x), 0, 65533 if "na" in q else 65534).astype("<u2")
     out[nan] = U16_MISSING
     return out
 
@@ -239,10 +265,12 @@ def decode(raw: bytes, q):
         a = np.frombuffer(raw, np.uint8).astype("float64")
         out = a * q["scale"]
         out[a == U8_MISSING] = np.nan
-        return out
-    a = np.frombuffer(raw, "<u2").astype("float64")
-    out = (a * q["scale"]) ** 2 if q["t"] == "sqrt" else q["offset"] + a * q["scale"]
-    out[a == U16_MISSING] = np.nan
+    else:
+        a = np.frombuffer(raw, "<u2").astype("float64")
+        out = (a * q["scale"]) ** 2 if q["t"] == "sqrt" else q["offset"] + a * q["scale"]
+        out[a == U16_MISSING] = np.nan
+    if "na" in q:
+        out[a == q["na"]] = np.nan   # NA cells: no value (callers needing the NA set compare the raw codes)
     return out
 
 
@@ -252,12 +280,13 @@ def chunks_of(positions, start):
     return np.unique(np.searchsorted(start, pos, side="right") - 1).astype(int).tolist()
 
 
-def write_series(res, series, arrays_by_year, q, chunks=None, start=None):
-    """Dense: one value per index cell. Sparse (chunks given): only those chunks' cells, in order."""
+def write_series(res, series, arrays_by_year, q, chunks=None, start=None, na_masks=None):
+    """Dense: one value per index cell. Sparse (chunks given): only those chunks' cells, in order.
+    na_masks: {year: bool per cell} of NA cells (written as q["na"])."""
     out = data_dir(series.shard) / "hex" / f"h{res}" / "v"
     out.mkdir(parents=True, exist_ok=True)
     for y in series.res_years[res]:
-        enc = encode(arrays_by_year[y], q)
+        enc = encode(arrays_by_year[y], q, na_masks.get(y) if na_masks else None)
         if chunks is not None:
             enc = np.concatenate([enc[start[k]:start[k + 1]] for k in chunks])
         (out / series.bin_name(y)).write_bytes(enc.tobytes())

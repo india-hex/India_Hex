@@ -10,6 +10,10 @@ india_hex.yaml, per dataset:
     na_flag: incomplete_booth_data                       (ACs whose missing cells the map draws grey)
     fallback: false     an AC without a value stays empty (default: the hexagon aggregate stands in)
     extra:   {located: booths_located_{year}}           (more AC columns, written beside the AC values)
+    pc_map:  .../PB_2008_ac_pc.csv                       AC -> PC by this table (columns ac_no, pc_no; {year}
+                                                         allowed) instead of the PC holding most of the AC's cells
+    pc_table: {path: ..._pc_{year}.parquet, key: pc_no}  official PC rows (Lok Sabha): PC values are the table's
+                                                         own (postal votes included) and the state combines PCs
 
 AC values are the table's own. PC, district and state values combine their ACs exactly: a share or
 margin weighted by the share denominator (valid votes) equals summed party votes over summed valid
@@ -35,7 +39,14 @@ def table_path(spec, year):
 
 def signature(series):
     spec = series.units_table
-    return [file_sig(table_path(spec, y)) for y in series.years] if spec else None
+    if not spec:
+        return None
+    sig = [file_sig(table_path(spec, y)) for y in series.years]
+    if spec.get("pc_map"):
+        sig.append([file_sig(spec["pc_map"].format(year=y)) for y in series.years])
+    if spec.get("pc_table"):
+        sig.append([file_sig(spec["pc_table"]["path"].format(year=y)) for y in series.years])
+    return sig
 
 
 def _table(spec, year, cache={}):
@@ -43,6 +54,12 @@ def _table(spec, year, cache={}):
     if p not in cache:
         cache[p] = duckdb.sql(f"SELECT * FROM '{p}'").df()
     return cache[p]
+
+
+def _read(path, cache={}):
+    if path not in cache:
+        cache[path] = duckdb.sql(f"SELECT * FROM '{path}'").df() if path.endswith(".parquet") else             duckdb.sql(f"SELECT * FROM read_csv_auto('{path}')").df()
+    return cache[path]
 
 
 def flagged_acs(spec, units, years):
@@ -102,6 +119,7 @@ class Official:
         self.n = {lvl: len(units[lvl]) for lvl in LEVELS}
         acs = [u for u in units["ac"] if u["st"] == self.state]
         self.ac_by_no = {u["no"]: u["id"] for u in acs}
+        self.pc_by_no = {u["no"]: u["id"] for u in units["pc"] if u["st"] == self.state}
         self.ac_pc = np.array([u.get("pc", -1) for u in units["ac"]])
         self.ac_d = ac_district(ids8, self.n["ac"])
         self.n_district_fallback = 0
@@ -115,11 +133,38 @@ class Official:
             raise ValueError(f"{table_path(self.spec, year)}: AC numbers not in the site's {self.spec['state']} ACs: {missing[:10]}")
         return df, ids.astype(int).to_numpy()
 
-    def _groups(self, ac_ids, lvl):
+    def pc_rows(self, year):
+        """Official PC table for `year` plus the site PC id of every row, or (None, None)."""
+        pt = self.spec.get("pc_table")
+        if not pt:
+            return None, None
+        df = _read(pt["path"].format(year=year))
+        ids = df[pt.get("key", "pc_no")].map(self.pc_by_no)
+        if ids.isna().any():
+            raise ValueError(f"pc_table {year}: PC numbers not in the site's {self.spec['state']} PCs: {df[pt.get('key', 'pc_no')][ids.isna()].tolist()}")
+        return df, ids.astype(int).to_numpy()
+
+    def ac_pc_ids(self, ac_ids, year):
+        """Site PC id of each AC: by the seat map (`pc_map`) when given, else India Hex's AC -> PC."""
+        pm = self.spec.get("pc_map")
+        if not pm:
+            return self.ac_pc[ac_ids]
+        m = _read(pm.format(year=year))
+        pc_of = dict(zip(m["ac_no"].astype(int), m["pc_no"].astype(int)))
+        no_of = {v: k for k, v in self.ac_by_no.items()}
+        out = []
+        for a in ac_ids:
+            pc = pc_of.get(no_of[int(a)])
+            if pc is None or pc not in self.pc_by_no:
+                raise ValueError(f"pc_map {pm}: AC {no_of[int(a)]} has no PC of the site ({pc})")
+            out.append(self.pc_by_no[pc])
+        return np.array(out)
+
+    def _groups(self, ac_ids, lvl, year=None):
         if lvl == "ac":
             return ac_ids
         if lvl == "pc":
-            return self.ac_pc[ac_ids]
+            return self.ac_pc_ids(ac_ids, year)
         if lvl == "district":
             return self.ac_d[ac_ids]
         return np.full(len(ac_ids), self.state)
@@ -128,6 +173,7 @@ class Official:
         """({level: per-unit array}, {level: ACs left out per unit}) for one year; NaN for units
         without official values."""
         df, ac_ids = self.rows(year)
+        pdf, pc_ids = self.pc_rows(year)
         out, left = {}, {}
         if series.type == "categorical":
             lead = self.spec["lead"]
@@ -138,13 +184,21 @@ class Official:
             if bad:
                 raise ValueError(f"{series.id} {year}: official {col} has categories {bad} not in the series")
             w = df[self._weight_col(series, year, lead_weight=True)].to_numpy(float)
+            if pdf is not None:
+                bad = set(pdf[col]) - set(cats)
+                if bad:
+                    raise ValueError(f"{series.id} {year}: official PC {col} has categories {bad} not in the series")
+                pw = pdf[self._weight_col(series, year, lead_weight=True)].to_numpy(float)
             for lvl in LEVELS:
                 arr = np.full(self.n[lvl], np.nan)
                 if lvl == "ac":
                     arr[ac_ids] = df[col].map(codes).to_numpy(float)
+                elif lvl == "pc" and pdf is not None:
+                    arr[pc_ids] = pdf[col].map(codes).to_numpy(float)
                 else:
-                    g = self._groups(ac_ids, lvl)
-                    shares = np.stack([_combine(df[lead["share"].format(cat=c, year=year)].to_numpy(float), w, g, self.n[lvl], "wmean")[0]
+                    # the state of a Lok Sabha election combines its PCs (postal votes included)
+                    src, ww, g = (pdf, pw, np.full(len(pc_ids), self.state)) if lvl == "state" and pdf is not None                         else (df, w, self._groups(ac_ids, lvl, year))
+                    shares = np.stack([_combine(src[lead["share"].format(cat=c, year=year)].to_numpy(float), ww, g, self.n[lvl], "wmean")[0]
                                        for c in cats])
                     have = ~np.all(np.isnan(shares), axis=0)
                     best = np.nanargmax(np.where(np.isnan(shares), -1, shares), axis=0)
@@ -157,12 +211,23 @@ class Official:
         v = df[col].to_numpy(float)
         how = "sum" if series.agg == "sum" else "wmean"
         w = df[self._weight_col(series, year)].to_numpy(float) if how == "wmean" else None
+        if pdf is not None:
+            if col not in pdf:
+                raise ValueError(f"{series.id} {year}: column {col} not in the PC table")
+            pv = pdf[col].to_numpy(float)
+            pw = pdf[self._weight_col(series, year)].to_numpy(float) if how == "wmean" else None
         for lvl in LEVELS:
             if lvl == "ac":
                 arr = np.full(self.n["ac"], np.nan)
                 arr[ac_ids] = v
+            elif lvl == "pc" and pdf is not None:
+                arr = np.full(self.n["pc"], np.nan)
+                arr[pc_ids] = pv
+                left[lvl] = np.zeros(self.n["pc"], int)
+            elif lvl == "state" and pdf is not None:
+                arr, left[lvl] = _combine(pv, pw, np.full(len(pc_ids), self.state), self.n[lvl], how)
             else:
-                arr, left[lvl] = _combine(v, w, self._groups(ac_ids, lvl), self.n[lvl], how)
+                arr, left[lvl] = _combine(v, w, self._groups(ac_ids, lvl, year), self.n[lvl], how)
             out[lvl] = arr
         return out, left
 

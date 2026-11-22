@@ -6,6 +6,7 @@ import { units, unit, stateName, childrenOf, rawUnitValues } from '../data/units
 import { lensOf, seriesById, unitValues } from '../lens.js';
 import { fmtCoord } from './statusbar.js';
 import { initBoothCards, boothBand, electionFigs, hexBoothNote } from './boothcard.js';
+import { resultsBlock } from './results.js'; // [results] AC/PC election results card
 
 let tok = 0;
 let CTX = null;
@@ -425,17 +426,31 @@ function about() {
     <ol class="steps">
       <li>Choose a boundary level and click a place, or search.</li>
       <li>Turn on H6, H7 or H8 hexagons. Auto picks one from the zoom.</li>
-      <li>Colour by any of ${CTX.cfg.variables.length} variables. Years, change and per km² are in the Layers panel.</li>
+      <li>Map shows any of ${CTX.cfg.variables.length} variables: pick one with the "Map shows" button or press /. Years, change and per km² are beside it.</li>
       <li>Click a hexagon for its values. Pin places to compare them. Export PNG, CSV or GeoJSON.</li>
     </ol>
     <p class="note">Sources: ${esc(s.data_credit || '')}. A hexagon belongs to the unit that contains its centre. Unit values are aggregated from H8 cells.</p>
-    <p class="note">Elections (Karnataka, Bihar): hexagon values are modelled from booth results spread over where voters live. Values for constituencies, districts and states are the official ECI results, not hexagon aggregates; a district combines the ACs that lie mostly inside it, so district values are approximate.</p>
+    <p class="note">Elections: hexagon values are modelled from booth results spread over where voters live; grey hexagons have no data (incomplete booth data). Values for constituencies, districts and states are the official ECI results, not hexagon aggregates; a district combines the ACs that lie mostly inside it, so district values are approximate.</p>
     <p class="note">Booths: from zoom 10, every polling booth with coordinates is a pin, and each polling location has a catchment: the area where the people it serves live. Booth results are EVM votes from Form 20 (no postal ballots). Booth counts are counted where the pins lie; an AC without complete booth data has no count.</p>
     <p class="note">${(s.links || []).map((l) => `<a href="${esc(l.url)}">${esc(l.label)}</a> · `).join('')}${s.author ? `${esc(s.author)} · ` : ''}${s.github ? `<a href="${esc(s.github)}" target="_blank" rel="noopener">Source code</a> · ` : ''}Data version ${esc(CTX.cfg.version)}</p>
     <button class="textbtn" data-act="back" style="margin-top:16px">Back</button>`;
 }
 
 let lastPlace = null;
+
+const isElectionLens = (lens) => !lens.none && lens.series?.menu?.[0] === 'Elections';
+
+/** Key figures shown upfront (india_hex.yaml ui.panel_upfront / panel_upfront_elections), plus the variable on the map. */
+function upfrontIds(lens, st) {
+  const ui = CTX.cfg.ui || {};
+  const ids = isElectionLens(lens) ? ui.panel_upfront_elections || ['population'] : ui.panel_upfront || ['population', 'ntl_mean'];
+  return new Set([...ids, ...(st.var !== 'none' ? [st.var] : [])]);
+}
+
+/** "Show more" stays as the viewer last left it (this device only). */
+function moreOpen() {
+  try { return localStorage.getItem('indiahex.more') === '1'; } catch { return false; }
+}
 
 /**
  * Progressive render: the hero appears at once; every section fills in as its own data arrives
@@ -456,9 +471,12 @@ export async function renderPanel() {
   const place = JSON.stringify([st.sel, st.hex, st.booth]);
   if (place !== lastPlace || !document.getElementById('sec-figs')) {
     lastPlace = place;
-    panel.innerHTML = `<div id="sec-band"></div><div id="sec-hero">${hero(st)}</div><div id="sec-block"></div>
+    panel.innerHTML = `<div id="sec-band"></div><div id="sec-hero">${hero(st)}</div><div id="sec-results"></div><div id="sec-block"></div>
       <h2 class="h2">Key figures</h2><div class="figs" id="sec-figs"><div class="note">Loading…</div></div>
-      <div id="sec-lc"></div><div id="sec-list"></div>`;
+      <details class="more" id="sec-more"${moreOpen() ? ' open' : ''} hidden><summary><span class="more-l">Show more</span><small id="sec-more-what"></small></summary>
+        <div class="figs" id="sec-more-figs"></div><div id="sec-lc"></div></details>
+      <div id="sec-list"></div>`;
+    document.getElementById('sec-more').addEventListener('toggle', (e) => { try { localStorage.setItem('indiahex.more', e.target.open ? '1' : '0'); } catch { /* private mode */ } });
     panel.scrollTop = 0;
   } else {
     document.getElementById('sec-hero').innerHTML = hero(st);
@@ -473,15 +491,30 @@ export async function renderPanel() {
     if (focused) { const f = document.getElementById('listFilter'); f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
   }).catch((e) => console.error(e));
   fill('sec-band', st.booth ? boothBand(st) : st.hex ? hexBand(st) : Promise.resolve(''));
+  fill('sec-results', resultsBlock(st, lens)); // [results]
   fill('sec-block', lensBlock(st, lens));
-  fill('sec-figs', Promise.all([electionFigs(st.sel), figures(st.sel)]).then(([ef, figs]) => {
+  const figsP = Promise.all([electionFigs(st.sel), figures(st.sel)]);
+  // strict relevance: upfront only what matters for this view; everything else behind "Show more"
+  const up = upfrontIds(lens, st);
+  const elect = isElectionLens(lens);
+  fill('sec-figs', figsP.then(([ef, figs]) => {
     if (!st.sel) {
       const pop = figs.find((f) => f.s.id === 'population');
       CTX.rt.indiaPop = pop ? pop.v : null;
       const h = document.getElementById('sec-hero');
       if (h && t === tok) h.innerHTML = hero(st);
     }
-    return [...ef, ...figs].map((f) => figHTML(f, st, area)).join('');
+    return [...(elect ? ef : []), ...figs.filter((f) => up.has(f.s.id))].map((f) => figHTML(f, st, area)).join('');
+  }));
+  fill('sec-more-figs', figsP.then(([ef, figs]) => {
+    const rest = [...(elect ? [] : ef), ...figs.filter((f) => !up.has(f.s.id))];
+    if (t === tok) {
+      const more = document.getElementById('sec-more');
+      const what = document.getElementById('sec-more-what');
+      if (more) more.hidden = !rest.length && !LC.some(([id]) => seriesById(id));
+      if (what) what.textContent = [...rest.map((f) => (f.tag ? f.tag : f.s.label)), 'land cover'].slice(0, 6).join(' · ');
+    }
+    return rest.map((f) => figHTML(f, st, area)).join('');
   }));
   fill('sec-lc', landCover(st.sel));
   fill('sec-list', listBlock(st, lens));

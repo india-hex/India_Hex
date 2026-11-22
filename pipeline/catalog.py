@@ -51,6 +51,7 @@ class Series:
     na_label: str = ""              # missing cells inside `states` are drawn grey with this legend label
     menu: list | None = None        # picker tree path, e.g. [Elections, Karnataka, Assembly]
     shard: str | None = None        # hexagon files published from this data repository (india_hex.yaml shards)
+    na_cells: str | None = None     # 0/1 column ("na_{year}"): cells flagged 1 are NA, published as a distinct code
     # per-series settings
     weight: str | None = None       # agg wmean: weight column, "{year}" filled in (e.g. votes_{year})
     official_col: str | None = None  # column in units_table (default: the source column)
@@ -58,12 +59,17 @@ class Series:
     categories: list | None = None  # [{id, label, color, years}]; code = position in the list
     breaks: list | None = None      # fixed class breaks, used in every scale mode
     diverging: bool = False
+    scale: str = ""                 # colour classes: count | share | level | diverging (default from format/agg; build.scale_kind)
     featured: bool = False          # listed first within its group
+    # unit-only series (pipeline/results.py): no hexagon files, values for these levels only
+    unit_levels: list | None = None
+    results: str | None = None      # results-store election key (AC/PC results series)
 
     SERVER_ONLY = ("cols", "file", "pivot", "fill_missing", "dataset", "period", "root", "prefix", "units_table",
-                   "weight", "official_col")
+                   "weight", "official_col", "na_cells")
     # new fields are written to config.json only when set, so existing entries stay as they were
-    CLIENT_IF_SET = ("states", "sparse", "type", "categories", "breaks", "diverging", "featured", "caveat", "na_label", "menu", "shard")
+    CLIENT_IF_SET = ("states", "sparse", "type", "categories", "breaks", "diverging", "scale", "featured", "caveat", "na_label", "menu", "shard",
+                     "unit_levels", "results")
 
     @property
     def years(self):
@@ -96,7 +102,7 @@ class Series:
                 d.pop(k)
         if self.sparse:
             d["sparse"] = self.dataset   # key into config.json "chunks"
-        if self.units_table:
+        if self.units_table or self.unit_levels:
             d["official"] = True        # unit values are official results (districts approximate)
         if "breaks" in d:
             d["fixed_breaks"] = d.pop("breaks")   # "breaks" in config.json is the All-India breaks per file
@@ -166,9 +172,11 @@ def _h8_years(years, policy):
 
 
 def _datasets(cfg):
-    """Known datasets from india_hex.yaml plus auto-discovered parquet files."""
+    """Known datasets from india_hex.yaml, the booth-catchment elections (`bcexport`), auto-discovered files."""
+    from . import bcexport
     vcfg = cfg["variables"]
     ds = {k: dict(v) for k, v in (vcfg.get("datasets") or {}).items()}
+    ds.update(bcexport.expand(cfg)[0])
     if not vcfg.get("auto_discover", True):
         return ds
     known = {cfg.hex_file(v["file"], 8, v.get("root")).resolve() for v in ds.values()}
@@ -186,9 +194,10 @@ def _datasets(cfg):
 
 # Keys an override may set; anything else in india_hex.yaml `overrides` is an error.
 OVERRIDE_KEYS = {"label", "unit", "note", "ramp", "format", "agg", "density", "dtype", "default_year", "weight",
-                 "official_col", "type", "categories", "breaks", "diverging", "featured"}
+                 "official_col", "type", "categories", "breaks", "diverging", "scale", "featured"}
 DATASET_KEYS = {"file", "group", "pivot", "segments", "period", "ignore", "fill_missing", "auto", "root", "prefix",
-                "states", "sparse", "units_table", "exclude", "h8", "lead", "caveat", "na_label", "menu", "shard"}
+                "states", "sparse", "units_table", "exclude", "h8", "lead", "caveat", "na_label", "menu", "shard",
+                "na_cells"}
 
 
 def _check_keys(where, d, allowed):
@@ -225,7 +234,10 @@ def _lead_series(ds, groups):
 def discover(cfg, verbose=False):
     vcfg = cfg["variables"]
     excl = vcfg.get("exclude", [])
-    overrides = vcfg.get("overrides", {})
+    from . import bcexport
+    generated = bcexport.expand(cfg)[1]   # booth-catchment elections; india_hex.yaml overrides win per key
+    overrides = {k: {**generated.get(k, {}), **(vcfg.get("overrides", {}).get(k) or {})}
+                 for k in set(generated) | set(vcfg.get("overrides", {}))}
     for sid, o in overrides.items():
         _check_keys(f"variables.overrides.{sid}", o or {}, OVERRIDE_KEYS)
     h8_list = vcfg.get("h8", [])
@@ -290,7 +302,7 @@ def discover(cfg, verbose=False):
                        pivot=pivot, period=period, fill_missing=ds.get("fill_missing"), root=root, prefix=prefix,
                        states=ds.get("states"), sparse=bool(ds.get("sparse")), units_table=ds.get("units_table"),
                        caveat=ds.get("caveat", ""), na_label=ds.get("na_label", ""), menu=ds.get("menu"),
-                       shard=ds.get("shard"))
+                       shard=ds.get("shard"), na_cells=ds.get("na_cells"))
             if categories is not None:
                 s.type, s.categories, s.dtype, s.format, s.agg, s.density, s.ramp = "categorical", categories, "u8", "cat", "lead", False, "cat"
                 s.label, s.note = ds["lead"].get("label", "Leading party"), ds["lead"].get("note", "")

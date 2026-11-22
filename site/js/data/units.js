@@ -18,10 +18,22 @@ export const units = () => U;
 export const unit = (sel) => (sel ? U[sel.level][sel.id] : null);
 export const stateName = (i) => (i >= 0 ? U.state[i].name : '');
 
+/** A file stored for one id range ("o": first unit id, "n": units at the level; results series) as full arrays. */
+function expand(f) {
+  if (!f || f.o == null) return f;
+  f.v = f.v.map((arr) => {
+    if (!arr) return arr;
+    const out = new Array(f.n).fill(null);
+    arr.forEach((x, i) => { out[f.o + i] = x; });
+    return out;
+  });
+  return f;
+}
+
 function unitFile(seriesId, level) {
   const key = `${seriesId}/${level}`;
   if (!valueFiles.has(key)) {
-    valueFiles.set(key, fetch(`data/units/v/${key}.json?v=${VER}`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    valueFiles.set(key, fetch(`data/units/v/${key}.json?v=${VER}`).then((r) => (r.ok ? r.json() : null)).then(expand).catch(() => null));
   }
   return valueFiles.get(key);
 }

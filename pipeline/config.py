@@ -58,6 +58,11 @@ class Config(dict):
         return self.src_root / self["source"]["boundaries"][name]
 
     @property
+    def pc_fixes(self):
+        """{ac_key: pc_key}: ACs whose cells and area belong to another PC than the PC map draws."""
+        return dict(self["source"]["boundaries"].get("pc_fixes") or {})
+
+    @property
     def ac_patch_paths(self):
         return [self.src_root / p for p in self["source"]["boundaries"].get("ac_patches") or []]
 

@@ -18,7 +18,7 @@ site:
   github: https://github.com/india-hex/India_Hex   # shown in the About panel
   links:                     # sibling sites, in the menu and the About panel
     - {label: Elections map, url: "https://india-hex.github.io/Elections/"}
-  data_credit: GHSL · NASA Black Marble · Esri Land Cover · Hansen GFC · OpenStreetMap · property portals · Election Commission of India (results, Form 20) · CEO Bihar (Form 20) · TCPD Lokdhaba · OpenCity · WorldPop R2025A
+  data_credit: "GHSL · NASA Black Marble · Esri Land Cover · Hansen GFC · OpenStreetMap · property portals · Election Commission of India (results, Form 20) · CEO Bihar (Form 20) · TCPD Lokdhaba · OpenCity · WorldPop R2025A · booth locations: ECI polling-station locator (2017 scrape), Susewind 2014 (ECI psleci), CC BY-NC-SA"
 
 # Where the source data lives.
 source:
@@ -33,6 +33,13 @@ source:
     # as its own AC (matched to the lookup by state + AC number). Columns: ac_no (+ any others).
     ac_patches:
       - processed/_audit/boundary_fix/new_ac_polygons.gpkg   # 2026-10-20 fix: 27 ACs in Ahmedabad, Surat, Indore
+    # ACs the PC map draws inside the wrong PC (checked against the 2008 delimitation order, as in the
+    # booth-catchment project's seat maps): their cells and their area move to the right PC.
+    pc_fixes:
+      "PUNJAB|107|Dhuri": "PUNJAB|12|SANGRUR"
+      "PUNJAB|108|Sangrur": "PUNJAB|12|SANGRUR"
+      "WEST BENGAL|84|NABADWIP": "WEST BENGAL|13|RANAGHAT (SC)"
+      "WEST BENGAL|85|KRISHNANAGAR DAKSHIN": "WEST BENGAL|12|KRISHNANAGAR"
 
 # What the site opens with. Every one of these is also changeable in the UI and kept in the URL.
 defaults:
@@ -426,6 +433,10 @@ variables:
   #           rdpu | greys | rdbu | brbg | puor | buor (diverging: also set diverging: true)
   #   format  int | dec1 | dec2 | pct (value is a 0-1 share) | pp (percentage points) | inr
   #   breaks  fixed class breaks, used in every scale mode;  featured: true lists it first in its group
+  #   scale   count | share | level | diverging: how colour classes are drawn (default: pct → share,
+  #           inr or median → level, diverging → diverging, else count). count and share are anchored
+  #           at 0 (a 0 minimum gets its own faint class); level runs from the minimum (prices,
+  #           heights); change between years is always diverging, symmetric around 0
   # Unknown keys are an error.
   overrides:
     population:          {label: Population, unit: people, ramp: ylorrd, format: int, default_year: 2025, note: "GHSL GHS-POP; model estimates on the 2011 Census; 2025 and 2030 are projections"}
@@ -439,9 +450,9 @@ variables:
     built_v_total_m3:    {label: Built volume, unit: m³, ramp: ylorrd, format: int}
     built_v_res_m3:      {label: Built volume (residential), unit: m³, ramp: ylorrd, format: int}
     built_v_nres_m3:     {label: Built volume (non-residential), unit: m³, ramp: ylorrd, format: int}
-    avg_height_total_m:  {label: Average building height, unit: m, ramp: blues, format: dec1}
-    avg_height_res_m:    {label: Average height (residential), unit: m, ramp: blues, format: dec1}
-    avg_height_nres_m:   {label: Average height (non-residential), unit: m, ramp: blues, format: dec1}
+    avg_height_total_m:  {label: Average building height, unit: m, ramp: blues, format: dec1, scale: level}
+    avg_height_res_m:    {label: Average height (residential), unit: m, ramp: blues, format: dec1, scale: level}
+    avg_height_nres_m:   {label: Average height (non-residential), unit: m, ramp: blues, format: dec1, scale: level}
     landcover_forest_share:        {label: Trees (land cover), ramp: greens, format: pct, note: "Esri 10 m land cover"}
     landcover_agriculture_share:   {label: Crops (land cover), ramp: ylgn, format: pct, note: "Esri 10 m land cover"}
     landcover_built_share:         {label: Built area (land cover), ramp: ylorrd, format: pct, note: "Esri 10 m land cover"}
@@ -449,7 +460,7 @@ variables:
     landcover_water_wetland_share: {label: Water & wetland, ramp: blues, format: pct, note: "Esri 10 m land cover"}
     forest_cover_share_canopy10:   {label: Forest cover (canopy ≥10%), ramp: greens, format: pct, note: "Hansen Global Forest Change"}
     forest_lost_share:             {label: Forest lost (cumulative), ramp: ylorrd, format: pct, note: "Hansen GFC loss since 2001"}
-    tree_canopy_avg_pct:           {label: Tree canopy 2000, unit: "%", ramp: greens, format: dec1, agg: mean}
+    tree_canopy_avg_pct:           {label: Tree canopy 2000, unit: "%", ramp: greens, format: dec1, agg: mean, scale: share}
     permanent_water_share:         {label: Permanent water, ramp: blues, format: pct}
     industrial_landuse_share_osm2026: {label: Industrial land use, ramp: purples, format: pct, note: "OpenStreetMap industrial landuse, 2026"}
     is_industrial:       {label: Industrial cell (≥25%), ramp: purples, format: pct, agg: mean}
@@ -513,6 +524,14 @@ booths:
   minzoom: 10                # pins and catchments from this zoom; hexagons serve lower zooms
   split: true                # footprints: each 100 m cell's split between polling locations (on click)
 
+# AC/PC election results (booth-catchment results store, read only): every election's unit card files and
+# unit-only map series (Winner, Winning margin, main vote shares; no hexagons) under site/data/results/ and
+# data/units/v/r_<key>_*. Joined to India Hex units through the store's seatmaps/<MAP>_ihex_keys.csv; elections
+# on an excluded seat map have no India Hex units (Assam's 2023 seats) and are never joined. pipeline/results.py
+results:
+  root: D:/booth_catchment/results
+  exclude_seat_maps: [AS_2023]
+
 # Data repositories: heavy per-state election data (hexagon series, booth layers, footprints) is
 # published from its own GitHub Pages repository in the org, each under its own 1 GB, read on demand
 # from the same origin (https://india-hex.github.io/<name>/). Built into shards/<name>/.
@@ -552,3 +571,13 @@ publish:
   branch: gh-pages
   git_name: India Hex          # commit author shown on GitHub (keeps personal names off the repo)
   git_email: india-hex@users.noreply.github.com   # neutral address: no personal name or email in commits
+
+# --------------------------------------------------------------------------------------------
+# Elections in the booth-catchment delivery layout (pipeline/bcexport.py, LAYOUT.md): discovered from
+# <root>/results/elections.json (layers_layout "bcexport", has_hexes). One dataset per state and house
+# (<st>_ae / <st>_ge, data repository data-<st>); unit values from the results store; PCs by the seat map.
+# --------------------------------------------------------------------------------------------
+bcexport:
+  root: D:/booth_catchment
+  exclude: [ka_ge2014]          # owner: KA LS 2014 stays on the delivered layout until its v2 booth layers land
+  colours: {IUML: "#117733"}    # party / bloc colours over parties.json and the election palette

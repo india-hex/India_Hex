@@ -8,17 +8,19 @@ import { createStore, readHash, writeHash } from './store.js';
 import { initShards } from './data/shards.js';
 import { initHexStore, cellSet, findCell, chunksFor, manifest, values as hexRaw } from './data/hexstore.js';
 import { loadUnits, units, unit, LEVEL_FIELD } from './data/units.js';
-import { initLens, lensOf, hexValues, unitValues, resAvailable, indiaBreaks, seriesById } from './lens.js';
+import { initLens, lensOf, hexValues, unitValues, resAvailable, indiaBreaks, indiaRange, seriesById } from './lens.js';
 import { MapView } from './map/view.js';
 import { loadVectorStyle } from './map/overlays.js';
-import { rampFor, scaleFromValues, spread, colourOf, position, rgba, fmtValue, periodLabel } from './scales.js';
+import { rampFor, scaleFromValues, scaleFromBreaks, colourOf, position, rgba, fmtValue, periodLabel } from './scales.js';
 import { initPanel, renderPanel } from './ui/panel.js';
 import { initControls, renderLens, updateLegend, renderTimeline, defaultCompareValue } from './ui/controls.js';
 import { initSearch } from './ui/search.js';
 import { initStatusBar } from './ui/statusbar.js';
 import { initBooths, boothView, boothColour, boothMinZoom, electionById, electionFor, detailFor } from './booths.js';
 import { initMeasure } from './ui/measure.js';
+import { initPanels } from './ui/panels.js';
 import { plainLatLng } from './ui/geo.js';
+import { expandSeries, initResults } from './ui/results.js';
 const EX = () => import('./ui/exporter.js'); // loaded on first export only
 
 const $ = (s) => document.querySelector(s);
@@ -30,6 +32,7 @@ document.title = cfg.site.title;
 document.documentElement.style.setProperty('--side-w', `${cfg.ui.sidebar_width || 392}px`);
 if (cfg.ui.accent) document.documentElement.style.setProperty('--accent', cfg.ui.accent);
 initShards(cfg);
+expandSeries(cfg); // AC/PC results map series (unit-only) from config.json "results"
 initHexStore(cfg.version, cfg.chunks);
 initLens(cfg);
 initBooths(cfg);
@@ -170,6 +173,8 @@ async function updateCells() {
   rt.notice = '';
   if (st.res === 'off') { ctx.cs = null; rt.hexHint = ''; rt.shownRes = null; return recolour(); }
   const lens = lensOf(st);
+  rt.unitOnly = unitOnly(lens);
+  if (rt.unitOnly) { ctx.cs = null; rt.shownRes = null; rt.hexHint = 'no hexagons for this variable · AC and PC results'; return recolour(); }
   const useView = st.scope === 'view' || !st.sel;
   let res; let cs = null;
   const fallback = (r) => { let x = r; while (x > cfg.hex.resolutions[0] && !resAvailable(lens, x)) x--; if (x !== r) rt.notice = `${lens.label}${lens.year ? ` ${periodLabel(lens.year)}` : ''} is published down to H${x}`; return x; };
@@ -224,7 +229,7 @@ function hexScale(vals, cs, lens, st, mask) {
   if (lens.categorical || lens.fixedBreaks) return scaleFromValues(vals, lens, ramp); // same in every scale mode
   if (st.scale === 'india') {
     const b = indiaBreaks(lens, cs.res);
-    if (b) return spread(b, ramp, false);
+    if (b) return scaleFromBreaks(b, lens, ramp, indiaRange(lens, cs.res));
   }
   let pool = vals;
   if (mask) { pool = []; for (let i = 0; i < vals.length; i++) if (mask[i]) pool.push(vals[i]); }
@@ -240,8 +245,8 @@ function fills(vals, sc, cs, st, mask, naAcs) {
   for (let i = 0; i < cs.n; i++) {
     const c = vals ? colourOf(vals[i], sc) : null;
     if (!c) {
-      // missing because the AC's booth data is incomplete: faint grey (other missing cells stay clear)
-      if (naAcs && naAcs.has(cs.a[i])) { out.set(NA_GREY, 4 * i); out[4 * i + 3] = Math.round((mask && !mask[i] ? a0 : a1) * 0.75); } else out[4 * i + 3] = 0;
+      // NA (the cell's flag, or its AC's booth data incomplete): faint grey (other missing cells stay clear)
+      if ((vals && vals.na && vals.na[i]) || (naAcs && naAcs.has(cs.a[i]))) { out.set(NA_GREY, 4 * i); out[4 * i + 3] = Math.round((mask && !mask[i] ? a0 : a1) * 0.75); } else out[4 * i + 3] = 0;
       continue;
     }
     const [r, g, b] = rgba(c);
@@ -260,6 +265,8 @@ function elevations(vals, sc, cs) {
 }
 
 /** State ids of a state-scoped (election) lens, or null. */
+/** A unit-only series (AC/PC results): no hexagon files; the map draws its units. */
+const unitOnly = (lens) => !lens.none && !!lens.series.unit_levels;
 const scopedStates = (lens) => (lens.states ? new Set(U.state.filter((u) => lens.states.includes(u.key)).map((u) => u.id)) : null);
 const scopeName = (lens) => U.state.filter((u) => lens.states.includes(u.key)).map((u) => u.name).join(' and ');
 
@@ -289,7 +296,7 @@ async function paint(v, lens, st, { scaleFrom } = {}) {
       sc = shared || scaleFrom || hexScale(vals, cs, lens, st, mask);
       scopeLabel = st.sel ? unit(st.sel).name : 'the hexagons in view';
       const naAcs = naAcsOf(lens);
-      if (sc) sc.na = naAcs ? lens.naLabel : '';
+      if (sc) sc.na = naAcs || vals.na ? lens.naLabel || 'No data (NA)' : '';
       v.setHexes({ cs, fill: fills(vals, sc, cs, st, mask, naAcs), elev: st.threeD ? elevations(vals, sc, cs) : null, threeD: st.threeD, lines: st.hexLines, version: ++ver });
       v.setUnitColours(st.level, null);
     } else {
@@ -611,6 +618,10 @@ ctx.act = {
     const st = S.get();
     S.set({ var: id, mode: 'value', density: false });
     const s = seriesById(id);
+    if (s?.unit_levels && !s.unit_levels.includes(st.level)) { // results: to the AC (Assembly) or PC (Lok Sabha) level
+      const ls = cfg.results?.elections.find((e) => e.key === s.results)?.house === 'LS';
+      S.set({ level: ls && s.unit_levels.includes('pc') ? 'pc' : s.unit_levels[0] });
+    }
     if (!s?.states?.length) return;
     const ids = U.state.filter((u) => s.states.includes(u.key)).map((u) => u.id);
     if (!ids.length || ids.includes(rt.curState)) return;
@@ -851,6 +862,7 @@ function hexTipValue(i, lens) {
     hexValues(ctx.cs, lens).then((v) => { if (tipVals) tipVals.vals = v; });
   }
   const v = tipVals.vals ? tipVals.vals[i] : null;
+  if (tipVals.vals?.na?.[i]) return `<div class="t3">${lens.naLabel || 'No data (NA)'}</div>`;
   return v == null ? '' : `<div class="t3"><b>${fmtValue(v, lens)}</b> ${lens.unitLabel}</div>`;
 }
 
@@ -923,7 +935,8 @@ S.on(['here'], (st) => views().forEach((v) => v.setHere(st.here)));
 S.on(['res', 'scope', 'sel'], () => updateCellsSoon(st0Ready ? 50 : 0));
 S.on(['var', 'year', 'mode', 'from', 'density', 'scale', 'cbSafe', 'hexLines', 'threeD', 'opacity'], (st) => {
   const lens = lensOf(st);
-  if (ctx.cs && !lens.none && !resAvailable(lens, ctx.cs.res)) updateCellsSoon(0);
+  if (st.res !== 'off' && !!rt.unitOnly !== unitOnly(lens)) updateCellsSoon(0); // to or from a unit-only series
+  else if (ctx.cs && !lens.none && !resAvailable(lens, ctx.cs.res)) updateCellsSoon(0);
   else recolour();
 });
 S.on(['opacity'], (st) => views().forEach((v) => v.setFillOpacity(st.opacity)));
@@ -972,7 +985,9 @@ view.setLineWidths(st0.lw);
 for (const l of st0.lines) ensureGeo(l);
 view.setLabels(U[st0.level], cfg.boundaries.levels[st0.level].label_minzoom, st0.labels);
 initPanel(ctx);
+initResults(ctx);
 initControls(ctx);
+initPanels(ctx);
 initSearch(ctx);
 initStatusBar(ctx);
 initMeasure(ctx);

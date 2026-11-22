@@ -179,16 +179,17 @@ export async function cellSet(res, bbox, { filter = null, clip = null } = {}) {
 
 function decodeValues(buf, q) {
   const out = new Float32Array(q.dtype === 'u8' ? buf.byteLength : buf.byteLength / 2);
+  const a = q.dtype === 'u8' ? new Uint8Array(buf) : new Uint16Array(buf);
   if (q.t === 'cat') { // category codes
-    const a = new Uint8Array(buf);
     for (let i = 0; i < a.length; i++) out[i] = a[i] === 255 ? NaN : a[i];
   } else if (q.dtype === 'u8') {
-    const a = new Uint8Array(buf);
     for (let i = 0; i < a.length; i++) out[i] = a[i] === 255 ? NaN : a[i] * q.scale;
-  } else {
-    const a = new Uint16Array(buf);
-    if (q.t === 'sqrt') for (let i = 0; i < a.length; i++) { const x = a[i] * q.scale; out[i] = a[i] === 65535 ? NaN : x * x; }
-    else for (let i = 0; i < a.length; i++) out[i] = a[i] === 65535 ? NaN : q.offset + a[i] * q.scale;
+  } else if (q.t === 'sqrt') for (let i = 0; i < a.length; i++) { const x = a[i] * q.scale; out[i] = a[i] === 65535 ? NaN : x * x; }
+  else for (let i = 0; i < a.length; i++) out[i] = a[i] === 65535 ? NaN : q.offset + a[i] * q.scale;
+  if (q.na != null) { // NA cells (no data, drawn grey): no value, flagged in out.na
+    let na = null;
+    for (let i = 0; i < a.length; i++) if (a[i] === q.na) { out[i] = NaN; (na ||= new Uint8Array(a.length))[i] = 1; }
+    out.na = na;
   }
   return out;
 }
@@ -213,7 +214,12 @@ export async function values(cs, series, year) {
   lru(valueCache, MAX_VALUES);
   const out = new Float32Array(cs.n);
   let o = 0;
-  cs.parts.forEach(({ idx }, j) => { const a = arrs[j]; for (const i of idx) out[o++] = a[i]; });
+  let na = null; // NA cells of the CellSet (series with an NA code), else null
+  cs.parts.forEach(({ idx }, j) => {
+    const a = arrs[j];
+    if (a.na) { na ||= new Uint8Array(cs.n); for (const i of idx) { na[o] = a.na[i]; out[o++] = a[i]; } } else for (const i of idx) out[o++] = a[i];
+  });
+  out.na = na;
   return out;
 }
 

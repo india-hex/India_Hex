@@ -16,7 +16,8 @@ export function initSearch(ctx) {
       index.push({ kind: level, id: u.id, name: u.name, n: u.name.toLowerCase(), sub: [u.no != null ? `No. ${u.no}` : '', level === 'state' ? '' : stateName(u.st)].filter(Boolean).join(' · '), tag: L[level].short });
     }
   }
-  for (const s of allSeries()) index.push({ kind: 'var', id: s.id, name: s.label, n: s.label.toLowerCase(), sub: s.group, tag: 'Data' });
+  // AC/PC results maps (hundreds of per-election series) are found in the explorer, not here
+  for (const s of allSeries().filter((x) => !x.results)) index.push({ kind: 'var', id: s.id, name: s.label, n: s.label.toLowerCase(), sub: s.group, tag: 'Data' });
 
   const input = document.getElementById('search');
   const box = document.getElementById('searchResults');
@@ -44,8 +45,12 @@ export function initSearch(ctx) {
   });
   box.addEventListener('click', (e) => choose(e.target.closest('.sr')));
   document.addEventListener('click', (e) => { if (!e.target.closest('.search')) box.hidden = true; });
+  // Ctrl K / Cmd K: the place search ("/" opens the variable explorer, js/ui/explorer.js)
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const kbd = document.getElementById('searchKbd');
+  if (kbd && mac) kbd.textContent = '⌘ K';
   document.addEventListener('keydown', (e) => {
-    if (e.key === '/' && !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) { e.preventDefault(); input.focus(); input.select(); }
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'k') { e.preventDefault(); input.focus(); input.select(); }
   });
 }
 

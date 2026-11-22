@@ -12,6 +12,10 @@ Published as data/booths/<st>_<tag>/{booths.pmtiles, catchments.pmtiles, ac_NNN.
 each 100 m cell's electors and their split between polling locations (served as-is, gzip). Files are copied
 (never linked: the drives differ and git would store links) when their sources' signature changes, and
 anything else under data/booths/ is removed. config.json "booths" describes each election for the browser.
+
+A source with `layout: bcexport` is one election folder of the booth-catchment delivery layout (LAYOUT.md
+sections 4-7): booths/<key>_*.pmtiles|parquet|_booth_layers.json, details/ac_NNN.json, split/. Such sources are
+added by pipeline/bcexport.py once an election's manifest says its booth layers are present.
 """
 import json
 import os
@@ -34,14 +38,36 @@ PARTIES = {
 
 
 def source_list(cfg):
-    """booths.sources as [{path, shard}]: a plain path, or {path, shard: <data repository>}."""
-    return [s if isinstance(s, dict) else {"path": s} for s in (cfg.get("booths") or {}).get("sources") or []]
+    """booths.sources as [{path, shard, layout?}]: a plain path, or {path, shard: <data repository>}; plus the
+    booth-catchment elections whose booth layers have landed (layout bcexport)."""
+    from . import bcexport
+    out = [s if isinstance(s, dict) else {"path": s} for s in (cfg.get("booths") or {}).get("sources") or []]
+    return out + bcexport.booth_sources(cfg)
+
+
+_BCEXPORT = {}   # election id -> its election folder (layout bcexport)
+
+
+def details_dir(el, src):
+    """Per-AC detail files: <src>/<el>_details (legacy) or <election>/details (bcexport)."""
+    return _BCEXPORT[el] / "details" if el in _BCEXPORT else src / f"{el}_details"
+
+
+def split_dir(el, src):
+    return _BCEXPORT[el] / "split" if el in _BCEXPORT else src / "split" / el
 
 
 def elections(cfg):
-    """[(id, source folder, booth_layers.json content, shard)] for every election under booths.sources."""
+    """[(id, source folder, booth_layers.json content, shard)] for every election under booths.sources.
+    For a bcexport election the source folder is <election>/booths (same file names as the legacy layout)."""
     out = []
     for src in source_list(cfg):
+        if src.get("layout") == "bcexport":
+            d = Path(src["path"])
+            _BCEXPORT[src["key"]] = d
+            meta = d / "booths" / f"{src['key']}_booth_layers.json"
+            out.append((src["key"], d / "booths", json.loads(meta.read_text(encoding="utf-8")), src.get("shard")))
+            continue
         for meta in sorted(Path(src["path"]).glob("*_booth_layers.json")):
             out.append((meta.name[: -len("_booth_layers.json")], Path(src["path"]), json.loads(meta.read_text(encoding="utf-8")),
                         src.get("shard")))
@@ -51,7 +77,7 @@ def elections(cfg):
 def _source_sig(el, src, meta):
     files = [src / f"{el}_booths.pmtiles", src / f"{el}_catchments.pmtiles", src / f"{el}_catchments.parquet",
              src / f"{el}_booth_layers.json"]
-    det = src / f"{el}_details"
+    det = details_dir(el, src)
     return obj_sig([file_sig(f) for f in files], sorted((p.name, file_sig(p)) for p in det.glob("ac_*.json")))
 
 
@@ -77,7 +103,8 @@ def sync(cfg, st):
         d = data_dir(shard) / "booths" / el
         tag = f"{shard or ''}|"
         if split:   # the actual (fractional) catchments: copied as they are, by signature
-            sfiles = sorted((src / "split" / el).glob("ac_*.bin.gz")) + [src / "split" / el / "index.json"]
+            sd = split_dir(el, src)
+            sfiles = sorted(sd.glob("ac_*.bin.gz")) + ([sd / "index.json"] if (sd / "index.json").exists() else [])
             snames = [f"split/{f.name}" for f in sfiles]
             expected |= {f"{tag}{el}/{n}" for n in snames}
             ssig = obj_sig(sorted((f.name, file_sig(f)) for f in sfiles))
@@ -88,7 +115,7 @@ def sync(cfg, st):
                     shutil.copyfile(f, d / n)
                 st["booth_split"][el] = ssig
         sig = _source_sig(el, src, meta)
-        names = ["booths.pmtiles", "catchments.pmtiles"] + [p.name for p in sorted((src / f"{el}_details").glob("ac_*.json"))]
+        names = ["booths.pmtiles", "catchments.pmtiles"] + [p.name for p in sorted(details_dir(el, src).glob("ac_*.json"))]
         expected |= {f"{tag}{el}/{n}" for n in names}
         if st["booths"].get(el) == sig and all((d / n).exists() for n in names):
             continue
@@ -97,7 +124,7 @@ def sync(cfg, st):
         shutil.copyfile(src / f"{el}_booths.pmtiles", d / "booths.pmtiles")
         shutil.copyfile(src / f"{el}_catchments.pmtiles", d / "catchments.pmtiles")
         areas = _areas(src, el)
-        for p in sorted((src / f"{el}_details").glob("ac_*.json")):
+        for p in sorted(details_dir(el, src).glob("ac_*.json")):
             j = json.loads(p.read_text(encoding="utf-8"))
             # each location's populated and empty area (catchment card: share of empty land)
             j["area_fields"] = ["loc", "populated_ha", "empty_ha"]
@@ -137,19 +164,21 @@ def client_config(cfg, st, series):
     for el, src, meta, shard in elections(cfg):
         state = meta["state_name"].upper()
         house = HOUSE[meta["type"]]
-        prefix = next((ds.get("prefix") for ds in datasets.values()
-                       if ds.get("menu") == ["Elections", meta["state_name"], house] and ds.get("lead")), None)
+        menu = ["Elections", meta["state_name"], house]
+        prefix = next((ds.get("prefix") for ds in datasets.values() if ds.get("menu") == menu and ds.get("lead")), None)             or next((s.prefix for s in series if s.menu == menu and s.type == "categorical"), None)
         lay = meta["layers"]
         fields = {k: [f["name"] for f in lay[k]["tile_fields"]] for k in ("booths", "catchments")}
         det = meta["details"]
-        parties = [c for c in det["booth_fields"] if c in PARTIES]
+        # parties of the detail rows: the field dictionary's own list (bcexport), else the KA/BR palette
+        plist = [{"id": p["name"], "label": p["label"], "color": p["colour"]} for p in meta.get("parties") or []]
+        parties = [p for p in plist if p["id"] in det["booth_fields"]] if plist else             [{"id": p, "label": PARTIES[p][0], "color": PARTIES[p][1]} for p in det["booth_fields"] if p in PARTIES]
         out.append({
             "id": el, "state": state, "state_name": meta["state_name"], "house": house, "type": meta["type"],
             "year": int(meta["year"]), "label": f"{house} {meta['year']}", "prefix": prefix,
             "v": (st.get("booths") or {}).get(el, ""), "bbox": meta["bbox"],
             "lead": [{"code": c["code"], "id": c["value"], "label": c["label"], "color": c["colour"]} for c in meta["lead"]["categories"]],
             "fields": fields,
-            "parties": [{"id": p, "label": PARTIES[p][0], "color": PARTIES[p][1]} for p in parties],
+            "parties": parties,
             "margin": meta["margin"]["definition"],
             "electors": "electors" in det["booth_fields"],   # Bihar: roll electors and turnout
             "flag_bits": det.get("flag_bits", {}),

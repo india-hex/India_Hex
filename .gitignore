@@ -30,3 +30,7 @@ update.md
 HANDOFF_*.md
 *_RESULT.md
 22.11.2026.txt
+
+# bcexport adapter cache (pipeline/bcexport.py): wide hexagon and official unit tables, rebuilt from D:/booth_catchment
+.cache/
+NOTE_*.md

@@ -5,14 +5,13 @@
 //   tools      (right)      zoom, home, find me, compass, 3D, compare, export, full screen
 //   bases      (bottom-left) Map / Satellite / Terrain tabs + a Labels popover
 //   compare bar              what the right side of a swipe compare shows
-import { esc, legendNum, periodLabel } from '../scales.js';
+import { esc, legendNum, legendNums, periodLabel } from '../scales.js';
 import { lensOf, allSeries, seriesById } from '../lens.js';
 import { units } from '../data/units.js';
 import { boothElections, boothColour } from '../booths.js';
+import { initExplorer, toggleExplorer, closeExplorer, isExplorerOpen } from './explorer.js';
 
 let CTX = null;
-let pickerQuery = '';
-const treeOpen = new Map(); // picker tree nodes the user opened or closed this session
 let playTimer = null;
 
 const I = {
@@ -78,11 +77,11 @@ export function initControls(ctx) {
   // ---- lens bar ----
   const bar = document.getElementById('lensbar');
   bar.addEventListener('click', (e) => {
-    if (e.target.closest('#varBtn')) { togglePicker(); return; }
+    if (e.target.closest('#varBtn')) { toggleExplorer(); return; }
     const b = e.target.closest('button[data-k]');
     if (b) {
       const k = b.dataset.k;
-      if (k === 'var') { togglePicker(false); ctx.act.pickVar(b.dataset.v); return; }
+      if (k === 'var') { closeExplorer(); ctx.act.pickVar(b.dataset.v); return; }
       if (k === 'density') { S.set({ density: !S.get().density }); return; }
       S.set({ [k]: b.dataset.v });
       return;
@@ -96,13 +95,7 @@ export function initControls(ctx) {
       else S.set({ year: yr });
     }
   });
-  document.getElementById('pickerQ').addEventListener('input', (e) => { pickerQuery = e.target.value; renderPickerList(); });
-  document.getElementById('pickerList').addEventListener('toggle', (e) => { if (e.target.dataset?.node) treeOpen.set(e.target.dataset.node, e.target.open); }, true);
-  document.getElementById('pickerQ').addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') togglePicker(false);
-    if (e.key === 'Enter') document.querySelector('#pickerList button')?.click();
-  });
-  document.addEventListener('click', (e) => { if (!e.target.closest('#lensbar')) togglePicker(false); });
+  initExplorer(ctx); // "Map shows": the variable explorer (tree, table, search, "/")
 
   // ---- tools ----
   const f = cfg.features;
@@ -267,69 +260,10 @@ function renderBar() {
   if (s && s.density && f.density_toggle) chips.push(`<button class="chip${lens.density ? ' on' : ''}" data-k="density" title="Divide by area">Per km²</button>`);
   if (s && !lens.categorical && !lens.fixedBreaks) chips.push(`<button class="chip${st.scale === 'india' ? ' on' : ''}" data-k="scale" data-v="${st.scale === 'india' ? 'relative' : 'india'}" title="${st.scale === 'india' ? 'Same colour breaks everywhere in India (click for breaks relative to the view)' : 'Colour breaks relative to the view (click for All-India breaks)'}">${st.scale === 'india' ? 'All-India scale' : 'Relative scale'}</button>`);
   document.getElementById('lbRow').innerHTML = `
-    <button class="var-btn" id="varBtn" aria-haspopup="listbox"><span class="vk">Colour by</span><span class="vv">${esc(s ? s.label : 'Choose a variable')}</span>${I.chev}</button>
+    <button class="var-btn" id="varBtn" aria-haspopup="dialog" aria-controls="explorer" aria-expanded="${isExplorerOpen()}" title="Choose what the map shows (/)"><span class="vk">Map shows</span><span class="vv">${esc(s ? s.label : 'Choose a variable')}</span>${I.chev}</button>
     ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}`;
   document.getElementById('lensbar').classList.toggle('empty', !s);
   updateLegend();
-}
-
-function togglePicker(open) {
-  const p = document.getElementById('picker');
-  const show = open ?? p.hidden;
-  p.hidden = !show;
-  document.getElementById('varBtn')?.setAttribute('aria-expanded', String(show));
-  if (show) { renderPickerList(); const q = document.getElementById('pickerQ'); q.value = pickerQuery; q.focus(); }
-}
-
-function renderPickerList() {
-  const el = document.getElementById('pickerList');
-  const st = CTX.S.get();
-  const q = pickerQuery.trim().toLowerCase();
-  const items = allSeries().filter((s) => !q || s.label.toLowerCase().includes(q) || s.id.includes(q) || s.group.toLowerCase().includes(q));
-  const btn = (s) => `<button data-k="var" data-v="${s.id}" class="${st.var === s.id ? 'on' : ''}">${esc(s.label)}<small>${s.years.length > 1 ? `${periodLabel(s.years[0])}–${periodLabel(s.years[s.years.length - 1])}` : periodLabel(s.years[0])}</small></button>`;
-  const none = `<button data-k="var" data-v="none" class="${st.var === 'none' ? 'on' : ''}">None (boundaries only)</button>`;
-  if (q) { // a search flattens the tree: group headings only
-    const groups = {};
-    for (const s of items) (groups[s.group] ||= []).push(s);
-    el.innerHTML = `${Object.entries(groups).map(([g, ss]) => `<div class="g">${esc(g)}</div>${ss.map(btn).join('')}`).join('')}
-      ${!items.length ? '<div class="g">Nothing matches</div>' : ''}`;
-    return;
-  }
-  // Elections > state > house > variables; the state you are in opens first
-  const tree = new Map();
-  for (const s of items) {
-    if (s.menu?.[0] !== 'Elections' || s.menu.length < 3) continue;
-    const [, stName, house] = s.menu;
-    if (!tree.has(stName)) tree.set(stName, { keys: s.states || [], houses: new Map() });
-    const t = tree.get(stName);
-    if (!t.houses.has(house)) t.houses.set(house, []);
-    t.houses.get(house).push(s);
-  }
-  const curKey = CTX.rt.curState >= 0 ? units().state[CTX.rt.curState]?.key : null;
-  const curVar = seriesById(st.var);
-  const here = [...tree.keys()].find((k) => tree.get(k).keys.includes(curKey));
-  const order = [...tree.keys()].sort((a, b) => (b === here) - (a === here) || a.localeCompare(b));
-  const open = (node, dflt) => (treeOpen.has(node) ? treeOpen.get(node) : dflt);
-  const varIn = (stName, house) => !!stName && curVar?.menu?.[0] === 'Elections' && curVar.menu[1] === stName && (!house || curVar.menu[2] === house);
-  const years = (ss) => [...new Set(ss.flatMap((s) => s.years))].sort().join(' · ');
-  const elections = tree.size ? `<details class="tnode" data-node="Elections"${open('Elections', !!here || varIn(curVar?.menu?.[1])) ? ' open' : ''}>
-      <summary>Elections${here ? `<small>${esc(here)} first</small>` : ''}</summary>
-      ${order.map((stName) => {
-    const t = tree.get(stName);
-    const nodeKey = `Elections/${stName}`;
-    return `<details class="tnode t2" data-node="${esc(nodeKey)}"${open(nodeKey, stName === here || varIn(stName)) ? ' open' : ''}><summary>${esc(stName)}</summary>
-        ${[...t.houses.entries()].map(([house, ss]) => {
-      const hk = `${nodeKey}/${house}`;
-      return `<details class="tnode t3" data-node="${esc(hk)}"${open(hk, stName === here || varIn(stName, house)) ? ' open' : ''}><summary>${esc(house)}<small>${years(ss)}</small></summary>${ss.map(btn).join('')}</details>`;
-    }).join('')}</details>`;
-  }).join('')}</details>` : '';
-  const inTree = (s) => s.menu?.[0] === 'Elections';
-  const featured = CTX.cfg.featured.map(seriesById).filter((s) => s && items.includes(s) && !inTree(s));
-  const groups = {};
-  for (const s of items) if (!featured.includes(s) && !inTree(s)) (groups[s.group] ||= []).push(s);
-  el.innerHTML = `${none}${elections}
-    ${featured.length ? `<div class="g">Featured</div>${featured.map(btn).join('')}` : ''}
-    ${Object.entries(groups).map(([g, ss]) => `<div class="g">${esc(g)}</div>${ss.map(btn).join('')}`).join('')}`;
 }
 
 /** The booth layers' line: election, zoom hint, EVM note and, when they show the lead, its swatches. */
@@ -357,22 +291,49 @@ export function legendHTML() {
   const caveat = (lens.caveat ? `<div class="lcaveat">${esc(lens.caveat)}</div>` : '') + boothLegend(lens, lg.sc);
   if (cov && lg.scopeName && !cov.n) return `<div class="lnote nodata">${esc(lens.label)} covers ${esc(lg.scopeName)} only: zoom there, or choose it from the state list.</div>${caveat}`;
   if (cov && cov.n && !cov.fin) return `<div class="lnote nodata">No ${esc(lens.label.toLowerCase())} data for these ${cov.n.toLocaleString('en-IN')} cells.</div>${caveat}`;
+  const ul = lens.series?.unit_levels;
+  if (!lg.sc && ul && !ul.includes(CTX.S.get().level)) return `<div class="lnote nodata">${esc(lens.label)} is mapped for ${ul.map((l) => esc(CTX.cfg.boundaries.levels[l]?.label || l)).join(' and ')} only: switch Boundaries.</div>${caveat}`;
   if (!lg.sc) return '';
   const { sc, scopeLabel } = lg;
   const part = cov && cov.fin < cov.n ? ` · data for ${cov.fin.toLocaleString('en-IN')} of ${cov.n.toLocaleString('en-IN')} cells` : '';
-  const whole = lg.scopeName ? `all of ${lg.scopeName}` : 'All-India';
-  const breaks = sc.cat ? '' : sc.fixed ? ' · fixed breaks' : sc.rel ? ` · relative to ${esc(scopeLabel)}` : ` · ${esc(whole)}`;
-  const full = `${lens.title}${lens.unitLabel ? ` (${lens.unitLabel})` : ''}.${sc.cat ? '' : sc.fixed ? ' Fixed breaks.' : sc.rel ? ` Breaks relative to ${scopeLabel}.` : ` Breaks over ${whole}.`}${lens.note ? ` ${lens.note}.` : ''}`;
   const na = sc.na ? `<span class="na"><i></i>${esc(sc.na)}</span>` : '';
   const when = lens.year ? (lens.mode === 'change' ? `${periodLabel(lens.from)}–${periodLabel(lens.year)}` : periodLabel(lens.year)) : '';
   if (sc.cat) {
+    const full = `${lens.title}.${lens.note ? ` ${lens.note}.` : ''}`;
     return `<div class="cats">${sc.shown.map((i) => `<span><i style="background:${sc.colors[i]}"></i>${esc(sc.labels[i])}</span>`).join('')}${na}</div>
       <div class="lnote" title="${esc(full)}">${esc(lens.note || '')}${when ? ` · ${when}` : ''}${part}</div>${caveat}`;
   }
+  // D6: scope and method on the note line, the true extremes (0 for counts and shares) at the ends
+  const n = (x) => (x == null || !Number.isFinite(x) ? '' : legendNum(x, lens));
+  const scope = sc.rel ? `relative to ${scopeLabel}` : lg.scopeName ? `in ${lg.scopeName}` : 'All-India';
+  const kind = sc.kind || lens.kind;
+  const anchored = kind === 'count' || kind === 'share';
+  const method = sc.fixed ? 'fixed breaks' : kind === 'diverging' ? 'symmetric breaks' : 'quantile breaks';
+  const range = sc.lo != null ? `${n(anchored ? Math.min(0, sc.lo) : sc.lo)} to ${n(sc.hi)}` : '';
+  const how = sc.fixed ? 'Fixed breaks, the same everywhere.'
+    : sc.one ? 'Every value is the same.'
+    : kind === 'diverging' ? `Breaks symmetric around 0, relative to ${scope === 'All-India' ? 'all of India' : scope.replace(/^relative to /, '')}: the middle class is about no change (between ${n(sc.breaks[(sc.breaks.length >> 1) - 1])} and ${n(sc.breaks[sc.breaks.length >> 1])}); the outer classes hold ${n(-sc.cap)} or less and ${n(sc.cap)} or more.`
+    : `Quantile breaks ${sc.rel ? scope : `over ${lg.scopeName ? `all of ${lg.scopeName}` : 'India'}`}, ${kind === 'level' ? 'from the minimum' : kind === 'share' ? 'within 0–100%, anchored at 0%' : 'anchored at 0'}${sc.zero ? ': cells at 0 have their own faint class' : ''}.`;
+  const full = `${lens.title}${lens.unitLabel ? ` (${lens.unitLabel})` : ''}. ${how}${range ? ` Values from ${range}.` : ''}${lens.note ? ` ${lens.note}.` : ''}`;
+  let ticks;
+  if (sc.one) ticks = `<div class="ticks"><span style="flex:1">${cov ? 'every cell' : 'every unit'}: ${esc(n(sc.lo))}</span></div>`;
+  else {
+    // ends: the true extremes (counts and shares from 0); a symmetric scale shows one only beyond its outer break
+    const sym = (kind === 'diverging' || sc.fixed) && sc.breaks.length;
+    const lo = sc.lo == null || (sym && sc.lo > sc.breaks[0]) ? null : anchored ? Math.min(0, sc.lo) : sc.lo;
+    const hi = sc.hi == null || (sym && sc.hi < sc.breaks[sc.breaks.length - 1]) ? null : sc.hi;
+    const vs = [lo, ...sc.breaks, hi];
+    const lab = legendNums(vs.filter((x) => x != null), lens);
+    let j = 0;
+    const t = vs.map((x) => (x == null ? '' : lab[j++]));
+    if (sc.zero) t[1] = `>${n(0)}`;   // the zero class ends just above 0
+    if (sc.hiMore && t[t.length - 1]) t[t.length - 1] += '+';   // capped at the 99.5th percentile
+    ticks = `<div class="ticks"><span style="text-align:left;overflow:visible">${esc(t[0])}</span>${t.slice(1, -1).map((l) => `<span>${esc(l)}</span>`).join('')}<span style="display:flex;justify-content:flex-end;overflow:visible">${esc(t[t.length - 1])}</span></div>`;
+  }
   return `<div class="ramp">${sc.colors.map((c) => `<i style="background:${c}"></i>`).join('')}</div>
-    <div class="ticks"><span></span>${sc.breaks.map((b) => `<span>${esc(legendNum(b, lens))}</span>`).join('')}<span></span></div>
+    ${ticks}
     ${na ? `<div class="cats">${na}</div>` : ''}
-    <div class="lnote" title="${esc(full)}">${esc(lens.unitLabel || '')}${when ? ` · ${when}` : ''}${breaks}${part}</div>${caveat}`;
+    <div class="lnote" title="${esc(full)}">${esc([lens.unitLabel, when, method, sc.fixed ? '' : scope].filter(Boolean).join(' · '))}${part}</div>${caveat}`;
 }
 
 export function updateLegend() {

@@ -86,7 +86,39 @@ def load_boundaries(cfg):
     ac = ac.rename(columns={"ac_key": "key", "AC_NAME": "name", "AC_NO": "no"})[["key", "name", "no", "geometry"]]
     for path in cfg.ac_patch_paths:
         ac = _apply_ac_patch(ac, path, lk)
+    pc = _apply_pc_fixes(pc, ac, cfg.pc_fixes)
     return {"state": states, "district": dist, "pc": pc, "ac": ac}
+
+
+def _drop_slivers(g, min_area=1e-4):
+    """Polygon parts and holes smaller than min_area (square degrees, ~1 km²) removed."""
+    parts = [p for p in getattr(g, "geoms", [g]) if p.geom_type == "Polygon" and p.area >= min_area]
+    if not parts:
+        return g
+    clean = [shapely.Polygon(p.exterior, [r for r in p.interiors if shapely.Polygon(r).area >= min_area]) for p in parts]
+    return shapely.MultiPolygon(clean) if len(clean) > 1 else clean[0]
+
+
+def _apply_pc_fixes(pc, ac, fixes):
+    """Move each listed AC's area to its PC: cut it out of every other PC and add it to that one, so the
+    PCs stay a partition (no gaps or overlaps added)."""
+    if not fixes:
+        return pc
+    pc = pc.copy()
+    for ac_key, pc_key in fixes.items():
+        a = ac[ac.key == ac_key]
+        if a.empty or not (pc.key == pc_key).any():
+            raise ValueError(f"pc_fixes: {ac_key} or {pc_key} not found")
+        g = a.geometry.iloc[0]
+        hit = pc.geometry.intersects(g) & (pc.key != pc_key)
+        pc.loc[hit, "geometry"] = [_polygonal(shapely.make_valid(x.difference(g))) for x in pc.loc[hit, "geometry"]]
+        t = pc.key == pc_key
+        pc.loc[t, "geometry"] = [_polygonal(shapely.make_valid(shapely.union(pc.loc[t, "geometry"].iloc[0], g)))]
+        # the AC and PC maps do not share edges exactly: drop the slivers and pinholes the move leaves
+        touched = hit | t
+        pc.loc[touched, "geometry"] = [_drop_slivers(x) for x in pc.loc[touched, "geometry"]]
+    log(f"  PC fixes: {len(fixes)} ACs moved to the PC of the delimitation order")
+    return pc
 
 
 def _polygonal(g):

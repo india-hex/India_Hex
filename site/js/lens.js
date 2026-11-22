@@ -2,7 +2,7 @@
 // between years, per km²). Hex and unit numbers are both computed through it, so every view,
 // legend, ranking and tooltip agrees.
 import * as HX from './data/hexstore.js';
-import { periodLabel } from './scales.js';
+import { periodLabel, scaleKind } from './scales.js';
 import { rawUnitValues } from './data/units.js';
 
 let CFG = null;
@@ -34,13 +34,14 @@ export function lensOf(st, over = {}) {
   }
   const density = !!(o.density && s.density && CFG.features.density_toggle);
   const pctChange = mode === 'change' && s.agg === 'sum';
-  const diverging = mode === 'change' || !!s.diverging || ['rdbu', 'brbg', 'puor', 'buor'].includes(s.ramp);
+  const kind = scaleKind(s, mode);   // count | share | level | diverging | cat: how it is classed (scales.js)
+  const diverging = kind === 'diverging';
   let unitLabel = categorical ? '' : s.unit || (s.format === 'pct' ? '%' : '');
   if (density) unitLabel = `${s.unit ? `${s.unit} ` : ''}per km²`;
   if (mode === 'change') unitLabel = pctChange ? '% change' : s.format === 'pct' ? 'percentage points' : `change${s.unit ? ` (${s.unit})` : ''}`;
   return {
     id: s.id, series: s, label: s.label, note: s.note, group: s.group, years, year, from, mode, density,
-    pctChange, diverging, ramp: s.ramp, format: density ? 'dec2' : s.format, agg: s.agg, unitLabel,
+    pctChange, diverging, kind, ramp: s.ramp, format: density ? 'dec2' : s.format, agg: s.agg, unitLabel,
     categorical, fixedBreaks: mode === 'value' && !density && s.fixed_breaks ? s.fixed_breaks : null,
     states: s.states || null, caveat: s.caveat || '', naLabel: s.na_label || '',
     title: `${s.label}${density ? ' per km²' : ''}${mode === 'change' ? `, change ${periodLabel(from)}–${periodLabel(year)}` : year ? `, ${periodLabel(year)}` : ''}`,
@@ -68,6 +69,8 @@ function combine(v, v0, lens, area) {
     } else if (lens.density) x /= a;
     out[i] = x;
   }
+  // NA cells (no data) stay flagged through change and density views
+  if (v.na || v0?.na) { out.na = new Uint8Array(v.length); for (let i = 0; i < v.length; i++) out.na[i] = (v.na?.[i] || v0?.na?.[i]) ? 1 : 0; }
   return out;
 }
 
@@ -103,6 +106,14 @@ export function indiaBreaks(lens, res) {
   if (!b || !b.length) return null;
   if (!lens.density) return b;
   return b.map((x) => x / HXarea(res));
+}
+
+/** [min, max] of the published All-India file behind indiaBreaks (legend ends), else null. */
+export function indiaRange(lens, res) {
+  if (lens.none || lens.categorical || lens.mode === 'change') return null;
+  const r = lens.series.range?.[String(res)]?.[lens.year == null ? 'None' : String(lens.year)];
+  if (!r) return null;
+  return lens.density ? r.map((x, i) => (i < 2 ? x / HXarea(res) : x)) : r;   // [min, max(, capped)]
 }
 
 const AREAS = { 6: 36.129, 7: 5.161, 8: 0.737 };

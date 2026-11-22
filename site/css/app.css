@@ -234,12 +234,6 @@ svg { display: block; }
 .lensbar.empty { width: auto; }
 .lensbar.empty .var-btn { flex: 0 0 auto; }
 .lb-row .chips { flex-wrap: nowrap; }
-.picker { position: absolute; left: 0; right: 0; top: calc(100% + 6px); border: 1px solid var(--hair-2); border-radius: 12px; background: var(--paper); max-height: min(420px, 60vh); overflow-y: auto; box-shadow: var(--float-shadow); z-index: 30; }
-.picker input { position: sticky; top: 0; width: 100%; border: 0; border-bottom: 1px solid var(--hair); background: var(--paper); padding: 11px 14px; outline: none; font-size: 14px; }
-.picker .g { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); padding: 10px 14px 3px; }
-.picker button { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; padding: 7px 14px; font-size: 13.5px; }
-.picker button:hover, .picker button.on { background: var(--paper-2); }
-.picker button small { color: var(--ink-3); font-size: 11px; white-space: nowrap; }
 
 .legend { padding: 2px 14px 8px; }
 .legend .ramp { display: flex; height: 8px; border-radius: 3px; overflow: hidden; }
@@ -388,16 +382,6 @@ input[type=range] { accent-color: var(--accent); width: 100%; }
 .slider.wl { display: grid; grid-template-columns: 62px 1fr 34px; margin-top: 3px; }
 .slider.wl output { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
 
-/* ---- picker: Elections > state > house ---- */
-.picker .tnode > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
-.picker .tnode > summary::-webkit-details-marker { display: none; }
-.picker .tnode > summary::before { content: ""; border-left: 5px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .15s var(--ease); }
-.picker .tnode[open] > summary::before { transform: rotate(90deg); }
-.picker .tnode > summary small { margin-left: auto; letter-spacing: 0; text-transform: none; font-size: 11px; color: var(--ink-3); }
-.picker .tnode > summary:hover { color: var(--ink); }
-.picker .t2 > summary { padding: 7px 14px 5px 24px; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--ink); font-weight: 600; }
-.picker .t3 > summary { padding: 5px 14px 4px 38px; font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--ink-2); font-weight: 500; }
-.picker .t3 button { padding-left: 52px; }
 
 /* ---- legend: booth layers ---- */
 .legend .lbooth { font-size: 10.5px; color: var(--ink-3); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--hair); line-height: 1.45; white-space: normal; }

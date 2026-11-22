@@ -17,6 +17,9 @@ export const RAMPS = {
   bugn: ['#f7fcfd', '#e5f5f9', '#ccece6', '#99d8c9', '#66c2a4', '#41ae76', '#238b45', '#006d2c', '#00441b'],
   rdpu: ['#fff7f3', '#fde0dd', '#fcc5c0', '#fa9fb5', '#f768a1', '#dd3497', '#ae017e', '#7a0177', '#49006a'],
   greys: ['#ffffff', '#f0f0f0', '#d9d9d9', '#bdbdbd', '#969696', '#737373', '#525252', '#252525', '#000000'],
+  reds: ['#fff5f0', '#fee0d2', '#fcbba1', '#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#a50f15', '#67000d'],
+  ylorbr: ['#ffffe5', '#fff7bc', '#fee391', '#fec44f', '#fe9929', '#ec7014', '#cc4c02', '#993404', '#662506'],
+  ylgnbu: ['#ffffd9', '#edf8b1', '#c7e9b4', '#7fcdbb', '#41b6c4', '#1d91c0', '#225ea8', '#253494', '#081d58'],
   buor: ['#08519c', '#3182bd', '#6baed6', '#c6dbef', '#f7f7f7', '#fdd0a2', '#fd8d3c', '#e6550d', '#a63603'],
 };
 
@@ -46,36 +49,101 @@ function uniqueAsc(arr) {
   return out;
 }
 
+/** Two significant digits, so symmetric change breaks read as round numbers (never 0 for x > 0). */
+const nice = (x) => (x > 0 ? Number(x.toPrecision(2)) : x);
+
 /**
- * Scale {breaks: n, colors: n+1, rel} from values; null only when there is no finite value at all.
- * The lowest value gets its own class (zero-heavy data: POI counts, dark night-light cells, sparse
- * listings), and quantiles are taken over the values above it. Ties collapse; colours spread.
+ * Colour classes (D6), from the series' properties; mirrored in pipeline/build.py scale_kind:
+ *   count     counts and intensities (sums, night lights): anchored at 0, zero has its own class
+ *   share     shares (format pct): anchored at 0%, quantiles within 0–100%
+ *   level     prices and heights: from the minimum, quantiles (0 is not meaningful)
+ *   diverging change between years and signed series: symmetric around 0
+ */
+export function scaleKind(s, mode = 'value') {
+  if (!s) return null;
+  if (s.type === 'categorical') return 'cat';
+  if (mode === 'change') return 'diverging';
+  if (s.scale) return s.scale;
+  if (s.diverging || DIVERGING_RAMPS.includes(s.ramp)) return 'diverging';
+  if (s.format === 'pct') return 'share';
+  if (s.format === 'inr' || s.agg === 'median') return 'level';
+  return 'count';
+}
+export const DIVERGING_RAMPS = ['rdbu', 'brbg', 'puor', 'buor'];
+
+/** Quantile breaks above the lowest value: an empty first class is never left at the low end. */
+function quantileBreaks(v, n, above) {
+  return uniqueAsc(Array.from({ length: n - 1 }, (_, i) => quantile(v, (i + 1) / n))).filter((b) => b > above);
+}
+
+/** Colours of a symmetric scale: the middle (neutral) colour for the class around 0, outward from it. */
+function divColours(breaks, ramp) {
+  const k = breaks.filter((b) => b > 0).length;
+  const mid = Math.floor(ramp.length / 2);
+  return Array.from({ length: 2 * k + 1 }, (_, i) => ramp[mid + Math.round(((i - k) * mid) / Math.max(1, k))]);
+}
+
+/**
+ * Scale {breaks: n, colors: n+1, rel, kind, lo, hi} from values; null only when there is no finite
+ * value at all. lo / hi are the true extremes (legend ends). Classes by scaleKind:
+ * count / share: a 0 minimum has its own (faint) class, quantiles of the values above it; else
+ * quantiles of all values; the legend starts at 0. level: quantiles from the minimum. diverging:
+ * the same breaks mirrored around 0 (|change| quantiles, outer class open-ended: `cap`).
+ * One distinct value: one class (0 → lightest colour, anything else → a mid colour; `one`).
  */
 export function scaleFromValues(values, lens, ramp) {
   if (lens.categorical) return catScale(lens);
-  if (lens.fixedBreaks) return { breaks: lens.fixedBreaks, colors: ramp, rel: false, fixed: true };
   const v = [];
   for (const x of values) if (Number.isFinite(x)) v.push(x);
-  if (!v.length) return null;
   v.sort((a, b) => a - b);
-  if (lens.diverging) {
-    const pos = v.filter((x) => x > 0);
-    const neg = v.filter((x) => x < 0).map(Math.abs).sort((a, b) => a - b);
-    const side = (arr) => (arr.length ? [0.2, 0.5, 0.85].map((q) => quantile(arr, q)) : null);
-    let p = side(pos); let n = side(neg);
-    if (!p && !n) return { breaks: [], colors: [ramp[Math.floor(ramp.length / 2)]], rel: true }; // all zero
-    p = p || n; n = n || p;
-    const e = Math.min(p[0], n[0]) * 0.35;
-    return { breaks: uniqueAsc([-n[2], -n[1], -n[0], -e, e, p[0], p[1], p[2]]), colors: ramp, rel: true };
+  const lo = v.length ? v[0] : null; const hi = v.length ? v[v.length - 1] : null;
+  const kind = lens.kind || scaleKind(lens.series, lens.mode);
+  if (lens.fixedBreaks) return { breaks: lens.fixedBreaks, colors: ramp, rel: false, fixed: true, kind, lo, hi };
+  if (!v.length) return null;
+  if (kind === 'diverging') {
+    const a = v.map(Math.abs).filter((x) => x > 0).sort((x, y) => x - y);
+    if (!a.length) return { breaks: [], colors: [ramp[Math.floor(ramp.length / 2)]], rel: true, kind, lo, hi, one: true }; // no change anywhere
+    let cap = nice(quantile(a, 0.95));
+    if (lens.pctChange) cap = Math.min(cap, 100);   // −100% is the floor: keep the range readable
+    const pos = uniqueAsc([0.1, 0.4, 0.7].map((q) => nice(quantile(a, q))).filter((b) => b < cap).concat(cap));
+    const breaks = [...pos.map((b) => -b).reverse(), ...pos];
+    return { breaks, colors: divColours(breaks, ramp), rel: true, kind, lo, hi, cap };
   }
-  const lo = v[0];
-  const rest = v.filter((x) => x > lo);
-  if (!rest.length) return { breaks: [], colors: [ramp[Math.round((ramp.length - 1) * 0.6)]], rel: true }; // one value
-  const br = uniqueAsc([rest[0], ...[1, 2, 3, 4, 5, 6, 7].map((i) => quantile(rest, i / 8))]);
+  if (lo === hi) {   // one value: 0 is the lightest colour, any other value a mid colour
+    const anchored = kind !== 'level' && lo === 0;
+    return { breaks: [], colors: [anchored ? ramp[0] : ramp[Math.round((ramp.length - 1) * 0.6)]], rel: true, kind, lo, hi, one: true };
+  }
+  let br;
+  let zero = false;
+  if (kind !== 'level' && lo === 0) {
+    const rest = v.filter((x) => x > 0);
+    br = uniqueAsc([rest[0], ...quantileBreaks(rest, 8, rest[0])]);
+    zero = true;
+  } else br = quantileBreaks(v, 9, lo);
   const sc = spread(br, ramp, true);
-  // a large block of cells at the minimum (usually 0) is drawn faintly so the imagery shows through
-  sc.faintFirst = lo === 0 && v.length - rest.length > v.length * 0.2;
+  Object.assign(sc, { kind, lo, hi, zero });
+  // extreme outliers (e.g. a few listings at crores per sq ft): the legend ends at the 99.5th percentile "+"
+  if ((kind === 'count' || kind === 'level') && v.length > 100) {
+    const p = v[Math.floor(0.995 * v.length)];
+    if (hi > 3 * Math.max(p, br[br.length - 1] ?? p) && p > lo) Object.assign(sc, { hi: p, hiMore: true });
+  }
+  // the zero class is drawn faintly so the imagery shows through (empty cells, dark night lights)
+  sc.faintFirst = zero;
   return sc;
+}
+
+/**
+ * Scale from precomputed (All-India) breaks; range = [min, max] of the published file. A symmetric
+ * (diverging) set is coloured outward from the neutral middle; a count / share set whose minimum is
+ * 0 starts with the zero class (faint).
+ */
+export function scaleFromBreaks(breaks, lens, ramp, range = null) {
+  const kind = lens.kind || scaleKind(lens.series, lens.mode);
+  const [lo, hi, capped] = range || [null, null];
+  if (kind === 'diverging') return { breaks, colors: divColours(breaks, ramp), rel: false, kind, lo, hi, cap: breaks[breaks.length - 1] };
+  const sc = spread(breaks, ramp, false);
+  const zero = kind !== 'level' && lo === 0;
+  return Object.assign(sc, { kind, lo, hi, zero, faintFirst: zero, hiMore: !!capped });
 }
 
 export function spread(breaks, ramp, rel) {
@@ -151,21 +219,44 @@ export function fmtValue(v, lens, { short = false } = {}) {
   return sign + v.toFixed(a >= 1 ? 2 : a >= 0.01 ? 3 : 4).replace(/0+$/, '').replace(/\.$/, '');
 }
 
-export function legendNum(v, lens) {
-  if (lens.format === 'pp') return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v) >= 10 || Number.isInteger(v) ? Math.round(Math.abs(v)) : Math.abs(v).toFixed(1)}`;
+/**
+ * Short number for legend ticks; in change mode signed (+ / −). `more` adds decimals (the legend
+ * raises it until neighbouring ticks differ, e.g. 2.5 | 2.6 rather than 2.5 | 2.5).
+ */
+export function legendNum(v, lens, more = 0) {
+  const s = rawLegendNum(v, lens, more);
+  if (lens.format === 'pp') return s;
+  if (lens.mode === 'change' && v > 0 && Number(s.replace(/[^\d.]/g, '')) !== 0) return `+${s}`;
+  return s.replace(/^-/, '−');
+}
+
+/** Tick labels for a list of breaks, with just enough decimals to tell neighbours apart. */
+export function legendNums(vs, lens) {
+  let out = [];
+  for (let more = 0; more < 4; more++) {
+    out = vs.map((v) => legendNum(v, lens, more));
+    if (out.every((l, i) => !i || l !== out[i - 1])) break;
+  }
+  return out;
+}
+
+function rawLegendNum(v, lens, more = 0) {
+  const fx = (x, d) => x.toFixed(d + more);
+  if (lens.format === 'pp') return `${v > 0 ? '+' : v < 0 ? '−' : ''}${(Math.abs(v) >= 10 || Number.isInteger(v)) && !more ? Math.round(Math.abs(v)) : fx(Math.abs(v), Math.abs(v) >= 10 ? 0 : 1)}`;
   if (lens.format === 'pct' && !(lens.mode === 'change' && lens.pctChange)) {
     const p = v * 100;
-    return `${Math.abs(p) < 1 ? p.toFixed(1) : Math.round(p)}${lens.mode === 'change' ? '' : '%'}`;
+    const ap = Math.abs(p);
+    return `${ap === 0 ? '0' : ap < 0.1 ? fx(p, 2) : ap < 1 ? fx(p, 1) : fx(p, 0)}${lens.mode === 'change' ? '' : '%'}`;
   }
   const a = Math.abs(v);
-  if (a >= 1e7) return `${(v / 1e7).toFixed(1)}Cr`;
-  if (a >= 1e5) return `${(v / 1e5).toFixed(a >= 1e6 ? 0 : 1)}L`;
-  if (a >= 1e4) return `${Math.round(v / 1000)}k`;
-  if (a >= 1000) return `${(v / 1000).toFixed(1)}k`;
-  if (a >= 10) return String(Math.round(v));
-  if (a >= 1) return v.toFixed(1);
+  if (a >= 1e7) return `${fx(v / 1e7, 1)}Cr`;
+  if (a >= 1e5) return `${fx(v / 1e5, a >= 1e6 ? 0 : 1)}L`;
+  if (a >= 1e4) return `${fx(v / 1000, 0)}k`;
+  if (a >= 1000) return `${fx(v / 1000, 1)}k`;
+  if (a >= 10) return fx(v, 0);
+  if (a >= 1) return fx(v, 1);
   if (a === 0) return '0';
-  return v.toFixed(a >= 0.1 ? 2 : 3).replace(/^(-?)0\./, '$1.');
+  return (a >= 0.001 ? fx(v, a >= 0.1 ? 2 : 3) : v.toPrecision(1 + more)).replace(/^(-?)0\./, '$1.');
 }
 
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

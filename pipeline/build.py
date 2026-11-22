@@ -14,7 +14,7 @@ from collections import defaultdict
 import numpy as np
 
 from . import catalog as cat
-from . import booths, geo, hexes, official
+from . import booths, geo, hexes, official, results
 from .config import DATA, ROOT, SHARDS, SITE, data_dir
 from .util import dir_size, file_sig, log, obj_sig
 
@@ -98,14 +98,14 @@ def build(cfg, force=False, only_config=False):
     log(f"  {len(series)} series, {sum(len(s.years) or 1 for s in series)} series-years")
 
     if only_config:
-        write_client_config(cfg, series, st)
+        write_client_config(cfg, series + results.cached_series(cfg, st), st)
         return series
 
     # ---- units + boundaries (everything downstream keys off unit ids) ------------------------
     bsrc = [cfg.boundary_path(k) for k in ("ac", "ac_lookup", "pc", "district")] + cfg.ac_patch_paths
     h8_ntl = cfg.hex_file(cfg["variables"]["datasets"]["ntl"]["file"], 8)
-    units_sig = obj_sig([file_sig(p) for p in bsrc], file_sig(h8_ntl))
-    bnd_sig = obj_sig(units_sig, cfg["boundaries"]["simplify"], cfg["boundaries"]["detail"])
+    units_sig = obj_sig([file_sig(p) for p in bsrc], file_sig(h8_ntl), *([cfg.pc_fixes] if cfg.pc_fixes else []))
+    bnd_sig = obj_sig(units_sig, cfg["boundaries"]["simplify"], cfg["boundaries"]["detail"], *(["pcfix-slivers-1"] if cfg.pc_fixes else []))
     need_units = st.get("units") != units_sig or not (DATA / "units.json").exists()
     need_bnd = st.get("boundaries") != bnd_sig or not (DATA / "boundaries" / "ac.json").exists()
 
@@ -201,7 +201,8 @@ def build(cfg, force=False, only_config=False):
                 # settings only the newer dataset kinds use are signed only when set, so adding them
                 # leaves every existing series' signature (and file) as it was
                 extra = {k: v for k, v in (("sparse", st["chunks"].get(ckey) if s.sparse else None),
-                                           ("type", s.type if s.type != "numeric" else None), ("root", s.root)) if v}
+                                           ("type", s.type if s.type != "numeric" else None), ("root", s.root),
+                                           ("na", s.na_cells)) if v}
                 ssig = obj_sig(st["index"].get(str(res)), file_sig(src), s.cols if not s.pivot else {str(k): list(v) for k, v in s.cols.items()},
                                s.dtype, s.fill_missing, s.res_years.get(res), s.pivot, *([extra] if extra else []))
                 key = f"{res}/{s.id}"
@@ -223,8 +224,10 @@ def build(cfg, force=False, only_config=False):
                 years = (s.years or [None]) if need_agg else s.res_years[res]
                 by_year = {y: reader.column(s, y) for y in years}
                 if need_bin:
-                    q = hexes.quant_params(s, [by_year[y] for y in s.res_years[res]])
-                    hexes.write_series(res, s, by_year, q, st["chunks"].get(ckey) if s.sparse else None, start_for(res))
+                    # NA cells (na_cells: 0/1 column per year) get their own code, drawn grey in the browser
+                    na = {y: reader.raw(s, s.na_cells.format(year=y)) == 1 for y in s.res_years[res]} if s.na_cells else None
+                    q = hexes.quant_params(s, [by_year[y] for y in s.res_years[res]], na=bool(na))
+                    hexes.write_series(res, s, by_year, q, st["chunks"].get(ckey) if s.sparse else None, start_for(res), na)
                     st["q"][key], st["bins"][key] = q, ssig
                 if need_agg:
                     weights = {y: reader.raw(s, s.weight_col(y)) for y in years} if s.agg == "wmean" else None
@@ -236,6 +239,11 @@ def build(cfg, force=False, only_config=False):
                     _write_unit_files(s.id, agg)
                     st["agg"][s.id] = asig
             _save_state(st)
+
+    # ---- AC/PC election results: card files + unit-only map series (pipeline/results.py) ---------
+    if cfg.get("results"):
+        series = series + results.build(cfg, st, units, units_sig)
+        _save_state(st)
 
     # ---- remove files no longer in the catalog ---------------------------------------------------
     removed = 0
@@ -364,31 +372,86 @@ def _split_old_unit_files():
         f.unlink()
 
 
+DIVERGING_RAMPS = ("rdbu", "brbg", "puor", "buor")
+BREAKS_METHOD = "d6c"   # c: legend top end capped at the 99.5th percentile for extreme outliers   # bump to recompute every file's All-India breaks when the method changes
+
+
+def scale_kind(s):
+    """Colour classes of a series (D6); the client mirrors this in scales.js scaleKind.
+
+    count: counts and intensities, anchored at 0 (zero has its own class) · share: format pct,
+    anchored at 0% · level: prices and heights, from the minimum · diverging: symmetric around 0."""
+    if s.type == "categorical":
+        return "cat"
+    if s.scale:
+        if s.scale not in ("count", "share", "level", "diverging"):
+            raise ValueError(f"{s.id}: scale must be count, share, level or diverging, not {s.scale!r}")
+        return s.scale
+    if s.diverging or s.ramp in DIVERGING_RAMPS:
+        return "diverging"
+    if s.format == "pct":
+        return "share"
+    if s.format == "inr" or s.agg == "median":
+        return "level"
+    return "count"
+
+
+def _down(x):
+    """x to 6 significant digits, never above x (a cell at a break stays in the class above it)."""
+    r = float(f"{x:.6g}")
+    return r if r <= x else float(f"{x - abs(x) * 2e-6:.6g}")
+
+
+def class_breaks(v, kind):
+    """Breaks for sorted finite values v, the same rules as scales.js scaleFromValues."""
+    n = len(v)
+    if not n or v[0] == v[-1]:
+        return []
+    qv = lambda a, p: float(a[min(len(a) - 1, max(0, int(p * len(a))))])   # the client's quantile
+    if kind == "diverging":   # the same breaks mirrored around 0; outer classes open-ended
+        a = np.sort(np.abs(v[v != 0]))
+        nice = lambda x: float(f"{x:.2g}")
+        cap = nice(qv(a, 0.95))
+        pos = sorted({nice(qv(a, q)) for q in (0.1, 0.4, 0.7) if nice(qv(a, q)) < cap} | {cap})
+        return [-x for x in reversed(pos)] + pos
+    out = []
+    if kind != "level" and v[0] == 0:   # zero class, then quantiles of the values above 0
+        rest = v[v > 0]
+        cand = [float(rest[0])] + [qv(rest, i / 8) for i in range(1, 8)]
+    else:
+        cand = [qv(v, i / 9) for i in range(1, 9)]
+    for b in cand:
+        if b > v[0] and (not out or b > out[-1] * (1 + 1e-9) + 1e-12):
+            out.append(b)
+    return [_down(b) for b in out]
+
+
 def compute_breaks(series, st):
-    """All-India class breaks per published file (quantiles at i/9 above the minimum)."""
+    """All-India class breaks and [min, max] per published file (classes as in scale_kind)."""
     st.setdefault("breaks", {})
     for s in series:
+        kind = scale_kind(s)
         for res, y, name in s.files():
             key = f"{res}/{name}"
             q = st["q"].get(f"{res}/{s.id}")
-            if not q or st["breaks"].get(key, {}).get("sig") == st["bins"].get(f"{res}/{s.id}"):
+            sig = st["bins"].get(f"{res}/{s.id}")
+            if not q or (st["breaks"].get(key, {}).get("sig") == sig and st["breaks"][key].get("m") == f"{BREAKS_METHOD}/{kind}"):
                 continue
-            if s.type == "categorical" or s.breaks:   # categories need none; fixed breaks are used as given
-                st["breaks"][key] = {"sig": st["bins"].get(f"{res}/{s.id}"), "b": [float(b) for b in s.breaks] if s.breaks else None}
+            entry = {"sig": sig, "m": f"{BREAKS_METHOD}/{kind}"}
+            if s.type == "categorical":   # categories need none
+                st["breaks"][key] = {**entry, "b": None}
                 continue
             raw = (data_dir(s.shard) / "hex" / f"h{res}" / "v" / name).read_bytes()
             v = hexes.decode(raw, q)   # a sparse file holds only its chunks: same distribution
             v = np.sort(v[~np.isnan(v)])
-            br = []
-            if len(v) and s.diverging:   # symmetric around 0
-                a = np.abs(v[v != 0])
-                qs = [float(f"{x:.5g}") for x in np.quantile(a, [0.1, 0.35, 0.6, 0.85])] if len(a) else []
-                br = sorted({-x for x in qs} | set(qs))
-            elif len(v):
-                for qq in np.quantile(v[v > v[0]], [i / 9 for i in range(1, 9)]) if (v > v[0]).any() else []:
-                    if not br or qq > br[-1] * (1 + 1e-9) + 1e-12:
-                        br.append(float(f"{qq:.5g}"))
-            st["breaks"][key] = {"sig": st["bins"].get(f"{res}/{s.id}"), "b": br}
+            rng = [float(f"{v[0]:.5g}"), float(f"{v[-1]:.5g}")] if len(v) else None
+            # fixed breaks are used as given
+            br = [float(b) for b in s.breaks] if s.breaks else class_breaks(v, kind)
+            if rng and kind in ("count", "level") and len(v) > 100:   # extreme outliers: legend ends at p99.5 "+"
+                p = float(v[int(0.995 * len(v))])
+                if v[-1] > 3 * max(p, br[-1] if br else p) and p > rng[0]:
+                    rng = [rng[0], float(f"{p:.5g}"), 1]
+            st["breaks"][key] = {**entry, "b": br, "r": rng}
 
 
 def _decode_index(res, man, levels):
@@ -421,6 +484,8 @@ def write_client_config(cfg, series, st):
     cat_out = []
     units = None
     for s in series:
+        if s.results:   # AC/PC results series: sent compactly in config.json "results" (results.client_config)
+            continue
         d = s.to_client()
         if s.na_label and (s.units_table or {}).get("na_flag"):
             units = units or json.loads((DATA / "units.json").read_text(encoding="utf-8"))
@@ -428,9 +493,13 @@ def write_client_config(cfg, series, st):
         d["q"] = {str(r): st["q"].get(f"{r}/{s.id}") for r in s.res_years}
         d["breaks"] = {str(r): {str(y): (st.get("breaks", {}).get(f"{r}/{s.bin_name(y)}") or {}).get("b")
                                 for y in ys} for r, ys in s.res_years.items()}
+        d["range"] = {str(r): {str(y): (st.get("breaks", {}).get(f"{r}/{s.bin_name(y)}") or {}).get("r")
+                               for y in ys} for r, ys in s.res_years.items()}   # [min, max]: legend ends
         cat_out.append(d)
     groups = []
     for s in series:
+        if s.results:
+            continue
         if s.group not in groups:
             groups.append(s.group)
     manifests = {}
@@ -458,6 +527,9 @@ def write_client_config(cfg, series, st):
     if names:   # where each data repository is served, relative to the app (same origin on GitHub Pages)
         tmpl = (cfg.get("shards") or {}).get("url", "../{name}/")
         client["shards"] = {n: tmpl.format(name=n) for n in names}
+    rc = results.client_config(cfg, st)
+    if rc:
+        client["results"] = rc   # AC/PC results: elections, their files and map series
     bc = booths.client_config(cfg, st, series)
     if bc:
         client["booths"] = bc   # sparse datasets: the index chunks in their files, in file order
