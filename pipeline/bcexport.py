@@ -95,6 +95,7 @@ class Election:
     def __init__(self, root, entry):
         e = entry if isinstance(entry, dict) else {"key": entry}
         self.key = e["key"]
+        self.withhold = sorted(e.get("withhold") or [])   # columns not published for this election (provisional at the producer)
         self.has_booths = e.get("has_booths") is True   # results/elections.json: true only once the build is complete
         self.root = Path(root)
         self.st = self.key[:2].upper()
@@ -214,6 +215,9 @@ def _hex_frame(el, res):
     out[f"turnout_share_{y}"] = num("turnout") / 1000
     out[f"votes_{y}"] = num("votes")
     out[f"electors_{y}"] = num("electors")
+    for c in el.withhold:
+        if out.pop(f"{c}_{y}", None) is None:
+            raise ValueError(f"bcexport: {el.key}: withhold {c}: no such column")
     lead = num("lead_party")
     lm = el.lead_map()
     cats = _year_categories(el)
@@ -337,7 +341,7 @@ class Dataset:
         return self.dir / "units" / f"{self.id}_pc_{year}.parquet"
 
     def stamp(self):
-        return {"version": ADAPTER_VERSION, "elections": {e.key: e.sources() for e in self.els}}
+        return {"version": ADAPTER_VERSION, "elections": {e.key: e.sources() + ([["withhold", *e.withhold]] if e.withhold else []) for e in self.els}}
 
     def ensure(self):
         """Write the cache when a source (or this adapter) changed; return the cache metadata."""

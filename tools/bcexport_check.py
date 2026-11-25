@@ -117,6 +117,9 @@ def hex_checks(dsets):
                 exp[f"{pre}turnout_share"] = src_num(t, "turnout") / 1000
                 exp[f"{pre}votes"] = src_num(t, "votes")
                 exp[f"{pre}electors"] = src_num(t, "electors")
+                for c in e.withhold:   # provisional at the producer: must not be published for this year
+                    exp.pop(f"{pre}{c}")
+                    check(f"{pre}{c}" not in VARS or y not in VARS[f"{pre}{c}"]["years"], f"{e.key}: withheld {c} is published")
                 worst = {}
                 for sid, sv in exp.items():
                     s = VARS.get(sid)

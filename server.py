@@ -283,7 +283,8 @@ def main():
         return publish(cfg)
     if a.build_only:
         return
-    threading.Thread(target=watch_config, daemon=True).start()
+    if not a.no_build:   # serve only: a long-running preview must never rebuild with the code it started with
+        threading.Thread(target=watch_config, daemon=True).start()
     for port in range(a.port, a.port + 20):  # skip ports already in use (Windows lets two servers share one)
         try:
             socket.create_connection(("127.0.0.1", port), timeout=0.3).close()
@@ -299,7 +300,7 @@ def main():
         sys.exit(f"No free port between {a.port} and {a.port + 19}")
     with httpd:
         print(f"\nIndia Hex → http://localhost:{port}   (phone on the same Wi-Fi: http://<this PC's IP>:{port})")
-        print("Watching india_hex.yaml for changes. Ctrl+C to stop.", flush=True)
+        print("Ctrl+C to stop." if a.no_build else "Watching india_hex.yaml for changes. Ctrl+C to stop.", flush=True)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

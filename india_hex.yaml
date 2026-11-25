@@ -580,4 +580,6 @@ publish:
 bcexport:
   root: D:/booth_catchment
   exclude: [ka_ge2014]          # owner: KA LS 2014 stays on the delivered layout until its v2 booth layers land
+  overrides:                    # WB 2026: booth electors are from a Jan 2025 roll, 11% over ECI; not published until the export rescales them
+    wb_ae2026: {withhold: [turnout_share, electors]}
   colours: {IUML: "#117733"}    # party / bloc colours over parties.json and the election palette
