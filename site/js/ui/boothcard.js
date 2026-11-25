@@ -44,7 +44,7 @@ function resultHTML(el, row) {
     kv.push(['Electors', n(row.electors)]);
     if (row.votes_polled != null) kv.push(['Votes polled', n(row.votes_polled)], ['Turnout', pct(row.electors ? row.votes_polled / row.electors : null)]);
   }
-  return `<div class="bres"><div class="blead">${lead}${r.margin != null ? `<span class="bmargin">margin ${pp(r.margin)}</span>` : ''}</div>
+  return `<div class="bres"><div class="blead">${lead}${r.margin != null ? `<span class="bmargin">${r.marginLabel ? esc(r.marginLabel) : 'margin'} ${pp(r.margin)}</span>` : ''}</div>
     <div class="pbars">${rows}</div>
     <div class="kvs">${kv.map(([k, v]) => `<span>${k} <b>${v}</b></span>`).join('')}</div></div>`;
 }

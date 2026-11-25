@@ -84,15 +84,25 @@ export function boothColour(el, lens, sc) {
   else if (bare.endsWith('_share')) field = `${bare.slice(0, -6)}_pm`;
   else if (lens.series.diverging && bare.endsWith('_margin_pp')) { field = 'margin_pm'; factor = 10; }
   if (!field || !el.fields.booths.includes(field) || !el.fields.catchments.includes(field)) return lead;
-  const value = ['/', ['get', field], factor];
+  const value = ['/', ['get', field], field === 'margin_pm' ? factor * marginSign(el, lens) : factor];
   // one class (every value in view the same, e.g. a party that did not stand here): one colour
   const step = sc.breaks.length ? ['step', value, sc.colors[0]] : sc.colors[0];
   sc.breaks.forEach((b, i) => step.push(b, sc.colors[i + 1]));
   return {
     expr: ['case', ['has', field], step, NONE],
     pinExpr: ['case', ['has', field], step, '#ffffff'],
-    kind: 'field', field, factor,
+    kind: 'field', field, factor: field === 'margin_pm' ? factor * marginSign(el, lens) : factor,
   };
+}
+
+/** The two sides of an election's tile margin ("UDF - LDF": first minus second), as labels. */
+const marginSides = (el) => (/^([^()]+) - ([^()]+)$/.exec(el.margin || '') || []).slice(1).map((s) => s.trim());
+
+/** −1 when the hexagon margin on the map runs the other way than the tiles' ("Margin, LDF − UDF" vs "UDF - LDF"). */
+export function marginSign(el, lens) {
+  const [a, b] = marginSides(el);
+  const m = /^Margin, (.+) − (.+)$/.exec(lens?.series?.label || '');
+  return m && a && m[1] === b && m[2] === a ? -1 : 1;
 }
 
 // ---- detail files (per AC, loaded on click) ------------------------------------------------------
@@ -123,14 +133,21 @@ export function detailFor(el, acNo) {
 /** Votes per lead category, the leading one (or 'tie') and the bloc margin for a booth/location row. */
 export function resultOf(el, row) {
   const v = (p) => row[p] ?? 0;
-  // an alliance bucket (inc_jds, bjp_jds) is the sum of its parties' columns
-  const cats = el.lead.filter((c) => c.id !== 'tie').map((c) => ({ ...c, votes: c.id.split('_').reduce((t, p) => t + v(p), 0) }));
+  // a party has its own column (cpi_m, jd_s); an alliance bucket without one (inc_jds, bjp_jds) sums its parties'
+  const own = (id) => (id in row ? v(id) : id.split('_').reduce((t, p) => t + v(p), 0));
+  const cats = el.lead.filter((c) => c.id !== 'tie').map((c) => ({ ...c, votes: own(c.id) }));
   const total = row.votes ?? 0;
   const sorted = [...cats].sort((a, b) => b.votes - a.votes);
   let lead = null;
   if (total > 0 && sorted.length) lead = sorted.length > 1 && sorted[0].votes === sorted[1].votes ? el.lead.find((c) => c.id === 'tie') : sorted[0];
   const side = (re) => cats.find((c) => re.test(c.id));
   const a = side(/^(bjp|nda)/); const b = side(/^(inc|mgb)/);
+  if (el.fields.booths.includes('src')) { // new-layout elections: the tiles' own pair (alliances where there are any)
+    const col = (label) => { const k = label.toLowerCase().replace(/\+$/, '_plus').replace(/[^a-z0-9]+/g, '_').replace(/_$/, ''); return [`bloc_${k}`, k].find((c) => c in row); };
+    const [A, B] = marginSides(el);
+    const [x, y] = A ? [col(A), col(B)] : [];
+    return { cats, lead, total, margin: total > 0 && x && y ? ((v(x) - v(y)) / total) * 100 : null, marginLabel: A ? `${A} − ${B}` : '' };
+  }
   const margin = total > 0 && a && b ? ((a.votes - b.votes) / total) * 100 : null;
   return { cats, lead, margin, total };
 }
