@@ -25,6 +25,18 @@ DATA = SITE / "data"
 CFG = yaml.safe_load((ROOT / "india_hex.yaml").read_text(encoding="utf-8"))["results"]
 STORE = Path(CFG["root"])
 EXCL = set(CFG.get("exclude_seat_maps") or [])
+
+
+def joinable(e):
+    """Independent of pipeline/results.py: a seat map is joinable when its key table exists and every row has an
+    AC and a PC key (no `none` match)."""
+    sm = e.get("seat_map")
+    p = STORE / "seatmaps" / f"{sm}_ihex_keys.csv"
+    if not sm or sm in EXCL or not p.exists():
+        return False
+    import csv
+    with open(p, encoding="utf-8") as fh:
+        return all(r["ac_key"] and r["pc_key"] and r["match"] != "none" for r in csv.DictReader(fh))
 seed = int(sys.argv[sys.argv.index("--seed") + 1]) if "--seed" in sys.argv else 7
 rng = random.Random(seed)
 fails = []
@@ -36,7 +48,7 @@ def check(ok, msg):
     n_checks += 1
     if not ok:
         fails.append(msg)
-        if len(fails) <= 40:
+        if len(fails) <= 40 or "--all" in sys.argv:
             print("  FAIL", msg)
 
 
@@ -69,7 +81,7 @@ def unit_vals(sid, level):
 print("check 1: coverage")
 for e in elections:
     k = e["key"]
-    if e["seat_map"] in EXCL:
+    if not joinable(e):
         check(k not in by_key and not (DATA / "results" / k).exists(), f"{k}: on excluded map {e['seat_map']} but published")
         check(not any(s.startswith(f"r_{k}_") for s in (p.name for p in (DATA / "units" / "v").iterdir())), f"{k}: map series published")
         continue
@@ -86,7 +98,7 @@ for e in elections:
 print("check 3: PB AC 107/108, WB AC 84/85")
 pc_name = {u["id"]: u["name"] for u in U["pc"]}
 for k, want in [(e["key"], {107: "SANGRUR", 108: "SANGRUR"} if e["state"] == "PB" else {84: "RANAGHAT", 85: "KRISHNANAGAR"})
-                for e in elections if e["state"] in ("PB", "WB")]:
+                for e in elections if e["state"] in ("PB", "WB") and joinable(e)]:
     f = json.loads((DATA / "results" / k / "ac.json").read_text(encoding="utf-8"))
     for i, u in f["u"].items():
         if u["no"] in want:
@@ -99,7 +111,7 @@ con = duckdb.connect()
 sampled = {"ac": 0, "pc": 0}
 for e in elections:
     k = e["key"]
-    if e["state"] not in ("KA", "BR", "MH", "TN", "WB") or k not in by_key:
+    if k not in by_key:   # every joined election, every state
         continue
     el = by_key[k]
     maps = {m["s"]: m for m in el["maps"]}
@@ -150,23 +162,55 @@ for e in elections:
                     check(v is not None and abs(v - want) < 6e-4 * max(1, want * 10), f"{tag}: {s} share {v} vs {want:.4f}")
     # state shares: VS from AC votes, LS from PC votes
     lvl = "ac" if e["house"] == "VS" else "pc"
-    cc = con.sql(f"SELECT party, bloc, votes FROM '{STORE / k / 'candidates.parquet'}' WHERE level='{lvl}'").df()
-    tot = cc.votes.sum()
-    st_id = next(u["id"] for u in U["state"] if u["key"] == el["state"])
-    for s, m in maps.items():
-        if s in ("win", "margin"):
-            check(unit_vals(f"r_{k}_{s}", "state") is None, f"{k}: {s} has state values")
+    call = con.sql(f"SELECT unit_no, party, bloc, votes FROM '{STORE / k / 'candidates.parquet'}' WHERE level='{lvl}'").df()
+    # each India Hex state of the election gets its own value, from the votes of its own units (undivided
+    # Andhra Pradesh: today's AP and Telangana); the unit's state comes from the key table, independently
+    keys_csv = pd.read_csv(STORE / "seatmaps" / f"{el['seat_map']}_ihex_keys.csv")
+    # a unit's state = the state it is drawn in on India Hex (units.json "st" of the unit its key names)
+    st_key = {u["id"]: u["key"] for u in U["state"]}
+    unit_by_key = {u["key"]: u for u in U[lvl]}
+    kcol, ncol = ("ac_key", "ac_no") if lvl == "ac" else ("pc_key", "pc_no")
+    state_of = {int(n): st_key[unit_by_key[kk]["st"]] for n, kk in zip(keys_csv[ncol], keys_csv[kcol])}
+    call["st"] = [state_of[int(n)] for n in call.unit_no]
+    states_here = el.get("states") or [el["state"]]
+    # the election's states are where its ACs are drawn; state values come from ACs (VS) or PCs (LS), so a state
+    # holding only ACs of an LS election (e.g. Bhadrachalam's segment, drawn in Andhra Pradesh) has no state value
+    ac_keys_csv = dict(zip(keys_csv.ac_no, keys_csv.ac_key))
+    ac_unit = {u["key"]: u for u in U["ac"]}
+    ac_states = sorted({st_key[ac_unit[kk]["st"]] for kk in ac_keys_csv.values()})
+    check(sorted(states_here) == ac_states, f"{k}: config states {states_here} vs the ACs' states {ac_states}")
+    for skey in states_here:
+        st_id = next(u["id"] for u in U["state"] if u["key"] == skey)
+        cc = call[call.st == skey]
+        # denominator: the official valid votes of the state's units (units.parquet), not the printed candidates' sum
+        # (Bihar 2015 ACs 195, 210, 229 print only some candidates; their totals come from the ECI summary)
+        uu = con.sql(f"SELECT unit_no, total_valid FROM '{STORE / k / 'units.parquet'}' WHERE level='{lvl}'").df()
+        uu = uu[[state_of[int(n)] == skey for n in uu.unit_no]]
+        # units without an official total (e.g. ECI's blank detailed results) are left out of the state value
+        uu = uu[uu.total_valid.notna() & (uu.total_valid > 0)]
+        cc = cc[cc.unit_no.isin(set(uu.unit_no))]
+        tot = uu.total_valid.sum()
+        if not tot:   # no AC (VS) or PC (LS) of the election lies in this state: no state value
+            for s in maps:
+                if s not in ("win", "margin"):
+                    sv = unit_vals(f"r_{k}_{s}", "state")
+                    check(sv is None or sv[next(u["id"] for u in U["state"] if u["key"] == skey)] is None,
+                          f"{k} state {skey} {s}: a value without units")
             continue
-        v = unit_vals(f"r_{k}_{s}", "state")[st_id]
-        if s == "others":
-            main = [x["l"].replace(" vote share", "") for x in el["maps"] if x["s"] not in ("win", "margin", "others") and not x["s"].startswith("bloc_")]
-            want = 1 - cc[cc.party.isin(main)].votes.sum() / tot
-        elif s.startswith("bloc_"):
-            b = [bb for bb in cc.bloc.dropna().unique() if bb.lower().replace("(", "").replace(")", "").replace(" ", "") == s[5:] or "".join(ch for ch in bb.lower() if ch.isalnum()) == s[5:]]
-            want = cc[cc.bloc == b[0]].votes.sum() / tot if b else None
-        else:
-            want = cc[cc.party == m["l"].replace(" vote share", "")].votes.sum() / tot
-        check(want is not None and abs(v - want) < 6e-4, f"{k} state {s}: {v} vs {want}")
+        for s, m in maps.items():
+            if s in ("win", "margin"):
+                check(unit_vals(f"r_{k}_{s}", "state") is None, f"{k}: {s} has state values")
+                continue
+            v = unit_vals(f"r_{k}_{s}", "state")[st_id]
+            if s == "others":
+                main = [x["l"].replace(" vote share", "") for x in el["maps"] if x["s"] not in ("win", "margin", "others") and not x["s"].startswith("bloc_")]
+                want = 1 - cc[cc.party.isin(main)].votes.sum() / tot
+            elif s.startswith("bloc_"):
+                b = [bb for bb in call.bloc.dropna().unique() if bb.lower().replace("(", "").replace(")", "").replace(" ", "") == s[5:] or "".join(ch for ch in bb.lower() if ch.isalnum()) == s[5:]]
+                want = cc[cc.bloc == b[0]].votes.sum() / tot if b else None
+            else:
+                want = cc[cc.party == m["l"].replace(" vote share", "")].votes.sum() / tot
+            check(want is not None and v is not None and abs(v - want) < 6e-4, f"{k} state {skey} {s}: {v} vs {want}")
 
 sizes = sum(p.stat().st_size for p in (DATA / "results").rglob("*") if p.is_file())
 usz = sum(p.stat().st_size for d in (DATA / "units" / "v").iterdir() if d.name.startswith("r_") for p in d.iterdir())

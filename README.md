@@ -19,7 +19,7 @@ or phone.
 | H8 hexagons (≈0.74 km² each) | 4,374,944 |
 | Polling booths (pins, zoom 10+) | 50,697–58,023 per Karnataka election; 90,712 Bihar 2025; 20,631–21,555 Punjab; 24,799 Assam 2016; 21,264 Kerala 2014 |
 | Polling-location catchments (zoom 10+) | 32,746–55,541 per Karnataka election; 46,410 for Bihar 2025 |
-| AC and PC election results | 54 Assembly and Lok Sabha elections in 8 states, 2008–2026 |
+| AC and PC election results | 178 Assembly and Lok Sabha elections in 24 states and UTs, 2004–2026 |
 
 Each hexagon belongs to the constituency, district and state that contains its centre. Values for a
 constituency, district or state are aggregated from its H8 hexagons, except for elections, where they
@@ -46,11 +46,12 @@ are the official results.
   booth results (Form 20) spread over where voters live; constituency, district and state values are
   the official results. Hexagons are grey where most of their voters are in constituencies with
   incomplete booth data.
-- **AC and PC results:** every Assembly and Lok Sabha election from 2008 in Assam, Bihar, Karnataka,
-  Kerala, Maharashtra, Punjab, Tamil Nadu and West Bengal: the winner, the top candidates, turnout,
-  NOTA, party and alliance shares and the change since the previous election, on each constituency's
-  card and as maps (winner, winning margin, vote shares). Lok Sabha results at Assembly level are
-  segment leads (EVM votes).
+- **AC and PC results:** 178 Assembly and Lok Sabha elections in 24 states and union territories, wherever
+  the election was held on the constituency map India Hex shows (2008 seats; 1976 in Assam; 1995 in Jammu &
+  Kashmir): the winner, the top candidates, turnout, NOTA, party and alliance shares and
+  the change since the previous election, on each constituency's card and as maps (winner, winning margin, vote
+  shares). Lok Sabha results at Assembly level are segment leads (EVM votes); undivided Andhra Pradesh (2009,
+  2014) covers today's Andhra Pradesh and Telangana.
 - **Polling booths:** every booth with coordinates as a pin, and each polling location's catchment
   (the area where the people it serves live), with booth-level results: EVM votes from Form 20,
   without postal ballots. The number of booths is a variable too, and every card shows it.

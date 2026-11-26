@@ -33,7 +33,7 @@ from .catalog import Series
 from .config import DATA
 from .util import file_sig, log, obj_sig
 
-VERSION = 5   # bump when the output format or the series rules change
+VERSION = 7   # bump when the output format or the series rules change
 HOUSE = {"VS": "Assembly", "LS": "Lok Sabha"}
 # India Hex's election palette (BJP/NDA orange, INC/MGB/UPA blue, JD(S) green, JSP pink, others grey)
 PALETTE = {"BJP": "#E69F00", "NDA": "#E69F00", "INC": "#0072B2", "MGB": "#0072B2", "UPA": "#0072B2",
@@ -72,6 +72,23 @@ class Store:
         self.elections = json.loads((self.root / "elections.json").read_text(encoding="utf-8"))
         self.parties = json.loads((self.root / "parties.json").read_text(encoding="utf-8"))
         self._keys = {}
+        self._ok = {}
+
+    def joinable(self, e):
+        """True when every AC and PC of the election's seat map has a checked India Hex key. Maps with no key table
+        (old 1976 seats), a table of `none` rows (Assam 2023, J&K 2022, Ladakh 2024: India Hex has no such units) or
+        no seat map are left out; `exclude_seat_maps` can also leave a map out."""
+        sm = e.get("seat_map")
+        if not sm or sm in self.exclude:
+            return False
+        if sm not in self._ok:
+            path = self.root / "seatmaps" / f"{sm}_ihex_keys.csv"
+            ok = path.exists()
+            if ok:
+                with open(path, encoding="utf-8") as f:
+                    ok = all(r["ac_key"] and r["pc_key"] and r["match"] != "none" for r in csv.DictReader(f))
+            self._ok[sm] = ok
+        return self._ok[sm]
 
     def keys(self, seat_map):
         """{ac_no: (ac_key, pc_no)}, {pc_no: pc_key} from <MAP>_ihex_keys.csv, checked against <MAP>_ac_pc.csv."""
@@ -183,8 +200,14 @@ def build_election(store, e, units, out_dir):
         if k not in id_of["pc"]:
             raise ValueError(f"{key}: PC key {k} not in units.json")
         pc_id[p] = id_of["pc"][k]
-    state_key = ac_keys[next(iter(ac_keys))][0].split("|")[0]
-    st = next(u for u in units["state"] if u["key"] == state_key)
+    # the India Hex states the seats are drawn in (undivided Andhra Pradesh: AP + Telangana; J&K 1995 seats: J&K +
+    # Ladakh), by each AC unit's own state on the map; the main one has the most ACs
+    n_in = {}
+    for i in ac_id.values():
+        sk = units["state"][units["ac"][i]["st"]]["key"]
+        n_in[sk] = n_in.get(sk, 0) + 1
+    sts = [u for u in units["state"] if u["key"] in n_in]
+    st = max(sts, key=lambda u: n_in[u["key"]])
     colour = _colour_fn(store, key)
     allies = _alliances(store, key)
     names = store.parties["parties"]
@@ -253,7 +276,7 @@ def build_election(store, e, units, out_dir):
             head["names"] = {p: names[p]["name"] for p in sorted(used_parties) if (names.get(p) or {}).get("name") and names[p]["name"] != p}
             head["blocs"] = {b: list(v) for b, v in allies.items()}
         (out_dir / f"{level}.json").write_text(json.dumps({**head, "u": out}, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    return {"state": st, "vals": vals, "colour": colour, "allies": allies}
+    return {"state": st, "states": sts, "vals": vals, "colour": colour, "allies": allies}
 
 
 def _sum(rows):
@@ -278,14 +301,16 @@ def map_series(e, built, units):
     for u in units["ac"]:
         if u["id"] in vals["ac"] and u.get("d", -1) >= 0:
             dist.setdefault(u["d"], []).append(vals["ac"][u["id"]])
+    top = "ac" if house == "VS" else "pc"
     agg = {"district": {d: _sum(rs) for d, rs in dist.items()},
-           "state": {st["id"]: _sum(list(vals["ac" if house == "VS" else "pc"].values()))}}
-    whole = agg["state"][st["id"]]
+           "state": {s["id"]: _sum([v for i, v in vals[top].items() if units[top][i]["st"] == s["id"]]) for s in built["states"]}}
+    agg["state"] = {i: r for i, r in agg["state"].items() if r["tv"]}
+    whole = _sum(list(vals[top].values()))   # the whole election (statewide shares pick the main parties)
     name, hname = st["name"], HOUSE[house]
     group = f"{name} {hname} {year} results"
     menu = ["Elections", name, hname, f"{year} results"]
     seg = house == "LS"
-    base = dict(dataset="results", group=group, file="", cols={year: None}, states=[st["key"]], menu=menu,
+    base = dict(dataset="results", group=group, file="", cols={year: None}, states=[s["key"] for s in built["states"]], menu=menu,
                 results=key)
     note_src = ("ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result" if seg
                 else "ECI results. PCs: sums of their ACs")
@@ -369,8 +394,7 @@ def _write_unit_files(sid, year, by_level, units, st_id):
         if not lv:
             out = {"y": [year], "v": [None]}
         else:
-            mine = [u["id"] for u in units[lvl] if (u["id"] if lvl == "state" else u["st"]) == st_id]
-            lo, hi = min(mine), max(mine)
+            lo, hi = min(lv), max(lv)   # the units with values (one state, or several for undivided Andhra Pradesh)
             out = {"y": [year], "o": lo, "n": len(units[lvl]), "v": [[lv.get(i) for i in range(lo, hi + 1)]]}
         p = d / f"{lvl}.json"
         text = json.dumps(out, separators=(",", ":"))
@@ -404,7 +428,7 @@ def build(cfg, st, units, units_sig):
     expected = set()
     for e in store.elections:
         key = e["key"]
-        if e["seat_map"] in store.exclude:
+        if not store.joinable(e):
             continue
         sig = obj_sig(VERSION, store.files_sig(e), units_sig, MAIN_SHARE, TOP)
         out_dir = base / key
@@ -426,7 +450,8 @@ def build(cfg, st, units, units_sig):
         for s, lv in ms:
             _write_unit_files(s.id, e["year"], lv, units, built["state"]["id"])
         done[key] = {"sig": sig, "series": [_series_dict(s) for s, _ in ms], "state": built["state"]["key"],
-                     "state_name": built["state"]["name"], "main": main, "blocs": blocs}
+                     "states": [s["key"] for s in built["states"]], "state_name": built["state"]["name"], "main": main,
+                     "blocs": blocs}
         series += [s for s, _ in ms]
         expected |= {f.resolve() for f in files}
     removed = 0
@@ -462,11 +487,12 @@ def client_config(cfg, st):
     els, skipped, notes, levels = [], [], [], []
     for e in store.elections:
         if e["key"] not in done:
-            if e["seat_map"] in store.exclude:
+            if not store.joinable(e):
                 skipped.append({"key": e["key"], "state": e["state"], "house": e["house"], "year": e["year"], "seat_map": e["seat_map"]})
             continue
         d = done[e["key"]]
-        els.append({"key": e["key"], "state": d["state"], "state_name": d["state_name"], "house": e["house"], "year": e["year"],
+        els.append({"key": e["key"], "state": d["state"], **({"states": d["states"]} if len(d.get("states") or []) > 1 else {}),
+                    "state_name": d["state_name"], "house": e["house"], "year": e["year"],
                     "label": f"{HOUSE[e['house']]} {e['year']}", "seat_map": e["seat_map"], "gaps": e.get("gaps") or [],
                     "files": {"ac": f"results/{e['key']}/ac.json", "pc": f"results/{e['key']}/pc.json"},
                     "maps": [_compact(s, e["key"], notes, levels) for s in d["series"]]})
