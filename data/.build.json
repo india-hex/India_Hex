@@ -27070,7 +27070,7 @@
  },
  "results": {
   "mh_ae2009": {
-   "sig": "5530e141815379e7",
+   "sig": "75a2b931653c64f3",
    "series": [
     {
      "id": "r_mh_ae2009_win",
@@ -27157,7 +27157,7 @@
       {
        "id": "MNS",
        "label": "MNS",
-       "color": "#cccccc",
+       "color": "#999933",
        "years": [
         2009
        ]
@@ -27181,7 +27181,7 @@
       {
        "id": "BVA",
        "label": "BVA",
-       "color": "#5f5f5f",
+       "color": "#88CCEE",
        "years": [
         2009
        ]
@@ -27189,7 +27189,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#e6e6e6",
+       "color": "#cccccc",
        "years": [
         2009
        ]
@@ -27494,7 +27494,7 @@
      "label": "MNS vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "ylgn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -27715,7 +27715,7 @@
    ]
   },
   "mh_ae2014": {
-   "sig": "e92e180a624aae7c",
+   "sig": "67bb18c306220cbf",
    "series": [
     {
      "id": "r_mh_ae2014_win",
@@ -27802,7 +27802,7 @@
       {
        "id": "BVA",
        "label": "BVA",
-       "color": "#cccccc",
+       "color": "#88CCEE",
        "years": [
         2014
        ]
@@ -27810,7 +27810,7 @@
       {
        "id": "PWPI",
        "label": "PWPI",
-       "color": "#5f5f5f",
+       "color": "#AA4499",
        "years": [
         2014
        ]
@@ -27818,7 +27818,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#e6e6e6",
+       "color": "#cccccc",
        "years": [
         2014
        ]
@@ -28234,7 +28234,7 @@
    ]
   },
   "mh_ae2019": {
-   "sig": "c094405d70d43cdd",
+   "sig": "c9ef62ce31579fd7",
    "series": [
     {
      "id": "r_mh_ae2019_win",
@@ -28800,7 +28800,7 @@
    ]
   },
   "mh_ae2024": {
-   "sig": "a0cffddf97c7d5b8",
+   "sig": "d5ae171d3866f4fc",
    "series": [
     {
      "id": "r_mh_ae2024_win",
@@ -29476,7 +29476,7 @@
    ]
   },
   "mh_ge2009": {
-   "sig": "73e416b8100d5fe8",
+   "sig": "1c01d86d093bf3a9",
    "series": [
     {
      "id": "r_mh_ge2009_win",
@@ -29563,7 +29563,7 @@
       {
        "id": "SWP",
        "label": "SWP",
-       "color": "#cccccc",
+       "color": "#CC6677",
        "years": [
         2009
        ]
@@ -29571,7 +29571,7 @@
       {
        "id": "BVA",
        "label": "BVA",
-       "color": "#5f5f5f",
+       "color": "#88CCEE",
        "years": [
         2009
        ]
@@ -29579,7 +29579,7 @@
       {
        "id": "MNS",
        "label": "MNS",
-       "color": "#e6e6e6",
+       "color": "#999933",
        "years": [
         2009
        ]
@@ -29587,7 +29587,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#3d3d3d",
+       "color": "#cccccc",
        "years": [
         2009
        ]
@@ -30058,7 +30058,7 @@
    ]
   },
   "mh_ge2014": {
-   "sig": "11f50dbd5fa5f1a8",
+   "sig": "5ec7f44b071276d9",
    "series": [
     {
      "id": "r_mh_ge2014_win",
@@ -30624,7 +30624,7 @@
    ]
   },
   "mh_ge2019": {
-   "sig": "bd036bcb0dc87b75",
+   "sig": "c63ca0a1e89d2ae5",
    "series": [
     {
      "id": "r_mh_ge2019_win",
@@ -31316,7 +31316,7 @@
    ]
   },
   "mh_ge2024": {
-   "sig": "5db4de35a8a98371",
+   "sig": "1e0a5c988dd81570",
    "series": [
     {
      "id": "r_mh_ge2024_win",
@@ -31945,7 +31945,7 @@
    ]
   },
   "as_ae2011": {
-   "sig": "2b5605bc813a14af",
+   "sig": "12cb12e1a8239ff0",
    "series": [
     {
      "id": "r_as_ae2011_win",
@@ -32008,7 +32008,7 @@
       {
        "id": "BPF",
        "label": "BPF",
-       "color": "#999999",
+       "color": "#332288",
        "years": [
         2011
        ]
@@ -32016,7 +32016,7 @@
       {
        "id": "AGP",
        "label": "AGP",
-       "color": "#cccccc",
+       "color": "#882255",
        "years": [
         2011
        ]
@@ -32032,7 +32032,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#999999",
        "years": [
         2011
        ]
@@ -32175,7 +32175,7 @@
      "label": "AGP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -32447,7 +32447,7 @@
    "blocs": []
   },
   "as_ae2016": {
-   "sig": "eacf950a8ab241da",
+   "sig": "f2bd6314694bd37d",
    "series": [
     {
      "id": "r_as_ae2016_win",
@@ -33060,7 +33060,7 @@
    ]
   },
   "as_ae2021": {
-   "sig": "33d362c15df4ffe8",
+   "sig": "b1a7112c88230a36",
    "series": [
     {
      "id": "r_as_ae2021_win",
@@ -33681,7 +33681,7 @@
    ]
   },
   "as_ge2009": {
-   "sig": "8813432038d87278",
+   "sig": "3806ddcc47a563ba",
    "series": [
     {
      "id": "r_as_ge2009_win",
@@ -34294,7 +34294,7 @@
    ]
   },
   "as_ge2014": {
-   "sig": "370e0f1f72f2dd5f",
+   "sig": "09090218af862981",
    "series": [
     {
      "id": "r_as_ge2014_win",
@@ -34734,7 +34734,7 @@
    ]
   },
   "as_ge2019": {
-   "sig": "647bb30712c4fc8c",
+   "sig": "43b9a47c045875a9",
    "series": [
     {
      "id": "r_as_ge2019_win",
@@ -35237,7 +35237,7 @@
    ]
   },
   "ka_ae2008": {
-   "sig": "82e01bba93cf5f0a",
+   "sig": "f313ccc5b78652f5",
    "series": [
     {
      "id": "r_ka_ae2008_win",
@@ -35613,7 +35613,7 @@
    "blocs": []
   },
   "ka_ae2013": {
-   "sig": "3ef7d2b01de87547",
+   "sig": "94d69c063c2501c7",
    "series": [
     {
      "id": "r_ka_ae2013_win",
@@ -35692,7 +35692,7 @@
       {
        "id": "KJP",
        "label": "KJP",
-       "color": "#cccccc",
+       "color": "#882255",
        "years": [
         2013
        ]
@@ -35700,7 +35700,7 @@
       {
        "id": "BSRCP",
        "label": "BSRCP",
-       "color": "#5f5f5f",
+       "color": "#44AA99",
        "years": [
         2013
        ]
@@ -35708,7 +35708,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#e6e6e6",
+       "color": "#cccccc",
        "years": [
         2013
        ]
@@ -35959,7 +35959,7 @@
      "label": "KJP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -36068,7 +36068,7 @@
    "blocs": []
   },
   "ka_ae2018": {
-   "sig": "fe01219b015df726",
+   "sig": "14703680f490d0bb",
    "series": [
     {
      "id": "r_ka_ae2018_win",
@@ -36500,7 +36500,7 @@
    ]
   },
   "ka_ae2023": {
-   "sig": "2d1f2789841fd274",
+   "sig": "4f36ff69c3203fde",
    "series": [
     {
      "id": "r_ka_ae2023_win",
@@ -36876,7 +36876,7 @@
    "blocs": []
   },
   "ka_ge2009": {
-   "sig": "f62fdb9c8f3de311",
+   "sig": "f93a1f46d44ca889",
    "series": [
     {
      "id": "r_ka_ge2009_win",
@@ -37244,7 +37244,7 @@
    "blocs": []
   },
   "ka_ge2014": {
-   "sig": "44534bdafac3fc92",
+   "sig": "e97ea063f08196df",
    "series": [
     {
      "id": "r_ka_ge2014_win",
@@ -37612,7 +37612,7 @@
    "blocs": []
   },
   "ka_ge2019": {
-   "sig": "a4a7c042999481c1",
+   "sig": "e0b685fa7001029b",
    "series": [
     {
      "id": "r_ka_ge2019_win",
@@ -38044,7 +38044,7 @@
    ]
   },
   "ka_ge2024": {
-   "sig": "7c011c2355e44283",
+   "sig": "cd5c7cc040035aac",
    "series": [
     {
      "id": "r_ka_ge2024_win",
@@ -38468,7 +38468,7 @@
    ]
   },
   "tn_ae2011": {
-   "sig": "c54bbc7062bd7dc7",
+   "sig": "e36ab38bff865943",
    "series": [
     {
      "id": "r_tn_ae2011_win",
@@ -39097,7 +39097,7 @@
    ]
   },
   "tn_ae2016": {
-   "sig": "1888854352fd5bff",
+   "sig": "5e98ab72c700ce45",
    "series": [
     {
      "id": "r_tn_ae2016_win",
@@ -39639,7 +39639,7 @@
    ]
   },
   "tn_ae2021": {
-   "sig": "28a2588699df00a4",
+   "sig": "e367dc50af8478f9",
    "series": [
     {
      "id": "r_tn_ae2021_win",
@@ -39931,7 +39931,7 @@
      "label": "NTK vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "ylgn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -40150,7 +40150,7 @@
    ]
   },
   "tn_ae2026": {
-   "sig": "1a7e0e03f5dd0207",
+   "sig": "9908224b91da9b98",
    "series": [
     {
      "id": "r_tn_ae2026_win",
@@ -40653,7 +40653,7 @@
    ]
   },
   "tn_ge2009": {
-   "sig": "a16be73c382da52c",
+   "sig": "6533f7fb1aa4fbae",
    "series": [
     {
      "id": "r_tn_ge2009_win",
@@ -41282,7 +41282,7 @@
    ]
   },
   "tn_ge2014": {
-   "sig": "341ddcf1d5a0c6f6",
+   "sig": "e874951875103e69",
    "series": [
     {
      "id": "r_tn_ge2014_win",
@@ -41840,7 +41840,7 @@
    ]
   },
   "tn_ge2019": {
-   "sig": "e1922b95e57edcc5",
+   "sig": "451d9f4ab3ca3c61",
    "series": [
     {
      "id": "r_tn_ge2019_win",
@@ -42422,7 +42422,7 @@
    ]
   },
   "tn_ge2024": {
-   "sig": "a93ebac4511d13a5",
+   "sig": "9bcbe926b7162c2e",
    "series": [
     {
      "id": "r_tn_ge2024_win",
@@ -42846,7 +42846,7 @@
      "label": "NTK vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "ylgn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -43122,7 +43122,7 @@
    ]
   },
   "wb_ae2011": {
-   "sig": "e932b33eb5ef00b1",
+   "sig": "849326039633ec61",
    "series": [
     {
      "id": "r_wb_ae2011_win",
@@ -43633,7 +43633,7 @@
    ]
   },
   "wb_ae2016": {
-   "sig": "ebb038c925313ef2",
+   "sig": "d9ff5927417cea56",
    "series": [
     {
      "id": "r_wb_ae2016_win",
@@ -44199,7 +44199,7 @@
    ]
   },
   "wb_ae2021": {
-   "sig": "e67b20379c3019db",
+   "sig": "89dc9686b7abd45b",
    "series": [
     {
      "id": "r_wb_ae2021_win",
@@ -44678,7 +44678,7 @@
    ]
   },
   "wb_ae2026": {
-   "sig": "c6d0fb08b90d0de9",
+   "sig": "5a92222abfdbbcad",
    "series": [
     {
      "id": "r_wb_ae2026_win",
@@ -45102,7 +45102,7 @@
    ]
   },
   "wb_ge2009": {
-   "sig": "316b703546c3c69c",
+   "sig": "a11e995517db56cc",
    "series": [
     {
      "id": "r_wb_ge2009_win",
@@ -45676,7 +45676,7 @@
    ]
   },
   "wb_ge2014": {
-   "sig": "acd074bdb4b806e9",
+   "sig": "199399a3637334b7",
    "series": [
     {
      "id": "r_wb_ge2014_win",
@@ -45755,7 +45755,7 @@
       {
        "id": "RSP",
        "label": "RSP",
-       "color": "#999999",
+       "color": "#999933",
        "years": [
         2014
        ]
@@ -45763,7 +45763,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2014
        ]
@@ -46123,7 +46123,7 @@
    "blocs": []
   },
   "wb_ge2019": {
-   "sig": "204d4b0abd008821",
+   "sig": "877d61cf1c57a2ab",
    "series": [
     {
      "id": "r_wb_ge2019_win",
@@ -46546,7 +46546,7 @@
    "blocs": []
   },
   "wb_ge2024": {
-   "sig": "d4f98308a1bb2ad8",
+   "sig": "425aa5a04a4b0724",
    "series": [
     {
      "id": "r_wb_ge2024_win",
@@ -46978,7 +46978,7 @@
    ]
   },
   "kl_ae2011": {
-   "sig": "7ac0ea569d9033c7",
+   "sig": "b4062d1d41d137a3",
    "series": [
     {
      "id": "r_kl_ae2011_win",
@@ -47599,7 +47599,7 @@
    ]
   },
   "kl_ae2016": {
-   "sig": "ad3e4fc643ccf922",
+   "sig": "5dd566adc75e7bb3",
    "series": [
     {
      "id": "r_kl_ae2016_win",
@@ -48283,7 +48283,7 @@
    ]
   },
   "kl_ae2021": {
-   "sig": "53741fcd3c42a56f",
+   "sig": "4362493b36ebfd62",
    "series": [
     {
      "id": "r_kl_ae2021_win",
@@ -48959,7 +48959,7 @@
    ]
   },
   "kl_ae2026": {
-   "sig": "fb7ab01a07825e34",
+   "sig": "97db8f140e3d2c8f",
    "series": [
     {
      "id": "r_kl_ae2026_win",
@@ -49651,7 +49651,7 @@
    ]
   },
   "kl_ge2009": {
-   "sig": "960d527eec0858a2",
+   "sig": "a91593f10a5030c4",
    "series": [
     {
      "id": "r_kl_ge2009_win",
@@ -50264,7 +50264,7 @@
    ]
   },
   "kl_ge2014": {
-   "sig": "8c7a74fd6f9ffcdd",
+   "sig": "3483a0269c291e8d",
    "series": [
     {
      "id": "r_kl_ge2014_win",
@@ -50846,7 +50846,7 @@
    ]
   },
   "kl_ge2019": {
-   "sig": "31adc376c94ded90",
+   "sig": "dabff36cae09fb49",
    "series": [
     {
      "id": "r_kl_ge2019_win",
@@ -51514,7 +51514,7 @@
    ]
   },
   "kl_ge2024": {
-   "sig": "377a18e7bb2eeb8d",
+   "sig": "ca080f573cf6373d",
    "series": [
     {
      "id": "r_kl_ge2024_win",
@@ -52198,7 +52198,7 @@
    ]
   },
   "pb_ae2012": {
-   "sig": "7ad56a57aa9ab935",
+   "sig": "606b5c84309c1e75",
    "series": [
     {
      "id": "r_pb_ae2012_win",
@@ -52740,7 +52740,7 @@
    ]
   },
   "pb_ae2017": {
-   "sig": "a01f6c49b2e1c66a",
+   "sig": "b16b7d6a10788ee3",
    "series": [
     {
      "id": "r_pb_ae2017_win",
@@ -53290,7 +53290,7 @@
    ]
   },
   "pb_ae2022": {
-   "sig": "623aa46f32127529",
+   "sig": "512a10865497e4b0",
    "series": [
     {
      "id": "r_pb_ae2022_win",
@@ -53666,7 +53666,7 @@
      "label": "SAD+ vote share",
      "unit": "",
      "note": "SAD+ (SAD, BSP). Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -53832,7 +53832,7 @@
    ]
   },
   "pb_ge2009": {
-   "sig": "35f760d5cc83a6a1",
+   "sig": "85a7c7b83555c798",
    "series": [
     {
      "id": "r_pb_ge2009_win",
@@ -54311,7 +54311,7 @@
    ]
   },
   "pb_ge2014": {
-   "sig": "3edb0f132bb62f92",
+   "sig": "f0b3a226f69998ce",
    "series": [
     {
      "id": "r_pb_ge2014_win",
@@ -54806,7 +54806,7 @@
    ]
   },
   "pb_ge2019": {
-   "sig": "19c19a6bff0c71ae",
+   "sig": "5876e5dbbfe91e09",
    "series": [
     {
      "id": "r_pb_ge2019_win",
@@ -55364,7 +55364,7 @@
    ]
   },
   "pb_ge2024": {
-   "sig": "d658b59491ae0eed",
+   "sig": "2a6048bbb8601ac3",
    "series": [
     {
      "id": "r_pb_ge2024_win",
@@ -55803,7 +55803,7 @@
    "blocs": []
   },
   "br_ae2025": {
-   "sig": "a7aeef0b7d51aa1a",
+   "sig": "478527fd75dbd475",
    "series": [
     {
      "id": "r_br_ae2025_win",
@@ -55890,7 +55890,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#999999",
+       "color": "#AA4499",
        "years": [
         2025
        ]
@@ -55914,7 +55914,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2025
        ]
@@ -56385,7 +56385,7 @@
    ]
   },
   "as_ae2006": {
-   "sig": "a3c549881e9939de",
+   "sig": "664ee4171a2d51a5",
    "series": [
     {
      "id": "r_as_ae2006_win",
@@ -56440,7 +56440,7 @@
       {
        "id": "AGP",
        "label": "AGP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2006
        ]
@@ -56448,7 +56448,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2006
        ]
@@ -56472,7 +56472,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2006
        ]
@@ -56615,7 +56615,7 @@
      "label": "AGP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -56832,7 +56832,7 @@
    "blocs": []
   },
   "as_ge2004": {
-   "sig": "f0583edfbf9c3445",
+   "sig": "9a16ee09b1c849ec",
    "series": [
     {
      "id": "r_as_ge2004_win",
@@ -56895,7 +56895,7 @@
       {
        "id": "AGP",
        "label": "AGP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2004
        ]
@@ -56903,7 +56903,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2004
        ]
@@ -56911,7 +56911,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2004
        ]
@@ -57108,7 +57108,7 @@
      "label": "AGP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -57216,7 +57216,7 @@
    "blocs": []
   },
   "br_ae2010": {
-   "sig": "732beb5ee53aa2cc",
+   "sig": "17326b492215ea39",
    "series": [
     {
      "id": "r_br_ae2010_win",
@@ -57837,7 +57837,7 @@
    ]
   },
   "br_ae2015": {
-   "sig": "16c886f7bf862838",
+   "sig": "6b08188b15b66d75",
    "series": [
     {
      "id": "r_br_ae2015_win",
@@ -58403,7 +58403,7 @@
    ]
   },
   "br_ae2020": {
-   "sig": "68de7386f0461187",
+   "sig": "4eb9a5499cea52ed",
    "series": [
     {
      "id": "r_br_ae2020_win",
@@ -59048,7 +59048,7 @@
    ]
   },
   "br_ge2009": {
-   "sig": "9a0fa1d743ca4491",
+   "sig": "736fffb99e7b2ed8",
    "series": [
     {
      "id": "r_br_ge2009_win",
@@ -59685,7 +59685,7 @@
    ]
   },
   "br_ge2014": {
-   "sig": "0745002447eaac11",
+   "sig": "d23e72801f5d97ed",
    "series": [
     {
      "id": "r_br_ge2014_win",
@@ -60369,7 +60369,7 @@
    ]
   },
   "br_ge2019": {
-   "sig": "a67e3dabcdf548a6",
+   "sig": "f6956262f533fc2c",
    "series": [
     {
      "id": "r_br_ge2019_win",
@@ -60982,7 +60982,7 @@
    ]
   },
   "br_ge2024": {
-   "sig": "845e759777911ace",
+   "sig": "60cca3db2a325cb5",
    "series": [
     {
      "id": "r_br_ge2024_win",
@@ -61619,7 +61619,7 @@
    ]
   },
   "up_ae2012": {
-   "sig": "d08044037e679f1d",
+   "sig": "8dc7dc7e16d36cc9",
    "series": [
     {
      "id": "r_up_ae2012_win",
@@ -61714,7 +61714,7 @@
       {
        "id": "PECP",
        "label": "PECP",
-       "color": "#cccccc",
+       "color": "#CC6677",
        "years": [
         2012
        ]
@@ -61722,7 +61722,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2012
        ]
@@ -62193,7 +62193,7 @@
    ]
   },
   "up_ae2017": {
-   "sig": "bc439523dc7038ed",
+   "sig": "2e3d4582b9021633",
    "series": [
     {
      "id": "r_up_ae2017_win",
@@ -62767,7 +62767,7 @@
    ]
   },
   "up_ae2022": {
-   "sig": "28c91bed4f85ef97",
+   "sig": "ed0f47eaf33c3458",
    "series": [
     {
      "id": "r_up_ae2022_win",
@@ -63278,7 +63278,7 @@
    ]
   },
   "up_ge2009": {
-   "sig": "5c4e9e6fc6fe179b",
+   "sig": "b296de8945ce5918",
    "series": [
     {
      "id": "r_up_ge2009_win",
@@ -63789,7 +63789,7 @@
    ]
   },
   "up_ge2014": {
-   "sig": "b2a80aa31cd24c4c",
+   "sig": "7c4b08f87f6e917b",
    "series": [
     {
      "id": "r_up_ge2014_win",
@@ -64339,7 +64339,7 @@
    ]
   },
   "up_ge2019": {
-   "sig": "0f6cc07a505a9a13",
+   "sig": "d60d448a87aaca4b",
    "series": [
     {
      "id": "r_up_ge2019_win",
@@ -64905,7 +64905,7 @@
    ]
   },
   "up_ge2024": {
-   "sig": "64c78cd22cd21f42",
+   "sig": "2ab621aa1cf6bca4",
    "series": [
     {
      "id": "r_up_ge2024_win",
@@ -64984,7 +64984,7 @@
       {
        "id": "ASPKR",
        "label": "ASPKR",
-       "color": "#999999",
+       "color": "#44AA99",
        "years": [
         2024
        ]
@@ -65000,7 +65000,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2024
        ]
@@ -65471,7 +65471,7 @@
    ]
   },
   "gj_ae2012": {
-   "sig": "533987a2c932b268",
+   "sig": "66741e6cafd38b73",
    "series": [
     {
      "id": "r_gj_ae2012_win",
@@ -65840,7 +65840,7 @@
    ]
   },
   "gj_ae2017": {
-   "sig": "4ea1f42cdc035060",
+   "sig": "f72b4dff11318961",
    "series": [
     {
      "id": "r_gj_ae2017_win",
@@ -66217,7 +66217,7 @@
    ]
   },
   "gj_ae2022": {
-   "sig": "f2f46a8a48b56fbb",
+   "sig": "8ebcc9df06e3a886",
    "series": [
     {
      "id": "r_gj_ae2022_win",
@@ -66657,7 +66657,7 @@
    ]
   },
   "gj_ge2009": {
-   "sig": "611671897e3e7159",
+   "sig": "ea6396d5896f7a41",
    "series": [
     {
      "id": "r_gj_ge2009_win",
@@ -66970,7 +66970,7 @@
    "blocs": []
   },
   "gj_ge2014": {
-   "sig": "1d78ee814a88badb",
+   "sig": "d476110299476fd5",
    "series": [
     {
      "id": "r_gj_ge2014_win",
@@ -67331,7 +67331,7 @@
    ]
   },
   "gj_ge2019": {
-   "sig": "15b35200a0e763f4",
+   "sig": "1538fbbe7ed157f4",
    "series": [
     {
      "id": "r_gj_ge2019_win",
@@ -67636,7 +67636,7 @@
    "blocs": []
   },
   "gj_ge2024": {
-   "sig": "76c326e027e3c3bf",
+   "sig": "0726ad27b0819539",
    "series": [
     {
      "id": "r_gj_ge2024_win",
@@ -68005,7 +68005,7 @@
    ]
   },
   "od_ae2009": {
-   "sig": "93414bb337939ade",
+   "sig": "c92f0fa1e7acda08",
    "series": [
     {
      "id": "r_od_ae2009_win",
@@ -68453,7 +68453,7 @@
    ]
   },
   "od_ae2014": {
-   "sig": "75e1a40f0898325c",
+   "sig": "1e967d27bbb2c25d",
    "series": [
     {
      "id": "r_od_ae2014_win",
@@ -68829,7 +68829,7 @@
    "blocs": []
   },
   "od_ae2019": {
-   "sig": "a1d69d03d1608f58",
+   "sig": "652d73c99e1c4954",
    "series": [
     {
      "id": "r_od_ae2019_win",
@@ -69261,7 +69261,7 @@
    ]
   },
   "od_ae2024": {
-   "sig": "769e4da1b308720d",
+   "sig": "cdfa5b08f8cb244f",
    "series": [
     {
      "id": "r_od_ae2024_win",
@@ -69701,7 +69701,7 @@
    ]
   },
   "od_ge2009": {
-   "sig": "11f26f34a6d5cb0b",
+   "sig": "2633886db91cb75f",
    "series": [
     {
      "id": "r_od_ge2009_win",
@@ -70141,7 +70141,7 @@
    ]
   },
   "od_ge2014": {
-   "sig": "6e33177f8c69b17b",
+   "sig": "ece26d8df8951dda",
    "series": [
     {
      "id": "r_od_ge2014_win",
@@ -70509,7 +70509,7 @@
    "blocs": []
   },
   "od_ge2019": {
-   "sig": "b4ceafe0c0023989",
+   "sig": "f25eccbad5dffb4b",
    "series": [
     {
      "id": "r_od_ge2019_win",
@@ -70933,7 +70933,7 @@
    ]
   },
   "od_ge2024": {
-   "sig": "52877844ac05c30d",
+   "sig": "9fc230c0d1800565",
    "series": [
     {
      "id": "r_od_ge2024_win",
@@ -71357,7 +71357,7 @@
    ]
   },
   "ap_ae2009": {
-   "sig": "0b9ae71603a86d76",
+   "sig": "cfc3c2bd73436526",
    "series": [
     {
      "id": "r_ap_ae2009_win",
@@ -71421,7 +71421,7 @@
       {
        "id": "PRAP",
        "label": "PRAP",
-       "color": "#999999",
+       "color": "#999933",
        "years": [
         2009
        ]
@@ -71437,7 +71437,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#cccccc",
+       "color": "#117733",
        "years": [
         2009
        ]
@@ -71453,7 +71453,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#5f5f5f",
+       "color": "#999999",
        "years": [
         2009
        ]
@@ -71461,7 +71461,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#e6e6e6",
+       "color": "#cccccc",
        "years": [
         2009
        ]
@@ -71661,7 +71661,7 @@
      "label": "PRAP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "ylgn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -71829,7 +71829,7 @@
    ]
   },
   "ap_ae2014": {
-   "sig": "800f132c4855290c",
+   "sig": "6b8ae275ef798dfd",
    "series": [
     {
      "id": "r_ap_ae2014_win",
@@ -71885,7 +71885,7 @@
       {
        "id": "YSRCP",
        "label": "YSRCP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2014
        ]
@@ -71893,7 +71893,7 @@
       {
        "id": "TRS",
        "label": "TRS",
-       "color": "#cccccc",
+       "color": "#44AA99",
        "years": [
         2014
        ]
@@ -71917,7 +71917,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#5f5f5f",
+       "color": "#117733",
        "years": [
         2014
        ]
@@ -71925,7 +71925,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#e6e6e6",
+       "color": "#999999",
        "years": [
         2014
        ]
@@ -72070,7 +72070,7 @@
      "label": "YSRCP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -72125,7 +72125,7 @@
      "label": "TRS vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "bugn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -72405,7 +72405,7 @@
    ]
   },
   "ap_ae2019": {
-   "sig": "d6cf498b39a7ce0d",
+   "sig": "618c89eda060cb47",
    "series": [
     {
      "id": "r_ap_ae2019_win",
@@ -72452,7 +72452,7 @@
       {
        "id": "YSRCP",
        "label": "YSRCP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2019
        ]
@@ -72468,7 +72468,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2019
        ]
@@ -72557,7 +72557,7 @@
      "label": "YSRCP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -72829,7 +72829,7 @@
    ]
   },
   "ap_ae2024": {
-   "sig": "7e9acafb8d6962d0",
+   "sig": "0a3bca41a40ae6da",
    "series": [
     {
      "id": "r_ap_ae2024_win",
@@ -72892,7 +72892,7 @@
       {
        "id": "YSRCP",
        "label": "YSRCP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2024
        ]
@@ -73043,7 +73043,7 @@
      "label": "YSRCP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -73261,7 +73261,7 @@
    ]
   },
   "ap_ge2009": {
-   "sig": "ad312b1f45a575b3",
+   "sig": "68882f86ca27ae6c",
    "series": [
     {
      "id": "r_ap_ge2009_win",
@@ -73333,7 +73333,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#999999",
+       "color": "#117733",
        "years": [
         2009
        ]
@@ -73341,7 +73341,7 @@
       {
        "id": "PRAP",
        "label": "PRAP",
-       "color": "#cccccc",
+       "color": "#999933",
        "years": [
         2009
        ]
@@ -73349,7 +73349,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#999999",
        "years": [
         2009
        ]
@@ -73549,7 +73549,7 @@
      "label": "PRAP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "ylgn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -73773,7 +73773,7 @@
    ]
   },
   "ap_ge2014": {
-   "sig": "eec3fedf7228b9e2",
+   "sig": "30a9420714c43677",
    "series": [
     {
      "id": "r_ap_ge2014_win",
@@ -73829,7 +73829,7 @@
       {
        "id": "TRS",
        "label": "TRS",
-       "color": "#999999",
+       "color": "#44AA99",
        "years": [
         2014
        ]
@@ -73837,7 +73837,7 @@
       {
        "id": "YSRCP",
        "label": "YSRCP",
-       "color": "#cccccc",
+       "color": "#882255",
        "years": [
         2014
        ]
@@ -73861,7 +73861,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#5f5f5f",
+       "color": "#117733",
        "years": [
         2014
        ]
@@ -74006,7 +74006,7 @@
      "label": "YSRCP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -74061,7 +74061,7 @@
      "label": "TRS vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "bugn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -74397,7 +74397,7 @@
    ]
   },
   "ap_ge2019": {
-   "sig": "c1bf46e067925b52",
+   "sig": "aa1d3d9548e575f7",
    "series": [
     {
      "id": "r_ap_ge2019_win",
@@ -74444,7 +74444,7 @@
       {
        "id": "YSRCP",
        "label": "YSRCP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2019
        ]
@@ -74460,7 +74460,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2019
        ]
@@ -74549,7 +74549,7 @@
      "label": "YSRCP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -74821,7 +74821,7 @@
    ]
   },
   "ap_ge2024": {
-   "sig": "0837972142e9d8b4",
+   "sig": "e5e47e29359cac91",
    "series": [
     {
      "id": "r_ap_ge2024_win",
@@ -74876,7 +74876,7 @@
       {
        "id": "YSRCP",
        "label": "YSRCP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2024
        ]
@@ -74981,7 +74981,7 @@
      "label": "YSRCP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -75253,7 +75253,7 @@
    ]
   },
   "ts_ae2018": {
-   "sig": "cb16ee3110854d7c",
+   "sig": "2fafe55184352f6f",
    "series": [
     {
      "id": "r_ts_ae2018_win",
@@ -75301,7 +75301,7 @@
       {
        "id": "TRS",
        "label": "TRS",
-       "color": "#999999",
+       "color": "#44AA99",
        "years": [
         2018
        ]
@@ -75317,7 +75317,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#cccccc",
+       "color": "#117733",
        "years": [
         2018
        ]
@@ -75325,7 +75325,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#999999",
        "years": [
         2018
        ]
@@ -75415,7 +75415,7 @@
      "label": "TRS vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "bugn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -75693,7 +75693,7 @@
    ]
   },
   "ts_ae2023": {
-   "sig": "8359ae5e8a158a18",
+   "sig": "79c6d09023f30229",
    "series": [
     {
      "id": "r_ts_ae2023_win",
@@ -75749,7 +75749,7 @@
       {
        "id": "BHRS",
        "label": "BHRS",
-       "color": "#999999",
+       "color": "#CC6677",
        "years": [
         2023
        ]
@@ -75765,7 +75765,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#cccccc",
+       "color": "#117733",
        "years": [
         2023
        ]
@@ -75773,7 +75773,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#999999",
        "years": [
         2023
        ]
@@ -75918,7 +75918,7 @@
      "label": "BHRS vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -76197,7 +76197,7 @@
    ]
   },
   "ts_ge2019": {
-   "sig": "7fa579c28ef4958e",
+   "sig": "6b9557021b80b001",
    "series": [
     {
      "id": "r_ts_ge2019_win",
@@ -76245,7 +76245,7 @@
       {
        "id": "TRS",
        "label": "TRS",
-       "color": "#999999",
+       "color": "#44AA99",
        "years": [
         2019
        ]
@@ -76269,7 +76269,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#cccccc",
+       "color": "#117733",
        "years": [
         2019
        ]
@@ -76359,7 +76359,7 @@
      "label": "TRS vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "bugn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -76580,7 +76580,7 @@
    "blocs": []
   },
   "ts_ge2024": {
-   "sig": "2b01034f05ce69ce",
+   "sig": "3e12de457c96f553",
    "series": [
     {
      "id": "r_ts_ge2024_win",
@@ -76644,7 +76644,7 @@
       {
        "id": "AIMIM",
        "label": "AIMIM",
-       "color": "#999999",
+       "color": "#117733",
        "years": [
         2024
        ]
@@ -76652,7 +76652,7 @@
       {
        "id": "BHRS",
        "label": "BHRS",
-       "color": "#cccccc",
+       "color": "#CC6677",
        "years": [
         2024
        ]
@@ -76852,7 +76852,7 @@
      "label": "BHRS vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -76963,7 +76963,7 @@
    "blocs": []
   },
   "hr_ae2009": {
-   "sig": "e19b75f0094ad070",
+   "sig": "74d7695bca7cfd8b",
    "series": [
     {
      "id": "r_hr_ae2009_win",
@@ -77521,7 +77521,7 @@
    ]
   },
   "hr_ae2014": {
-   "sig": "dadbf9c5ea4df549",
+   "sig": "6391f8857b48ba02",
    "series": [
     {
      "id": "r_hr_ae2014_win",
@@ -77961,7 +77961,7 @@
    ]
   },
   "hr_ae2019": {
-   "sig": "7e9720b1eb9ee580",
+   "sig": "f2fc3eabea258bd4",
    "series": [
     {
      "id": "r_hr_ae2019_win",
@@ -78345,7 +78345,7 @@
    "blocs": []
   },
   "hr_ae2024": {
-   "sig": "e76a5a723a888340",
+   "sig": "9f25950cf4e712a5",
    "series": [
     {
      "id": "r_hr_ae2024_win",
@@ -78777,7 +78777,7 @@
    ]
   },
   "hr_ge2009": {
-   "sig": "99be62881c4ed79c",
+   "sig": "a10c18f71e787b19",
    "series": [
     {
      "id": "r_hr_ge2009_win",
@@ -79327,7 +79327,7 @@
    ]
   },
   "hr_ge2014": {
-   "sig": "e6b25aba7e8a840d",
+   "sig": "1aefae7b4d0a55bb",
    "series": [
     {
      "id": "r_hr_ge2014_win",
@@ -79814,7 +79814,7 @@
    ]
   },
   "hr_ge2019": {
-   "sig": "0b40fd5bcebd3cee",
+   "sig": "4b0efa0db0e4d84e",
    "series": [
     {
      "id": "r_hr_ge2019_win",
@@ -80183,7 +80183,7 @@
    ]
   },
   "hr_ge2024": {
-   "sig": "b983fd3b4caa1354",
+   "sig": "288072c1b470f343",
    "series": [
     {
      "id": "r_hr_ge2024_win",
@@ -80552,7 +80552,7 @@
    ]
   },
   "hp_ae2012": {
-   "sig": "1b074ab9eb0af15a",
+   "sig": "dc0dc6e4cef731ba",
    "series": [
     {
      "id": "r_hp_ae2012_win",
@@ -80873,7 +80873,7 @@
    "blocs": []
   },
   "hp_ae2017": {
-   "sig": "829a5370579cfd2e",
+   "sig": "8f976cb648ee3aed",
    "series": [
     {
      "id": "r_hp_ae2017_win",
@@ -81186,7 +81186,7 @@
    "blocs": []
   },
   "hp_ae2022": {
-   "sig": "9bccbd1dde9aac33",
+   "sig": "4bf6238688c98b97",
    "series": [
     {
      "id": "r_hp_ae2022_win",
@@ -81499,7 +81499,7 @@
    "blocs": []
   },
   "hp_ge2009": {
-   "sig": "e00562b954d51477",
+   "sig": "4342ee394b46ed25",
    "series": [
     {
      "id": "r_hp_ge2009_win",
@@ -81804,7 +81804,7 @@
    "blocs": []
   },
   "hp_ge2014": {
-   "sig": "9e8c577f69bb8832",
+   "sig": "09c139948d673067",
    "series": [
     {
      "id": "r_hp_ge2014_win",
@@ -82109,7 +82109,7 @@
    "blocs": []
   },
   "hp_ge2019": {
-   "sig": "ee771bdec93df9a8",
+   "sig": "3084b10c0c13c203",
    "series": [
     {
      "id": "r_hp_ge2019_win",
@@ -82406,7 +82406,7 @@
    "blocs": []
   },
   "hp_ge2024": {
-   "sig": "6dae9c4dc5915f60",
+   "sig": "76dbb20a55945ab5",
    "series": [
     {
      "id": "r_hp_ge2024_win",
@@ -82711,7 +82711,7 @@
    "blocs": []
   },
   "ga_ae2012": {
-   "sig": "732e457bccbaee91",
+   "sig": "c9bd35450a83f5a1",
    "series": [
     {
      "id": "r_ga_ae2012_win",
@@ -83206,7 +83206,7 @@
    ]
   },
   "ga_ae2017": {
-   "sig": "7b57cac62f57052c",
+   "sig": "2ac2ff6846e8ebe8",
    "series": [
     {
      "id": "r_ga_ae2017_win",
@@ -83277,7 +83277,7 @@
       {
        "id": "GFP",
        "label": "GFP",
-       "color": "#999999",
+       "color": "#44AA99",
        "years": [
         2017
        ]
@@ -83285,7 +83285,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2017
        ]
@@ -83293,7 +83293,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2017
        ]
@@ -83709,7 +83709,7 @@
    ]
   },
   "ga_ae2022": {
-   "sig": "72363dec3b2180e5",
+   "sig": "44deba122b5be218",
    "series": [
     {
      "id": "r_ga_ae2022_win",
@@ -83977,7 +83977,7 @@
      "label": "RVLTGONP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -84361,7 +84361,7 @@
    ]
   },
   "ga_ge2009": {
-   "sig": "9cfd4fb77e0ddb99",
+   "sig": "38bbcca87c52712f",
    "series": [
     {
      "id": "r_ga_ge2009_win",
@@ -84785,7 +84785,7 @@
    ]
   },
   "ga_ge2014": {
-   "sig": "69b944611b60c184",
+   "sig": "8fd5b3561d581382",
    "series": [
     {
      "id": "r_ga_ge2014_win",
@@ -85090,7 +85090,7 @@
    "blocs": []
   },
   "ga_ge2019": {
-   "sig": "d7ca3b05130550d3",
+   "sig": "aaac544e64a8e21b",
    "series": [
     {
      "id": "r_ga_ge2019_win",
@@ -85395,7 +85395,7 @@
    "blocs": []
   },
   "ga_ge2024": {
-   "sig": "bc4a1e1cd9951b9b",
+   "sig": "c793029acc23044a",
    "series": [
     {
      "id": "r_ga_ge2024_win",
@@ -85647,7 +85647,7 @@
      "label": "RVLTGONP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -85755,7 +85755,7 @@
    "blocs": []
   },
   "rj_ae2008": {
-   "sig": "5c687c9177419e21",
+   "sig": "5b866e33de88c3a1",
    "series": [
     {
      "id": "r_rj_ae2008_win",
@@ -86147,7 +86147,7 @@
    "blocs": []
   },
   "rj_ae2013": {
-   "sig": "e7b4da1a85ce8391",
+   "sig": "b0057f14c4278cf0",
    "series": [
     {
      "id": "r_rj_ae2013_win",
@@ -86218,7 +86218,7 @@
       {
        "id": "NPEP",
        "label": "NPEP",
-       "color": "#cccccc",
+       "color": "#999933",
        "years": [
         2013
        ]
@@ -86234,7 +86234,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2013
        ]
@@ -86484,7 +86484,7 @@
    "blocs": []
   },
   "rj_ae2018": {
-   "sig": "19aa0dfc942939da",
+   "sig": "df6192fdce7d60f1",
    "series": [
     {
      "id": "r_rj_ae2018_win",
@@ -86563,7 +86563,7 @@
       {
        "id": "RLTP",
        "label": "RLTP",
-       "color": "#cccccc",
+       "color": "#882255",
        "years": [
         2018
        ]
@@ -86571,7 +86571,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2018
        ]
@@ -86877,7 +86877,7 @@
    ]
   },
   "rj_ae2023": {
-   "sig": "3202df588e6e0a42",
+   "sig": "6f82bbfc8f2bd12a",
    "series": [
     {
      "id": "r_rj_ae2023_win",
@@ -86948,7 +86948,7 @@
       {
        "id": "BHRTADVSIP",
        "label": "BHRTADVSIP",
-       "color": "#cccccc",
+       "color": "#44AA99",
        "years": [
         2023
        ]
@@ -86956,7 +86956,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2023
        ]
@@ -87262,7 +87262,7 @@
    ]
   },
   "rj_ge2009": {
-   "sig": "1ed3e21a334d6e59",
+   "sig": "f2fcd4b524f18871",
    "series": [
     {
      "id": "r_rj_ge2009_win",
@@ -87583,7 +87583,7 @@
    "blocs": []
   },
   "rj_ge2014": {
-   "sig": "6b63a218e09adb5c",
+   "sig": "4498e5d360962485",
    "series": [
     {
      "id": "r_rj_ge2014_win",
@@ -87654,7 +87654,7 @@
       {
        "id": "NPEP",
        "label": "NPEP",
-       "color": "#cccccc",
+       "color": "#999933",
        "years": [
         2014
        ]
@@ -87904,7 +87904,7 @@
    "blocs": []
   },
   "rj_ge2019": {
-   "sig": "8f47a02758551ed3",
+   "sig": "7d4fa00b7a940cfd",
    "series": [
     {
      "id": "r_rj_ge2019_win",
@@ -88281,7 +88281,7 @@
    ]
   },
   "rj_ge2024": {
-   "sig": "def58a165a26b84b",
+   "sig": "1866c90f019fc871",
    "series": [
     {
      "id": "r_rj_ge2024_win",
@@ -88674,7 +88674,7 @@
    ]
   },
   "mp_ae2008": {
-   "sig": "b211467e9a79c633",
+   "sig": "4eae9866a0c32228",
    "series": [
     {
      "id": "r_mp_ae2008_win",
@@ -88745,7 +88745,7 @@
       {
        "id": "BJSH",
        "label": "BJSH",
-       "color": "#999999",
+       "color": "#44AA99",
        "years": [
         2008
        ]
@@ -88753,7 +88753,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2008
        ]
@@ -88761,7 +88761,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2008
        ]
@@ -89066,7 +89066,7 @@
    "blocs": []
   },
   "mp_ae2013": {
-   "sig": "f0f7a4fd38a92150",
+   "sig": "9062eca7c806b393",
    "series": [
     {
      "id": "r_mp_ae2013_win",
@@ -89442,7 +89442,7 @@
    "blocs": []
   },
   "mp_ae2018": {
-   "sig": "2b1c808da29d7d8f",
+   "sig": "4ebd2994ea3b4b08",
    "series": [
     {
      "id": "r_mp_ae2018_win",
@@ -89874,7 +89874,7 @@
    ]
   },
   "mp_ae2023": {
-   "sig": "c8e248622137634b",
+   "sig": "89d06e9a70ab7c53",
    "series": [
     {
      "id": "r_mp_ae2023_win",
@@ -90187,7 +90187,7 @@
    "blocs": []
   },
   "mp_ge2009": {
-   "sig": "5a457e8688b32181",
+   "sig": "5d55372ad1681da1",
    "series": [
     {
      "id": "r_mp_ge2009_win",
@@ -90563,7 +90563,7 @@
    "blocs": []
   },
   "mp_ge2014": {
-   "sig": "64ebf1cbcb022ba7",
+   "sig": "26855896c220e79f",
    "series": [
     {
      "id": "r_mp_ge2014_win",
@@ -90876,7 +90876,7 @@
    "blocs": []
   },
   "mp_ge2019": {
-   "sig": "2b3c55f9d438ab0c",
+   "sig": "ff6251f4363a4807",
    "series": [
     {
      "id": "r_mp_ge2019_win",
@@ -91181,7 +91181,7 @@
    "blocs": []
   },
   "mp_ge2024": {
-   "sig": "e78df0c5ca8cca0f",
+   "sig": "d4f46fbfaf2810fe",
    "series": [
     {
      "id": "r_mp_ge2024_win",
@@ -91486,7 +91486,7 @@
    "blocs": []
   },
   "cg_ae2008": {
-   "sig": "c994e281d44ee95c",
+   "sig": "491919e16e6053fa",
    "series": [
     {
      "id": "r_cg_ae2008_win",
@@ -91910,7 +91910,7 @@
    ]
   },
   "cg_ae2013": {
-   "sig": "ace73cb0d769b70e",
+   "sig": "f8df8870dc5cd4ac",
    "series": [
     {
      "id": "r_cg_ae2013_win",
@@ -92223,7 +92223,7 @@
    "blocs": []
   },
   "cg_ae2018": {
-   "sig": "27faf39dcc73da64",
+   "sig": "f81954cfbe2d3a89",
    "series": [
     {
      "id": "r_cg_ae2018_win",
@@ -92655,7 +92655,7 @@
    ]
   },
   "cg_ae2023": {
-   "sig": "7f08e2f6c0700f2d",
+   "sig": "c7d3a01c93af60dc",
    "series": [
     {
      "id": "r_cg_ae2023_win",
@@ -92968,7 +92968,7 @@
    "blocs": []
   },
   "cg_ge2009": {
-   "sig": "534056807007a34f",
+   "sig": "1c9f61578595b879",
    "series": [
     {
      "id": "r_cg_ge2009_win",
@@ -93289,7 +93289,7 @@
    "blocs": []
   },
   "cg_ge2014": {
-   "sig": "05c98a76ab86e163",
+   "sig": "8bc3664fc8e59c00",
    "series": [
     {
      "id": "r_cg_ge2014_win",
@@ -93594,7 +93594,7 @@
    "blocs": []
   },
   "cg_ge2019": {
-   "sig": "902283dccc6d7cb2",
+   "sig": "9d299947aaf2fb1a",
    "series": [
     {
      "id": "r_cg_ge2019_win",
@@ -93899,7 +93899,7 @@
    "blocs": []
   },
   "cg_ge2024": {
-   "sig": "90b5d255ae07d4b9",
+   "sig": "cad2256174c9b3d6",
    "series": [
     {
      "id": "r_cg_ge2024_win",
@@ -94204,7 +94204,7 @@
    "blocs": []
   },
   "ml_ae2013": {
-   "sig": "37a9c0a0a6d19278",
+   "sig": "a7c4b22e1d53f3e9",
    "series": [
     {
      "id": "r_ml_ae2013_win",
@@ -94275,7 +94275,7 @@
       {
        "id": "HSPDP",
        "label": "HSPDP",
-       "color": "#cccccc",
+       "color": "#332288",
        "years": [
         2013
        ]
@@ -94283,7 +94283,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2013
        ]
@@ -94480,7 +94480,7 @@
      "label": "NPP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -94588,7 +94588,7 @@
    "blocs": []
   },
   "ml_ae2018": {
-   "sig": "f2127fd42299151a",
+   "sig": "e8063e12000c2278",
    "series": [
     {
      "id": "r_ml_ae2018_win",
@@ -94643,7 +94643,7 @@
       {
        "id": "NPEP",
        "label": "NPEP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2018
        ]
@@ -94659,7 +94659,7 @@
       {
        "id": "PDF",
        "label": "PDF",
-       "color": "#cccccc",
+       "color": "#999933",
        "years": [
         2018
        ]
@@ -94667,7 +94667,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#5f5f5f",
+       "color": "#999999",
        "years": [
         2018
        ]
@@ -94675,7 +94675,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#e6e6e6",
+       "color": "#cccccc",
        "years": [
         2018
        ]
@@ -94818,7 +94818,7 @@
      "label": "NPEP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -94980,7 +94980,7 @@
      "label": "PDF vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "ylgn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -95201,7 +95201,7 @@
    ]
   },
   "ml_ae2023": {
-   "sig": "fa6a465eb6556fdd",
+   "sig": "78dc9deb0306a2f3",
    "series": [
     {
      "id": "r_ml_ae2023_win",
@@ -95248,7 +95248,7 @@
       {
        "id": "NPEP",
        "label": "NPEP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2023
        ]
@@ -95280,7 +95280,7 @@
       {
        "id": "VOTPP",
        "label": "VOTPP",
-       "color": "#cccccc",
+       "color": "#44AA99",
        "years": [
         2023
        ]
@@ -95288,7 +95288,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#999999",
        "years": [
         2023
        ]
@@ -95377,7 +95377,7 @@
      "label": "NPEP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -95647,7 +95647,7 @@
      "label": "VOTPP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "bugn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -95758,7 +95758,7 @@
    "blocs": []
   },
   "ml_ge2009": {
-   "sig": "0ae4c60edd6dfdf9",
+   "sig": "79b4e679bed39a2c",
    "series": [
     {
      "id": "r_ml_ge2009_win",
@@ -95821,7 +95821,7 @@
       {
        "id": "HSPDP",
        "label": "HSPDP",
-       "color": "#999999",
+       "color": "#332288",
        "years": [
         2009
        ]
@@ -95829,7 +95829,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2009
        ]
@@ -96189,7 +96189,7 @@
    "blocs": []
   },
   "ml_ge2014": {
-   "sig": "1b99040ae4359d4d",
+   "sig": "d8cdb72132c1a111",
    "series": [
     {
      "id": "r_ml_ge2014_win",
@@ -96244,7 +96244,7 @@
       {
        "id": "NPEP",
        "label": "NPEP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2014
        ]
@@ -96252,7 +96252,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2014
        ]
@@ -96411,7 +96411,7 @@
      "label": "NPEP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -96628,7 +96628,7 @@
    "blocs": []
   },
   "ml_ge2019": {
-   "sig": "5a679c809b491311",
+   "sig": "5e51f34dad1f1ac0",
    "series": [
     {
      "id": "r_ml_ge2019_win",
@@ -96683,7 +96683,7 @@
       {
        "id": "NPEP",
        "label": "NPEP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2019
        ]
@@ -96691,7 +96691,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2019
        ]
@@ -96834,7 +96834,7 @@
      "label": "NPEP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -97051,7 +97051,7 @@
    "blocs": []
   },
   "ml_ge2024": {
-   "sig": "b406191b3767ac56",
+   "sig": "5ca68f6ef853ff86",
    "series": [
     {
      "id": "r_ml_ge2024_win",
@@ -97098,7 +97098,7 @@
       {
        "id": "VOTPP",
        "label": "VOTPP",
-       "color": "#999999",
+       "color": "#44AA99",
        "years": [
         2024
        ]
@@ -97114,7 +97114,7 @@
       {
        "id": "NPEP",
        "label": "NPEP",
-       "color": "#cccccc",
+       "color": "#882255",
        "years": [
         2024
        ]
@@ -97257,7 +97257,7 @@
      "label": "VOTPP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "bugn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -97311,7 +97311,7 @@
      "label": "NPEP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -97419,7 +97419,7 @@
    "blocs": []
   },
   "mz_ae2008": {
-   "sig": "aaebcd5b28e92fef",
+   "sig": "9e46d10e4f9923be",
    "series": [
     {
      "id": "r_mz_ae2008_win",
@@ -97953,7 +97953,7 @@
    ]
   },
   "mz_ae2013": {
-   "sig": "bdebc241cebfd8e3",
+   "sig": "2ea4ac2ef28f25a4",
    "series": [
     {
      "id": "r_mz_ae2013_win",
@@ -98213,7 +98213,7 @@
      "label": "ZNP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "bugn",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -98432,7 +98432,7 @@
    ]
   },
   "mz_ae2018": {
-   "sig": "f81caf3a7dde7c47",
+   "sig": "daff2fe6af724b45",
    "series": [
     {
      "id": "r_mz_ae2018_win",
@@ -98808,7 +98808,7 @@
    "blocs": []
   },
   "mz_ae2023": {
-   "sig": "4009c81b97c57c6f",
+   "sig": "6f273d57cacc65e2",
    "series": [
     {
      "id": "r_mz_ae2023_win",
@@ -98855,7 +98855,7 @@
       {
        "id": "ZPM",
        "label": "ZPM",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2023
        ]
@@ -98871,7 +98871,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2023
        ]
@@ -98960,7 +98960,7 @@
      "label": "ZPM vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -99231,7 +99231,7 @@
    "blocs": []
   },
   "mz_ge2009": {
-   "sig": "a502d04566dcabe1",
+   "sig": "4c8140c24a8313a8",
    "series": [
     {
      "id": "r_mz_ge2009_win",
@@ -99473,7 +99473,7 @@
    "blocs": []
   },
   "mz_ge2014": {
-   "sig": "2c49a8e2a7cd45fc",
+   "sig": "cedcb0303d5cbbc9",
    "series": [
     {
      "id": "r_mz_ge2014_win",
@@ -99723,7 +99723,7 @@
    "blocs": []
   },
   "mz_ge2019": {
-   "sig": "07e9b7a44e168f87",
+   "sig": "6ccf7805290e570c",
    "series": [
     {
      "id": "r_mz_ge2019_win",
@@ -100028,7 +100028,7 @@
    "blocs": []
   },
   "mz_ge2024": {
-   "sig": "baf74850759b942b",
+   "sig": "6b5df8fc18342e97",
    "series": [
     {
      "id": "r_mz_ge2024_win",
@@ -100075,7 +100075,7 @@
       {
        "id": "ZPM",
        "label": "ZPM",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2024
        ]
@@ -100083,7 +100083,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2024
        ]
@@ -100172,7 +100172,7 @@
      "label": "ZPM vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -100443,7 +100443,7 @@
    "blocs": []
   },
   "tr_ae2013": {
-   "sig": "8694a365f1e3defa",
+   "sig": "cccd7c1dd7784edf",
    "series": [
     {
      "id": "r_tr_ae2013_win",
@@ -100922,7 +100922,7 @@
    ]
   },
   "tr_ae2018": {
-   "sig": "9c56fd1bf231567f",
+   "sig": "3bb5ac7880776315",
    "series": [
     {
      "id": "r_tr_ae2018_win",
@@ -101401,7 +101401,7 @@
    ]
   },
   "tr_ae2023": {
-   "sig": "3ab8868596c6135d",
+   "sig": "6f448d4133fa5f38",
    "series": [
     {
      "id": "r_tr_ae2023_win",
@@ -101456,7 +101456,7 @@
       {
        "id": "TMP",
        "label": "TMP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2023
        ]
@@ -101480,7 +101480,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2023
        ]
@@ -101677,7 +101677,7 @@
      "label": "TMP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -101951,7 +101951,7 @@
    ]
   },
   "tr_ge2009": {
-   "sig": "3d777ce36df5b9b5",
+   "sig": "93a5776b71ae4a90",
    "series": [
     {
      "id": "r_tr_ge2009_win",
@@ -102248,7 +102248,7 @@
    "blocs": []
   },
   "tr_ge2014": {
-   "sig": "62b4e64502402b6a",
+   "sig": "7bbfb640db1e22cf",
    "series": [
     {
      "id": "r_tr_ge2014_win",
@@ -102655,7 +102655,7 @@
    "blocs": []
   },
   "tr_ge2019": {
-   "sig": "f8572a5cae1ab5e8",
+   "sig": "bbe08a57c7077174",
    "series": [
     {
      "id": "r_tr_ge2019_win",
@@ -103015,7 +103015,7 @@
    "blocs": []
   },
   "tr_ge2024": {
-   "sig": "fda623af92ff464b",
+   "sig": "73aae69c3eea9abf",
    "series": [
     {
      "id": "r_tr_ge2024_win",
@@ -103431,7 +103431,7 @@
    ]
   },
   "py_ae2011": {
-   "sig": "450d6a166b21c894",
+   "sig": "fdcd5e1414eed3dc",
    "series": [
     {
      "id": "r_py_ae2011_win",
@@ -103973,7 +103973,7 @@
    ]
   },
   "py_ae2016": {
-   "sig": "61969fd079a3c47e",
+   "sig": "7025c3d5c0fe16fb",
    "series": [
     {
      "id": "r_py_ae2016_win",
@@ -104460,7 +104460,7 @@
    ]
   },
   "py_ae2021": {
-   "sig": "c51bac8e999fa56c",
+   "sig": "f40007225c6b7c06",
    "series": [
     {
      "id": "r_py_ae2021_win",
@@ -105010,7 +105010,7 @@
    ]
   },
   "py_ae2026": {
-   "sig": "fd18b91165732275",
+   "sig": "752d65cadd896740",
    "series": [
     {
      "id": "r_py_ae2026_win",
@@ -105670,7 +105670,7 @@
    ]
   },
   "py_ge2009": {
-   "sig": "941ae98e5d28602f",
+   "sig": "88e27308a18c8936",
    "series": [
     {
      "id": "r_py_ge2009_win",
@@ -106030,7 +106030,7 @@
    "blocs": []
   },
   "py_ge2014": {
-   "sig": "c3f1eca9aedf9649",
+   "sig": "5da10848cb97aefc",
    "series": [
     {
      "id": "r_py_ge2014_win",
@@ -106461,7 +106461,7 @@
    "blocs": []
   },
   "py_ge2019": {
-   "sig": "a685658b42f523b7",
+   "sig": "c8e835ff29d71c4c",
    "series": [
     {
      "id": "r_py_ge2019_win",
@@ -106766,7 +106766,7 @@
    "blocs": []
   },
   "py_ge2024": {
-   "sig": "c986a4fbf4e9eec3",
+   "sig": "bce615e6dbe5fcd1",
    "series": [
     {
      "id": "r_py_ge2024_win",
@@ -107071,7 +107071,7 @@
    "blocs": []
   },
   "jk_ae2008": {
-   "sig": "3d4489ef38e70a95",
+   "sig": "37597189962a526a",
    "series": [
     {
      "id": "r_jk_ae2008_win",
@@ -107127,7 +107127,7 @@
       {
        "id": "JKPDP",
        "label": "JKPDP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2008
        ]
@@ -107151,7 +107151,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2008
        ]
@@ -107159,7 +107159,7 @@
       {
        "id": "JKNPP",
        "label": "JKNPP",
-       "color": "#5f5f5f",
+       "color": "#44AA99",
        "years": [
         2008
        ]
@@ -107167,7 +107167,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#e6e6e6",
+       "color": "#cccccc",
        "years": [
         2008
        ]
@@ -107367,7 +107367,7 @@
      "label": "JKPDP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -107534,7 +107534,7 @@
    "blocs": []
   },
   "jk_ae2014": {
-   "sig": "313e9bf484ff4133",
+   "sig": "116b929f29140141",
    "series": [
     {
      "id": "r_jk_ae2014_win",
@@ -107582,7 +107582,7 @@
       {
        "id": "JKPDP",
        "label": "JKPDP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2014
        ]
@@ -107614,7 +107614,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2014
        ]
@@ -107622,7 +107622,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2014
        ]
@@ -107767,7 +107767,7 @@
      "label": "JKPDP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. PCs: sums of their ACs; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -107989,7 +107989,7 @@
    "blocs": []
   },
   "jk_ge2009": {
-   "sig": "c76657df3e951c62",
+   "sig": "fb521949e1aac4c0",
    "series": [
     {
      "id": "r_jk_ge2009_win",
@@ -108061,7 +108061,7 @@
       {
        "id": "JKPDP",
        "label": "JKPDP",
-       "color": "#cccccc",
+       "color": "#882255",
        "years": [
         2009
        ]
@@ -108077,7 +108077,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2009
        ]
@@ -108222,7 +108222,7 @@
      "label": "JKPDP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -108501,7 +108501,7 @@
    ]
   },
   "jk_ge2014": {
-   "sig": "cdbd27eaa659b7d6",
+   "sig": "369bf72cacfbfe12",
    "series": [
     {
      "id": "r_jk_ge2014_win",
@@ -108549,7 +108549,7 @@
       {
        "id": "JKPDP",
        "label": "JKPDP",
-       "color": "#999999",
+       "color": "#882255",
        "years": [
         2014
        ]
@@ -108581,7 +108581,7 @@
       {
        "id": "IND",
        "label": "Independents",
-       "color": "#cccccc",
+       "color": "#999999",
        "years": [
         2014
        ]
@@ -108589,7 +108589,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2014
        ]
@@ -108789,7 +108789,7 @@
      "label": "JKPDP vote share",
      "unit": "",
      "note": "Share of valid votes incl. NOTA. ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result; districts: sums of their ACs (approximate)",
-     "ramp": "purples",
+     "ramp": "rdpu",
      "format": "pct",
      "agg": "wmean",
      "density": false,
@@ -109013,7 +109013,7 @@
    ]
   },
   "jk_ge2019": {
-   "sig": "7df94ec2db0129a0",
+   "sig": "717b522081dba548",
    "series": [
     {
      "id": "r_jk_ge2019_win",
@@ -109093,7 +109093,7 @@
       {
        "id": "JKPDP",
        "label": "JKPDP",
-       "color": "#cccccc",
+       "color": "#882255",
        "years": [
         2019
        ]
@@ -109101,7 +109101,7 @@
       {
        "id": "others",
        "label": "Others",
-       "color": "#5f5f5f",
+       "color": "#cccccc",
        "years": [
         2019
        ]
