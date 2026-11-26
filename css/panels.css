@@ -1,0 +1,105 @@
+/* Collapsible panels and overlays (js/ui/panels.js): edge tab, folded lens bar, tools fold, card folds,
+   the "Panels" restore button, and the phone sheet's hidden state. */
+
+/* ---- sidebar (desktop): fold to a slim edge tab ---- */
+.app { transition: grid-template-columns .24s var(--ease); }
+.app.side-off { grid-template-columns: 0 1fr; }
+.app.side-off .side { visibility: hidden; overflow: hidden; border-right: 0; }
+.fold-side svg { width: 18px; height: 18px; }
+.side-tab { position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 7; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 7px 10px; border-radius: 0 12px 12px 0; background: var(--paper); color: var(--ink); border: 1px solid var(--hair); border-left: 0; box-shadow: var(--float-shadow); cursor: pointer; }
+.side-tab span { writing-mode: vertical-rl; transform: rotate(180deg); font-family: var(--display, 'Instrument Serif'), serif; font-size: 17px; letter-spacing: .01em; }
+.side-tab span em { color: var(--accent-ink, var(--accent)); }
+.side-tab svg { width: 16px; height: 16px; transform: rotate(180deg); fill: none; stroke: currentColor; stroke-width: 1.8; }
+.side-tab:hover { color: var(--accent-ink, var(--accent)); }
+.app.side-off .lens { left: 52px; }
+.app.side-off .bases { left: 52px; }
+
+/* ---- lens bar: fold to one line (variable + colour ramp) ---- */
+.bar-fold { position: absolute; right: 6px; bottom: -13px; width: 26px; height: 18px; display: grid; place-items: center; border-radius: 0 0 9px 9px; background: var(--float); border: 1px solid var(--hair); border-top: 0; color: var(--ink-3); z-index: 1; }
+.bar-fold svg { width: 13px; height: 13px; transform: rotate(90deg); fill: none; stroke: currentColor; stroke-width: 2; transition: transform .18s var(--ease); }
+.lensbar.folded .bar-fold svg { transform: rotate(-90deg); }
+.bar-fold:hover { color: var(--ink); }
+.lensbar.folded .timeline,
+.lensbar.folded .legend .lnote,
+.lensbar.folded .legend .lcaveat,
+.lensbar.folded .legend .lbooth,
+.lensbar.folded .legend .fp-legend .lcaveat,
+.lensbar.folded .legend .fp-mode,
+.lensbar.folded .legend .na,
+.lensbar.folded .chips { display: none !important; }
+.lensbar.folded .legend { padding-top: 2px; padding-bottom: 6px; }
+
+/* ---- map tools + status bar: fold to one button ---- */
+.tools-fold { width: 40px; height: 22px; display: grid; place-items: center; border-radius: 10px; background: var(--float); border: 1px solid var(--hair); color: var(--ink-3); box-shadow: var(--float-shadow); align-self: center; }
+.tools-fold svg { width: 14px; height: 14px; transform: rotate(90deg); fill: none; stroke: currentColor; stroke-width: 2; transition: transform .18s var(--ease); }
+.app.tools-off .tools-fold svg { transform: rotate(-90deg); }
+.app.tools-off .tools .tgroup { display: none; }
+.app.tools-off .statusbar { display: none !important; }
+
+/* ---- cards in the sidebar and the cell-split popup: fold to their title ---- */
+.band { position: relative; }
+.band > .fold-btn { position: absolute; right: 58px; top: 15px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); }
+.band > .fold-btn:hover { color: var(--ink); background: var(--paper-3); }
+.fold-btn svg { width: 15px; height: 15px; transform: rotate(90deg); fill: none; stroke: currentColor; stroke-width: 2; transition: transform .18s var(--ease); }
+.folded > .fold-btn svg { transform: rotate(-90deg); }
+.band.folded { padding-bottom: 10px; }
+.band.folded > :not(.fold-btn):not(.close):not(.kicker):not(.title) { display: none !important; }
+.band.folded > .title { font-size: 24px; margin-bottom: 0; }
+.fp-popup .maplibregl-popup-content { position: relative; }
+.fp-popup .maplibregl-popup-content > .fold-btn { position: absolute; right: 30px; top: 6px; width: 22px; height: 22px; display: grid; place-items: center; color: var(--ink-3); }
+.fp-popup .maplibregl-popup-content.folded > :not(.fold-btn):not(.maplibregl-popup-close-button):not(.fp-split) { display: none; }
+.fp-popup .maplibregl-popup-content.folded .fp-split > :not(.t1) { display: none; }
+
+/* ---- everything hidden ("\"): only the map, and the Panels button ---- */
+.app.bare .side, .app.bare .lensbar, .app.bare .lens, .app.bare .tools, .app.bare .bases, .app.bare .statusbar, .app.bare .side-tab { display: none !important; }
+@media (min-width: 821px) { .app.bare:not(.side-off) { grid-template-columns: 0 1fr; } }
+.panels-btn { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 30; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px 10px 14px; border-radius: 999px; background: var(--paper); color: var(--ink); border: 1px solid var(--hair-2); box-shadow: var(--float-shadow); font: 600 13px/1 var(--body); }
+.panels-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.panels-btn:hover { border-color: var(--accent); }
+
+/* ---- phones ---- */
+@media (max-width: 820px) {
+  .app.side-off { grid-template-columns: 1fr; }
+  .fold-side, .side-tab { display: none !important; }
+  .side.gone { height: 0; border-top: 0; box-shadow: none; overflow: hidden; }
+  .app:has(.side.gone) .bases { bottom: 74px; }
+  .app:has(.side.gone) .statusbar { bottom: 118px; }
+  .app:has(.side.gone) .toast { bottom: 128px; }
+  .app:has(.side.gone) .lens { bottom: 122px; }
+  .app:has(.side.gone) .compare-bar { bottom: 128px; }
+  .panels-btn { bottom: max(18px, env(safe-area-inset-bottom)); }
+  .bar-fold { width: 30px; height: 20px; bottom: -15px; }
+  .band > .fold-btn { right: 52px; }
+  .tools-fold { width: 36px; }
+  .search kbd, #searchKbd { display: none; }
+  /* the sheet's handle: a larger target for swipes */
+  .sheet-handle { padding: 10px 0 6px; }
+}
+
+/* ---- left panel: "Show more" (figures not shown upfront; js/ui/panel.js) ---- */
+.more { margin-top: 14px; border-top: 1px solid var(--hair); }
+.more > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; padding: 12px 0 10px; color: var(--ink-2); }
+.more > summary::-webkit-details-marker { display: none; }
+.more > summary .more-l { font-size: 10.5px; letter-spacing: .11em; text-transform: uppercase; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.more > summary .more-l::after { content: ' ▾'; color: var(--ink-3); }
+.more[open] > summary .more-l::after { content: ' ▴'; }
+.more > summary small { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.more[open] > summary small { display: none; }
+.more > summary:hover .more-l { color: var(--accent-ink, var(--accent)); }
+
+/* the sidebar's fold button sits beside the menu button */
+.mast-actions { display: flex; align-items: center; gap: 2px; }
+.fold-side { color: var(--ink-3); }
+.fold-side:hover { color: var(--ink); }
+
+/* ---- sidebar width (desktop): a drag handle on its right edge ---- */
+.side-resize { position: absolute; top: 0; bottom: 0; right: -5px; width: 10px; cursor: col-resize; z-index: 8; touch-action: none; }
+.side-resize::after { content: ''; position: absolute; top: 0; bottom: 0; left: 4px; width: 2px; background: var(--accent); opacity: 0; transition: opacity .12s; }
+.side-resize:hover::after, body.resizing .side-resize::after { opacity: 1; }
+body.resizing, body.resizing * { cursor: col-resize !important; user-select: none !important; }
+body.resizing .app { transition: none; }
+.app.side-off .side-resize, .app.bare .side-resize { display: none; }
+@media (max-width: 820px) { .side-resize { display: none; } }
+
+/* histogram axis under the bars (js/ui/panel.js): fixed size whatever the panel's width */
+.hist-ax { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); margin-top: 2px; font-variant-numeric: tabular-nums; }
