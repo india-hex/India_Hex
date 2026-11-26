@@ -420,6 +420,9 @@ function boothTip(kind, f) {
   if (col.kind === 'field' && p[col.field] != null) {
     const x = p[col.field] / col.factor;
     val = `${esc(lens.label)}: <b>${col.field === 'margin_pm' ? `${x > 0 ? '+' : x < 0 ? '−' : ''}${Math.abs(x).toFixed(1)} pp` : `${(x * 100).toFixed(1)}%`}</b>`;
+  } else if (col.kind === 'bloc') {
+    const l = col.label(p.bloc_lead_code);
+    val = l ? `Leading alliance: <b>${esc(l)}</b>` : 'No votes';
   } else {
     const c = el.lead.find((x) => x.code === p.lead_code);
     val = c ? `Leading: <b>${esc(c.label)}</b>` : 'No votes';

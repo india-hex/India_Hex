@@ -185,6 +185,10 @@ def client_config(cfg, st, series):
             "counts": {k: meta["counts"].get(k) for k in ("booths", "booths_located_pins", "booths_unlocated", "locations_with_catchment")},
             "no_catchments": meta["counts"].get("acs_without_catchments", []),
         })
+        if (meta.get("bloc_lead") or {}).get("categories") and "bloc_lead_code" in fields["booths"]:
+            # tile alliance codes -> the hexagon series' category ids (bloc_udf -> udf); pins follow its colours
+            out[-1]["bloc_lead"] = [{"code": c["code"], "id": c["value"][5:] if c["value"].startswith("bloc_") else c["value"],
+                                     "label": c["label"], "color": c["colour"]} for c in meta["bloc_lead"]["categories"]]
         if shard:
             out[-1]["shard"] = shard   # files under the data repository's data/booths/<id>/
         if split:   # split files: their own signature joins the version, and the browser knows they exist

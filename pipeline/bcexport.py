@@ -33,6 +33,15 @@ NULL stays NULL; cells absent from an election's file are absent (clear on the m
 official results (never from the hexagons): an AC table per year with the same column names (AC rows; for Lok
 Sabha elections these are EVM-only segment leads) and, for Lok Sabha, a PC table from the official PC rows.
 ACs are grouped into PCs by the seat map (`pc_map`), not by India Hex's PC layer.
+
+Two companion datasets per dataset (same prefix, group, menu and data repository; own cache folders), generated only
+where the data exists:
+
+  <id>_bloc     `<prefix>bloc_lead`, "Leading alliance": elections whose hexagon files have `lead_bloc`. Cells decode
+                the election's own code table (folded blocs -> Others). Units: the bloc with the most votes in the
+                results store (candidates summed by bloc; see `_official_bloc`)
+  <id>_booths   `<prefix>booths`: booth counts (LAYOUT section 6) of the elections whose booth layers are published
+                (`booths_complete`). NULL = NA (`na_<Y>`), absent cells clear; units from counts/units
 """
 import json
 from pathlib import Path
@@ -46,6 +55,7 @@ from .config import ROOT
 from .util import log
 
 ADAPTER_VERSION = 4
+COMPANION_VERSION = 2      # <id>_bloc and <id>_booths caches
 CACHE = ROOT / ".cache" / "bcexport"
 HOUSE = {"VS": ("ae", "Assembly"), "LS": ("ge", "Lok Sabha")}
 RESOLUTIONS = (6, 7, 8)
@@ -164,6 +174,28 @@ class Election:
         """{lead_party code: category stem}; folded parties and Others -> oth."""
         return {c["code"]: ("oth" if c["folded"] or c["series"] == "p_OTH" else _sid(c["series"]))
                 for c in self.meta["codes"]["lead_party"]}
+
+    @property
+    def has_bloc_lead(self):
+        """The election has blocs and its hexagon files carry `lead_bloc` (some elections have none)."""
+        return bool((self.meta.get("codes") or {}).get("lead_bloc")) and \
+            all("lead_bloc" in pq.read_schema(f).names for f in self.hex_files.values())
+
+    def bloc_lead_map(self):
+        """{lead_bloc code: category stem}; folded blocs and Others -> oth."""
+        return {c["code"]: ("oth" if c["folded"] or c["series"] == "b_OTH" else _sid(c["series"]))
+                for c in self.meta["codes"]["lead_bloc"]}
+
+    def kept_blocs(self):
+        """[(stem, label, members)] of every bloc with its own hexagon column, in statewide order."""
+        return [(_sid(b["series"]), b["label"], b.get("members") or []) for b in self.meta.get("bloc") or []
+                if not b["folded"] and b["series"] not in ("b_OTH", "b_NOTA")]
+
+    def count_files(self):
+        """Booth-count files (LAYOUT section 6): {res or "units": path}."""
+        d = self.dir / "counts"
+        return {**{r: d / f"h{r}" / f"h{r}_{self.key}_booths.parquet" for r in RESOLUTIONS},
+                "units": d / "units" / f"{self.key}_booth_counts.parquet"}
 
     def coord_credit(self):
         """Point sources of this election's booths, in the exact LAYOUT section 9 wording."""
@@ -315,6 +347,121 @@ def _official(el, level):
 
 
 # ---------------------------------------------------------------------------------------------
+# Leading alliance (bloc leads)
+# ---------------------------------------------------------------------------------------------
+
+def _official_bloc(el, level):
+    """Bloc leads and bloc shares of one level (ac | pc) from the results store: unit, pc_no (ACs), votes_<Y>,
+    bloc_lead_<Y> (category stem) and <cat>_bloc_lead_share_<Y>.
+
+    The lead of an AC, and of a Lok Sabha PC, is the winning candidate's alliance (owner, 25 Nov 2026: seats, not
+    summed votes); a winner outside every bloc, or in a bloc without its own hexagon column, is `oth`. Units combined
+    from ACs (Assembly PCs, districts, the state) use the shares: the alliance with the most votes, `oth` being
+    everything else together (the rule of the party lead's combined units). Hexagons keep the most-votes rule."""
+    y = el.year
+    u = pd.read_parquet(el.results / "units.parquet")
+    c = pd.read_parquet(el.results / "candidates.parquet")
+    u, c = u[u.level == level].copy(), c[(c.level == level) & ~c.is_nota.astype(bool)].reset_index(drop=True)
+    key = "ac_no" if level == "ac" else "pc_no"
+    u[key] = u.unit_no.astype(int)
+    u = u.set_index(key).sort_index()
+    rank = {x["label"]: i for i, x in enumerate(x for x in el.meta["codes"]["lead_bloc"] if x["series"] != "b_OTH")}
+    stem = {lab: s for s, lab, _ in el.kept_blocs()}
+    bloc = c.bloc.astype(object).where(c.bloc.notna(), None)
+    unknown = set(bloc.dropna()) - set(rank)
+    if unknown:
+        raise ValueError(f"bcexport: {el.key}: results-store blocs {sorted(unknown)} not in the hexagon code table")
+    wb = u.winner_bloc.astype(object).where(u.winner_bloc.notna(), None)
+    unknown = set(wb.dropna()) - set(rank)
+    if unknown:
+        raise ValueError(f"bcexport: {el.key}: winner blocs {sorted(unknown)} not in the hexagon code table")
+    missing = [int(n) for n, w in u.winner_party.items() if pd.isna(w)]
+    if missing:
+        raise ValueError(f"bcexport: {el.key}: no winner for {level} {missing[:10]}")
+    lead = {int(n): stem.get(w, "oth") if w is not None else "oth" for n, w in wb.items()}
+    out = pd.DataFrame(index=u.index)
+    if level == "ac":
+        sm = pd.read_csv(el.seatmap_csv)
+        pc_of = dict(zip(sm.ac_no.astype(int), sm.pc_no.astype(int)))
+        out["pc_no"] = [pc_of[a] for a in u.index]
+    tv = u.total_valid.astype("float64")
+    out[f"votes_{y}"] = tv
+    out[f"bloc_lead_{y}"] = [lead[n] for n in u.index]
+    kept = 0
+    for s, lab, _ in el.kept_blocs():
+        bv = c[bloc == lab].groupby("unit_no").votes.sum().reindex(u.index).fillna(0).astype(float)
+        kept = kept + bv
+        out[f"{s}_bloc_lead_share_{y}"] = bv / tv
+    out[f"oth_bloc_lead_share_{y}"] = (tv - u.nota.astype("float64") - kept) / tv
+    return out.reset_index()
+
+
+def _bloc_categories(el, ac, pc):
+    """Bloc-lead categories of one election, in statewide order, `oth` last: blocs leading a cell at any resolution,
+    an AC, a PC or the state. ac, pc: `_official_bloc` tables (pc None: PCs are the AC sums by the seat map)."""
+    y = el.year
+    order = [s for s, _, _ in el.kept_blocs()] + ["oth"]
+    lm = el.bloc_lead_map()
+    present = set(ac[f"bloc_lead_{y}"]) | (set(pc[f"bloc_lead_{y}"]) if pc is not None else set())
+    for f in el.hex_files.values():
+        codes = pq.read_table(f, columns=["lead_bloc"]).column("lead_bloc").drop_null()
+        present |= {lm[int(c)] for c in pa.compute.unique(codes).to_pylist()}
+    top = ac if pc is None else pc
+    votes = pd.DataFrame({s: top[f"{s}_bloc_lead_share_{y}"] * top[f"votes_{y}"] for s in order})
+    present.add(votes.sum().idxmax())
+    if pc is None:
+        present |= set(votes.groupby(top.pc_no).sum().idxmax(axis=1))
+    return [s for s in order if s in present]
+
+
+def _bloc_hex_frame(el, res, cats):
+    """is_bloc_lead_<cat>_<Y> and na_<Y> of one election at one resolution, indexed by h3_index."""
+    t = pq.read_table(el.hex_files[res], columns=["h3_index", "na", "lead_bloc"])
+    na = t.column("na").to_numpy(zero_copy_only=False).astype(bool)
+    lead = t.column("lead_bloc").to_pandas().astype("float64").to_numpy()
+    if np.isfinite(lead[na]).any():
+        raise ValueError(f"bcexport: {el.key} h{res}: NA cells carry a bloc lead")
+    lut = np.full(256, -1.0)
+    for code, c in el.bloc_lead_map().items():
+        if c in cats:
+            lut[code] = cats.index(c)
+    idx = np.where(np.isfinite(lead), lut[np.nan_to_num(lead, nan=0).astype(int)], np.nan)
+    if np.any(idx < 0):
+        raise ValueError(f"bcexport: {el.key} h{res}: bloc lead code outside the code table")
+    out = {f"is_bloc_lead_{c}_{el.year}": np.where(np.isnan(idx), np.nan, (idx == i).astype("float64")) for i, c in enumerate(cats)}
+    out[f"na_{el.year}"] = na.astype("float64")
+    return pd.DataFrame(out, index=pd.Index(t.column("h3_index").to_numpy(zero_copy_only=False), name="h3_index"))
+
+
+# ---------------------------------------------------------------------------------------------
+# Booth counts
+# ---------------------------------------------------------------------------------------------
+
+def booths_complete(e):
+    """Booth layers complete (the producer's rule, see `booth_sources`): elections.json has_booths is true, the
+    manifest lists every part as present, and every file the site copies is on disk."""
+    parts = e.manifest.get("parts") or {}
+    return e.has_booths and all((parts.get(p) or {}).get("present") for p in BOOTH_PARTS) \
+        and all((e.dir / f.format(key=e.key)).exists() for f in BOOTH_FILES)
+
+
+def _count_frame(el, res):
+    """booths_<Y> (NULL = NA) and na_<Y> of one election at one resolution, indexed by h3_index."""
+    df = pd.read_parquet(el.count_files()[res], columns=["h3_index", f"booths_{el.year}"]).set_index("h3_index")
+    v = df[f"booths_{el.year}"].astype("float64")
+    return pd.DataFrame({f"booths_{el.year}": v, f"na_{el.year}": v.isna().astype("float64")})
+
+
+def _count_units(el):
+    """AC booth counts (total, located, unlocated) with the AC's PC by the seat map."""
+    u = pd.read_parquet(el.count_files()["units"]).sort_values("ac_no")
+    sm = pd.read_csv(el.seatmap_csv)
+    u["pc_no"] = u.ac_no.map(dict(zip(sm.ac_no.astype(int), sm.pc_no.astype(int)))).astype(int)
+    cols = [f"{c}_{el.year}" for c in ("booths", "booths_located", "booths_unlocated")]
+    return u[["ac_no", "pc_no"] + cols].astype({c: "float64" for c in cols}).reset_index(drop=True)
+
+
+# ---------------------------------------------------------------------------------------------
 # Datasets
 # ---------------------------------------------------------------------------------------------
 
@@ -379,6 +526,148 @@ class Dataset:
         mp.write_text(json.dumps(meta, indent=1), encoding="utf-8")
         sp.write_text(json.dumps(stamp))
         return meta
+
+    # -- companion datasets: leading alliance, booth counts ------------------------------------
+    def bloc_els(self):
+        return [e for e in self.els if e.has_bloc_lead]
+
+    def booth_els(self):
+        """Elections with booth counts: the ones whose booth layers are published."""
+        return [e for e in self.els if booths_complete(e) and all(f.exists() for f in e.count_files().values())]
+
+    def _ensure_companion(self, kind, stamp, els, frames, tables):
+        """Write a companion's (kind: bloc | booths) wide hexagon tables (frames(el, res) -> frame) and unit tables
+        (tables(el) -> {level: table}) when its stamp changed. Returns its folder."""
+        cid = f"{self.id}_{kind}"
+        folder = CACHE / cid
+        sp = folder / "stamp.json"
+        levels = ["ac"] + (["pc"] if kind == "bloc" and self.house == "LS" else [])
+        outs = [folder / f"h{r}" / f"h{r}_{cid}.parquet" for r in RESOLUTIONS] + \
+               [folder / "units" / f"{cid}_{lvl}_{e.year}.parquet" for lvl in levels for e in els]
+        try:
+            if json.loads(sp.read_text()) == stamp and all(p.exists() for p in outs):
+                return folder
+        except (OSError, ValueError):
+            pass
+        log(f"bcexport: {cid}: converting {', '.join(e.key for e in els)}")
+        for r in RESOLUTIONS:
+            wide = pd.concat([frames(e, r) for e in els], axis=1, join="outer").sort_index()
+            wide.index.name = "h3_index"
+            (folder / f"h{r}").mkdir(parents=True, exist_ok=True)
+            _write(wide.reset_index(), folder / f"h{r}" / f"h{r}_{cid}.parquet")
+        (folder / "units").mkdir(parents=True, exist_ok=True)
+        for e in els:
+            for lvl, df in tables(e).items():
+                _write(df, folder / "units" / f"{cid}_{lvl}_{e.year}.parquet")
+        sp.write_text(json.dumps(stamp))
+        return folder
+
+    def _companion_entry(self, ds, kind, folder):
+        """The companion's dataset entry: the election dataset's identity, its own files and unit tables."""
+        cid = f"{self.id}_{kind}"
+        units = {"path": str(folder / "units" / f"{cid}_ac_{{year}}.parquet"), "state": self.state_key, "key": "ac_no",
+                 "pc_map": ds["units_table"]["pc_map"], "fallback": False}
+        out = {k: ds[k] for k in ("shard", "group", "menu", "prefix", "states", "sparse", "h8", "na_cells")}
+        return {**out, "root": str(folder), "file": f"h{{res}}_{cid}.parquet", "exclude": ["na"], "units_table": units}
+
+    def bloc_config(self, ds):
+        """(id, dataset entry, overrides) of the leading-alliance dataset, or None."""
+        els = self.bloc_els()
+        if not els:
+            return None
+        ls, cid = self.house == "LS", f"{self.id}_bloc"
+        tab = {e.key: {lvl: _official_bloc(e, lvl) for lvl in (("ac", "pc") if ls else ("ac",))} for e in els}
+        cats = {e.key: _bloc_categories(e, tab[e.key]["ac"], tab[e.key].get("pc")) for e in els}
+        stamp = {"version": COMPANION_VERSION, "elections": {e.key: e.sources() for e in els}, "categories": cats}
+        folder = self._ensure_companion("bloc", stamp, els, lambda e, r: _bloc_hex_frame(e, r, cats[e.key]), lambda e: tab[e.key])
+        order = list(dict.fromkeys(c for e in els for c in cats[e.key] if c != "oth"))
+        order += ["oth"] if any("oth" in c for c in cats.values()) else []
+        labels, colours = self._bloc_labels(els), self._bloc_lead_colours(els, order)
+        entry = self._companion_entry(ds, "bloc", folder)
+        entry["exclude"] = ["na", "is_bloc_lead_*"]
+        entry["units_table"]["lead"] = {"column": "bloc_lead_{year}", "share": "{cat}_bloc_lead_share_{year}"}
+        if ls:
+            entry["units_table"]["pc_table"] = {"path": str(folder / "units" / f"{cid}_pc_{{year}}.parquet"), "key": "pc_no"}
+        fold = list(dict.fromkeys(c["label"] for e in els for c in e.meta["codes"]["lead_bloc"] if c["folded"]))
+        note = "The alliance with the most votes in the cell, not a seat winner; Others: all other candidates combined"
+        note += f", incl. blocs under 1% of the state's votes ({', '.join(fold)})." if fold else "."
+        for e in els:
+            mem = [f"{labels[s]}: {', '.join(m)}" for s, _, m in e.kept_blocs() if len(m) > 1 and s in cats[e.key]]
+            if mem:
+                note += f" Alliances in {e.year}: " + "; ".join(mem) + "."
+        note += (" Constituencies: the winning candidate's alliance (official ECI results)"
+                 + (": AC values are assembly-segment leaders (EVM votes only); the state is the alliance with the most "
+                    "votes, postal included." if ls else "; a PC, district or the state shows the alliance with the most "
+                    "votes in its ACs (PCs by the delimitation seat map).")
+                 + " Hexagons show the alliance with the most votes in the cell, so in a few seats the two differ.")
+        entry["lead"] = {"name": "bloc_lead", "from": "is_bloc_lead_", "label": "Leading alliance", "note": note,
+                         "categories": {c: {"label": "Others" if c == "oth" else labels[c], "color": colours[c]} for c in order}}
+        entry.update(caveat=ds["caveat"], na_label=ds["na_label"], after=self.id)
+        return cid, entry, {f"{self.id}_bloc_lead": {"featured": True}}
+
+    def _parties_json(self):
+        try:
+            return json.loads((self.els[0].root / "results" / "parties.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"parties": {}, "blocs": {}}
+
+    def _bloc_labels(self, els):
+        """{stem: short label}: the store's alliance name for blocs of several parties, else the bloc's code."""
+        pj = self._parties_json().get("blocs") or {}
+        out = {}
+        for e in els:
+            for s, lab, mem in e.kept_blocs():
+                full = ((pj.get(e.key) or {}).get(lab) or {}).get("label") or lab
+                out.setdefault(s, (full.split(" (")[0] if len(mem) > 1 else lab).replace("_PLUS", "+"))
+        return out
+
+    def _bloc_lead_colours(self, els, order):
+        """{category: colour}, all different: the national anchors, yaml `colours`, parties.json, the colour of a bloc
+        of one party, the producer's known colours, then the palette."""
+        pj = self._parties_json().get("blocs") or {}
+        over = {k.upper(): v for k, v in (self.settings.get("colours") or {}).items()}
+        party = self.colours("p")
+        info = {}   # stem -> (code, parties.json colour, single member's code)
+        for e in els:
+            own = {lab: s for s, lab, _ in e.parties()}
+            for b in e.meta["bloc"]:
+                mem, col = b.get("members") or [], ((pj.get(e.key) or {}).get(b["label"]) or {}).get("colour")
+                info.setdefault(_sid(b["series"]), (b["series"][2:], col if col != "#888888" else None,
+                                                    own[mem[0]].upper() if len(mem) == 1 and mem[0] in own else None))
+        out, used = {"oth": ANCHORS["OTH"]} if "oth" in order else {}, {ANCHORS["OTH"], ANCHORS["NOTA"]}
+        rules = [lambda c: ANCHORS.get(c[0]), lambda c: over.get(c[0].upper()), lambda c: c[1], lambda c: party.get(c[2]),
+                 lambda c: KNOWN.get(c[0])] + [lambda c, p=p: p for p in PALETTE]
+        for rule in rules:
+            for s in order:
+                col = None if s in out else rule(info[s])
+                if col and col not in used:
+                    out[s] = col
+                    used.add(col)
+        if len(out) < len(order):
+            raise ValueError(f"bcexport: {self.id}: more alliances than distinct colours ({order})")
+        return out
+
+    def booths_config(self, ds):
+        """(id, dataset entry, overrides) of the booth-count dataset, or None."""
+        els = self.booth_els()
+        if not els:
+            return None
+        cid = f"{self.id}_booths"
+        stamp = {"version": COMPANION_VERSION,
+                 "elections": {e.key: [_file_stamp(f) for f in [*e.count_files().values(), e.seatmap_csv]] for e in els}}
+        folder = self._ensure_companion("booths", stamp, els, _count_frame, lambda e: {"ac": _count_units(e)})
+        entry = self._companion_entry(ds, "booths", folder)
+        entry["units_table"]["extra"] = {"located": "booths_located_{year}", "unlocated": "booths_unlocated_{year}"}
+        credit = list(dict.fromkeys(s for e in els for s in e.coord_credit()))
+        entry["caveat"] = ("Booths with coordinates, counted where their pin lies. ACs with incomplete booth data are blank. "
+                           "Grey: NA, no pin in the cell and its main AC has incomplete or spread booth data, or no booth "
+                           "with coordinates." + (f" Booth locations: {'; '.join(credit)}." if credit else ""))
+        entry["na_label"] = "NA: booths not located"
+        ov = {"label": "Booths (polling stations)", "unit": "booths", "format": "int", "agg": "sum", "dtype": "u16",
+              "density": True, "ramp": "purples",
+              "note": "Polling stations with coordinates, counted in the hexagon their pin lies in; units count every "
+                      "booth of their ACs. PCs combine their ACs by the delimitation seat map"}
+        return cid, entry, {f"{self.id}_booths": ov}
 
     # -- configuration -----------------------------------------------------------------------
     def colours(self, kind="p"):
@@ -581,9 +870,7 @@ def booth_sources(cfg):
     for d in datasets(cfg):
         for e in d.els:
             parts = e.manifest.get("parts") or {}
-            files = [e.dir / f.format(key=e.key) for f in BOOTH_FILES]
-            if e.has_booths and all((parts.get(p) or {}).get("present") for p in BOOTH_PARTS) \
-                    and all(f.exists() for f in files):
+            if booths_complete(e):
                 out.append({"path": str(e.dir), "layout": "bcexport", "key": e.key, "shard": f"data-{e.st.lower()}"})
             elif (parts.get("booths") or {}).get("present") and e.key not in _WARNED:
                 _WARNED.add(e.key)
@@ -604,4 +891,11 @@ def expand(cfg):
         ds, ov = d.config(meta)
         ds_out[d.id] = ds
         ov_out.update(ov)
+        for extra in (d.bloc_config(ds), d.booths_config(ds)):
+            if extra:
+                cid, entry, o = extra
+                if cid in (cfg["variables"].get("datasets") or {}):
+                    raise ValueError(f"bcexport: dataset id {cid} is also in variables.datasets")
+                ds_out[cid] = entry
+                ov_out.update(o)
     return ds_out, ov_out

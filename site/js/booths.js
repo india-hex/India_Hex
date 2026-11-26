@@ -77,6 +77,20 @@ export function leadExpr(el, none = NONE) {
  */
 export function boothColour(el, lens, sc) {
   const lead = { expr: leadExpr(el), pinExpr: leadExpr(el, '#ffffff'), kind: 'lead' };
+  // the leading-alliance map of this election: pins and catchments by the tiles' alliance code, in its colours
+  if (el.bloc_lead && lens && !lens.none && lens.mode === 'value' && lens.id === `${el.prefix}bloc_lead` && electionOfLens(lens)?.id === el.id) {
+    const cats = new Map(lens.series.categories.map((c) => [c.id, c]));
+    const oth = cats.get('oth')?.color || '#999999';
+    const m = ['match', ['get', 'bloc_lead_code']];
+    for (const c of el.bloc_lead) m.push(c.code, c.id === 'tie' ? c.color : cats.get(c.id)?.color || oth);
+    return {
+      expr: [...m, NONE], pinExpr: [...m, '#ffffff'], kind: 'bloc',
+      label: (code) => {
+        const c = el.bloc_lead.find((x) => x.code === code);
+        return !c ? null : c.id === 'tie' ? c.label : cats.get(c.id)?.label || 'Others';
+      },
+    };
+  }
   if (!lens || lens.none || lens.mode !== 'value' || lens.density || !sc || sc.cat || !electionOfLens(lens) || electionOfLens(lens).id !== el.id) return lead;
   const bare = lens.id.slice(el.prefix.length);
   let field = null; let factor = 1000;

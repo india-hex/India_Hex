@@ -88,5 +88,21 @@ with sync_playwright() as p:
             check(corr > 0.9, f"{el}: pins on {r['sid']} run against the hexagons (correlation {corr:.3f})")
         print(f"{el}: {len(got)} booths; margin {next(iter(got.values()))[2] or 'BJP side - INC side'}; {r['sid']} sign {r['sign']}, correlation {corr if corr is None else round(corr, 3)}")
     b.close()
+# 4. alliance-lead maps: every tile alliance code reaches the hexagon series' category of the same alliance
+for e in CC["booths"]["elections"]:
+    s = next((v for v in CC["variables"] if v["id"] == f"{e['prefix']}bloc_lead" and e["year"] in v["years"]), None)
+    if not s:
+        continue
+    if not check(e.get("bloc_lead"), f"{e['id']}: {s['id']} is mapped but the booth layers carry no alliance code table"):
+        continue
+    cats = {c["id"]: c for c in s["categories"]}
+    for c in e["bloc_lead"]:
+        if c["id"] == "tie":
+            continue
+        want = c["label"].replace("Others (no bloc)", "Others")
+        got = cats.get(c["id"], cats.get("oth"))
+        check(got is not None and (got["label"] == want or got["id"] == "oth" or got["label"].startswith(want)),
+              f"{e['id']}: tile alliance {c['label']} would show as {got and got['label']}")
+    print(f"{e['id']}: alliance pins {[(c['label'], cats.get(c['id'], cats.get('oth'))['label']) for c in e['bloc_lead'] if c['id'] != 'tie']}")
 print(f"\n{'ALL PASS' if not fails else f'{len(fails)} FAILURES'}")
 sys.exit(1 if fails else 0)

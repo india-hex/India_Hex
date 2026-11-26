@@ -17,7 +17,7 @@ or phone.
 | H6 hexagons (≈36 km² each) | 89,284 |
 | H7 hexagons (≈5.2 km² each) | 624,978 |
 | H8 hexagons (≈0.74 km² each) | 4,374,944 |
-| Polling booths (pins, zoom 10+) | 50,697–58,023 per Karnataka election; 90,712 for Bihar 2025 |
+| Polling booths (pins, zoom 10+) | 50,697–58,023 per Karnataka election; 90,712 Bihar 2025; 20,631–21,555 Punjab; 24,799 Assam 2016; 21,264 Kerala 2014 |
 | Polling-location catchments (zoom 10+) | 32,746–55,541 per Karnataka election; 46,410 for Bihar 2025 |
 | AC and PC election results | 54 Assembly and Lok Sabha elections in 8 states, 2008–2026 |
 
@@ -27,7 +27,7 @@ are the official results.
 
 ## Data
 
-131 variables, many of them yearly, plus AC/PC results maps for 54 elections:
+173 variables, many of them yearly, plus AC/PC results maps for 54 elections:
 
 - **People:** population, 2010–2030 (2025 and 2030 are projections).
 - **Economy:** night-time lights, 2012–2025.
@@ -40,8 +40,9 @@ are the official results.
   Ahmedabad, Hyderabad, Chennai and Kolkata.
 - **Elections on hexagons:** Karnataka Lok Sabha 2014, 2019 and 2024 and Assembly 2018 and 2023;
   Bihar Assembly 2025; Punjab Assembly 2017 and Lok Sabha 2014; Maharashtra Assembly 2014; Assam
-  Assembly 2016; Kerala Lok Sabha 2014. Vote shares of parties and alliances, the margin between the
-  two main sides, turnout, votes, electors and the leading party. Hexagon values are modelled from
+  Assembly 2016; Kerala and Tamil Nadu Lok Sabha 2014; West Bengal Assembly 2026. Vote shares of
+  parties and alliances, the margin between the two main sides, turnout, votes, electors, and the
+  leading party and alliance. Hexagon values are modelled from
   booth results (Form 20) spread over where voters live; constituency, district and state values are
   the official results. Hexagons are grey where most of their voters are in constituencies with
   incomplete booth data.
@@ -100,7 +101,7 @@ Basemaps: Esri World Imagery and OpenFreeMap / OpenStreetMap.
 ## Data repositories
 
 The election data for each state is published from its own repository in this organisation
-(`data-ka`, `data-br`, `data-pb`, `data-mh`, `data-as`, `data-kl`) and read by the map on demand. The
+(`data-ka`, `data-br`, `data-pb`, `data-mh`, `data-as`, `data-kl`, `data-tn`, `data-wb`) and read by the map on demand. The
 former elections map (`/Elections/`) now opens the same view here.
 
 ## Run it yourself

@@ -197,7 +197,7 @@ OVERRIDE_KEYS = {"label", "unit", "note", "ramp", "format", "agg", "density", "d
                  "official_col", "type", "categories", "breaks", "diverging", "scale", "featured"}
 DATASET_KEYS = {"file", "group", "pivot", "segments", "period", "ignore", "fill_missing", "auto", "root", "prefix",
                 "states", "sparse", "units_table", "exclude", "h8", "lead", "caveat", "na_label", "menu", "shard",
-                "na_cells"}
+                "na_cells", "after"}   # after: <dataset id> = list this dataset's featured series right after that one's
 
 
 def _check_keys(where, d, allowed):
@@ -292,7 +292,7 @@ def discover(cfg, verbose=False):
                 continue
             found.append((base, colmap, None))
         if lead and lead[0]:
-            found.append(("lead", lead[0], lead[1]))
+            found.append((ds["lead"].get("name", "lead"), lead[0], lead[1]))
         ds_series = []
         for base, colmap, categories in found:
             sid = prefix + base   # prefix after year grouping; inference runs on the bare name
@@ -321,6 +321,10 @@ def discover(cfg, verbose=False):
                 s.res_years[r] = (years if ds.get("h8") == "all" else _h8_years(years, vcfg.get("h8_years", "latest_and_steps"))) if r == 8 else years
             ds_series.append(s)
         ds_series.sort(key=lambda s: not s.featured)   # featured first within the dataset's group
+        at = [i for i, x in enumerate(series) if ds.get("after") and x.dataset == ds["after"] and x.featured]
+        if at:
+            series[at[-1] + 1:at[-1] + 1] = [s for s in ds_series if s.featured]
+            ds_series = [s for s in ds_series if not s.featured]
         series += ds_series
 
     featured = vcfg.get("featured", [])
