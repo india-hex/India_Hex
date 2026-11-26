@@ -36,7 +36,7 @@ export function expandSeries(cfg) {
       const s = {
         id: `r_${el.key}_${m.s}`, group: `${el.state_name} ${house} ${el.year} results`, label: m.l, unit: m.un || '',
         note: R.notes[m.n] || '', ramp: m.r || 'viridis', format: m.f || 'pct', agg: m.a || 'wmean', density: false,
-        dtype: m.dt || 'u8', default_year: null, res_years: {}, states: [el.state], menu: ['Elections', el.state_name, house, `${el.year} results`],
+        dtype: m.dt || 'u8', default_year: null, res_years: {}, states: el.states || [el.state], menu: ['Elections', el.state_name, house, `${el.year} results`],
         unit_levels: R.levels[m.lv], results: el.key, official: true, years: [el.year], q: {}, breaks: {},
       };
       if (m.c) { // categorical (Winner): defaults as written by pipeline/results.py CAT_DEFAULTS
@@ -169,9 +169,12 @@ async function card(el, level, id) {
   return `<section class="rs">${head}${win}${cand}${kvs}${party}${ally}${notes.join('')}</section>`;
 }
 
+/** True when the election's seats include this state (undivided Andhra Pradesh: AP and Telangana). */
+const inState = (el, stateKey) => (el.states || [el.state]).includes(stateKey);
+
 /** One line per house: the state's latest election at this unit, tappable to put it on the map. */
 async function lines(stateKey, level, id) {
-  const els = elections().filter((e) => e.state === stateKey);
+  const els = elections().filter((e) => inState(e, stateKey));
   if (!els.length) return '';
   const latest = ['VS', 'LS'].map((h) => els.filter((e) => e.house === h).sort((a, b) => b.year - a.year)[0]).filter(Boolean);
   const rows = await Promise.all(latest.map(async (el) => {
@@ -195,7 +198,7 @@ export async function resultsBlock(st, lens) {
   const u = unit(st.sel);
   const stateKey = units().state[u.st]?.key;
   const el = electionOnMap(lens);
-  if (el && el.state === stateKey) return card(el, st.sel.level, st.sel.id);
+  if (el && inState(el, stateKey)) return card(el, st.sel.level, st.sel.id);
   return lines(stateKey, st.sel.level, st.sel.id);
 }
 
