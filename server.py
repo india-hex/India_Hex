@@ -247,7 +247,14 @@ def publish_tree(cfg, tree, repo, gitdir):
     print(f"Staging {tree.name}/ …")
     run("add", "-A", "--", ".")
     tree = run("write-tree")
-    commit = run("commit-tree", tree, "-m", f"Publish {time.strftime('%Y-%m-%d %H:%M')}")
+    # child of the live commit when there is one: git then uploads only what changed (an orphan commit makes
+    # git resend the whole tree, ~260 MB for the app, which an unstable connection drops)
+    live = subprocess.run(["git", "ls-remote", "origin", f"refs/heads/{branch}"], env=env, capture_output=True, text=True).stdout.split()
+    parent = live[0] if live and subprocess.run(["git", "cat-file", "-e", live[0]], env=env).returncode == 0 else None
+    if live and not parent:   # the live commit is not known locally yet: fetch it, then build on it
+        if subprocess.run(["git", "fetch", "-q", "origin", branch], env=env).returncode == 0:
+            parent = live[0]
+    commit = run("commit-tree", tree, *(["-p", parent] if parent else []), "-m", f"Publish {time.strftime('%Y-%m-%d %H:%M')}")
     print(f"Pushing to {repo} ({branch}); the first push uploads everything and can take a while…")
     subprocess.run(["git", "push", "--force", "origin", f"{commit}:refs/heads/{branch}"], env=env, check=True)
     m = re.match(r"https://github\.com/([^/]+)/([^/.]+)", repo)

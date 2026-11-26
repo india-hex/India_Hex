@@ -33,15 +33,20 @@ from .catalog import Series
 from .config import DATA
 from .util import file_sig, log, obj_sig
 
-VERSION = 7   # bump when the output format or the series rules change
+VERSION = 8   # bump when the output format or the series rules change
 HOUSE = {"VS": "Assembly", "LS": "Lok Sabha"}
 # India Hex's election palette (BJP/NDA orange, INC/MGB/UPA blue, JD(S) green, JSP pink, others grey)
 PALETTE = {"BJP": "#E69F00", "NDA": "#E69F00", "INC": "#0072B2", "MGB": "#0072B2", "UPA": "#0072B2",
            "JD(S)": "#009E73", "JSP": "#CC79A7", "JNSRJP": "#CC79A7"}
 GREY = "#999999"
+# colours for parties with none set (Okabe-Ito and Tol, colour-blind-friendly), handed out per state by votes
+AUTO = ["#882255", "#44AA99", "#332288", "#D55E00", "#56B4E9", "#999933", "#CC6677", "#117733", "#AA4499",
+        "#DDCC77", "#88CCEE"]   # pale sand and cyan last: they are close to the light shades of orange and blue
+NO_COLOUR = {"IND", "NOTA", "OTH", "OTHERS"}   # stay grey
 DULL = {"#888888", "#999999"}
 RAMP = {"#E69F00": "oranges", "#0072B2": "blues", "#56B4E9": "blues", "#009E73": "bugn", "#117733": "greens",
-        "#44AA99": "bugn", "#CC79A7": "rdpu", "#AA4499": "rdpu", "#D55E00": "ylorrd", "#332288": "purples"}
+        "#44AA99": "bugn", "#CC79A7": "rdpu", "#AA4499": "rdpu", "#D55E00": "ylorrd", "#332288": "purples",
+        "#882255": "rdpu", "#CC6677": "rdpu", "#DDCC77": "ylorbr", "#999933": "ylgn", "#88CCEE": "blues"}
 MAIN_SHARE = 0.05      # parties and alliances with at least this statewide share get a map series
 TOP = 5                # candidates per unit in the card files
 MARGIN_BREAKS = [2, 5, 10, 15, 20, 30]
@@ -73,6 +78,7 @@ class Store:
         self.parties = json.loads((self.root / "parties.json").read_text(encoding="utf-8"))
         self._keys = {}
         self._ok = {}
+        self._auto = None
 
     def joinable(self, e):
         """True when every AC and PC of the election's seat map has a checked India Hex key. Maps with no key table
@@ -111,6 +117,46 @@ class Store:
             self._keys[seat_map] = (ac, pc)
         return self._keys[seat_map]
 
+    def auto_colours(self, e):
+        """{party: colour} for parties with no set colour, shared by every election of the election's states (states
+        joined by a multi-state seat map, e.g. undivided Andhra Pradesh, share one list). The most-voted party gets the
+        first free colour; colours of the states' set-colour parties are skipped while enough remain."""
+        if self._auto is None:
+            parent = {}
+
+            def find(x):
+                while parent[x] != x:
+                    x = parent[x]
+                return x
+            els = [e2 for e2 in self.elections if self.joinable(e2)]
+            st_of = {}
+            for e2 in els:
+                sts = sorted({k.split("|")[0] for k, _ in self.keys(e2["seat_map"])[0].values()})
+                for s in sts:
+                    parent.setdefault(s, s)
+                for s in sts[1:]:
+                    parent[find(s)] = find(sts[0])
+                st_of[e2["key"]] = sts[0]
+            groups = {}
+            for e2 in els:
+                groups.setdefault(find(st_of[e2["key"]]), []).append(e2["key"])
+            parties = self.parties["parties"]
+            self._auto = {}
+            for keys in groups.values():
+                files = [(self.root / k / "candidates.parquet").as_posix() for k in keys]
+                rows = duckdb.sql(f"SELECT party, sum(votes) AS v FROM read_parquet({files!r}, union_by_name=true) "
+                                  "WHERE party IS NOT NULL GROUP BY party ORDER BY v DESC NULLS LAST, party").fetchall()
+                taken = {(parties.get(p) or {}).get("colour") or PALETTE.get(p) for p, _ in rows}
+                free = [c for c in AUTO if c not in taken]
+                if len(free) < 6:
+                    free = AUTO
+                plain = [p for p, _ in rows if not ((parties.get(p) or {}).get("colour") or PALETTE.get(p))
+                         and p.upper() not in NO_COLOUR]
+                cols = {p: free[i % len(free)] for i, p in enumerate(plain)}
+                for k in keys:
+                    self._auto[k] = cols
+        return self._auto.get(e["key"], {})
+
     def files_sig(self, e):
         k = e["key"]
         sm = e["seat_map"]
@@ -148,9 +194,11 @@ def _colour_fn(store, key):
             for m in b["members"]:
                 via_bloc.setdefault(m, b["colour"])
 
+    auto = store.auto_colours({"key": key})
+
     def colour(party):
         c = (parties.get(party) or {}).get("colour")
-        return c or via_bloc.get(party) or PALETTE.get(party) or GREY
+        return c or via_bloc.get(party) or PALETTE.get(party) or auto.get(party) or GREY
     return colour
 
 
@@ -430,7 +478,7 @@ def build(cfg, st, units, units_sig):
         key = e["key"]
         if not store.joinable(e):
             continue
-        sig = obj_sig(VERSION, store.files_sig(e), units_sig, MAIN_SHARE, TOP)
+        sig = obj_sig(VERSION, store.files_sig(e), units_sig, MAIN_SHARE, TOP, store.auto_colours(e))
         out_dir = base / key
         files = [out_dir / "ac.json", out_dir / "pc.json"]
         old = prev.get(key)
