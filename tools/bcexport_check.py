@@ -197,7 +197,7 @@ def results_values(e, level):
     out = {}
     for stem, lab, _ in e.parties():
         out[f"{stem}_share"] = pv(lab) / tv
-    out["oth_share"] = (tv - u.nota.astype(float) - sum(pv(lab) for _, lab, _ in e.parties())) / tv
+    out["oth_share"] = (tv - u.nota.astype(float).fillna(0) - sum(pv(lab) for _, lab, _ in e.parties())) / tv   # no NOTA before 2013
     out["nota_share"] = u.nota.astype(float) / tv
     for stem, lab, _, _ in e.blocs():
         out[f"{stem}_bloc_share"] = bv(lab) / tv

@@ -54,8 +54,8 @@ import pyarrow.parquet as pq
 from .config import ROOT
 from .util import log
 
-ADAPTER_VERSION = 4
-COMPANION_VERSION = 2      # <id>_bloc and <id>_booths caches
+ADAPTER_VERSION = 5
+COMPANION_VERSION = 3      # <id>_bloc and <id>_booths caches
 CACHE = ROOT / ".cache" / "bcexport"
 HOUSE = {"VS": ("ae", "Assembly"), "LS": ("ge", "Lok Sabha")}
 RESOLUTIONS = (6, 7, 8)
@@ -323,7 +323,8 @@ def _official(el, level):
         kept = kept + v
         out[f"{stem}_share_{y}"] = v / tv
     nota = u.nota.astype("float64")
-    out[f"oth_share_{y}"] = (tv - nota - kept) / tv
+    # no NOTA before 2013 (the store has none): Others is everything but the kept parties, NOTA share stays empty
+    out[f"oth_share_{y}"] = (tv - nota.fillna(0) - kept) / tv
     out[f"nota_share_{y}"] = nota / tv
     bv = {}
     for b in el.meta.get("bloc") or []:
@@ -392,7 +393,7 @@ def _official_bloc(el, level):
         bv = c[bloc == lab].groupby("unit_no").votes.sum().reindex(u.index).fillna(0).astype(float)
         kept = kept + bv
         out[f"{s}_bloc_lead_share_{y}"] = bv / tv
-    out[f"oth_bloc_lead_share_{y}"] = (tv - u.nota.astype("float64") - kept) / tv
+    out[f"oth_bloc_lead_share_{y}"] = (tv - u.nota.astype("float64").fillna(0) - kept) / tv   # no NOTA before 2013
     return out.reset_index()
 
 
