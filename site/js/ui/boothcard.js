@@ -61,7 +61,7 @@ function flagsHTML(el, d, b) {
   return chips.length ? `<div class="flags">${chips.join('')}</div>` : '';
 }
 
-const NOTE = '<p class="note">EVM votes from Form 20 (booth level). Postal ballots are counted only for whole constituencies, so these figures differ slightly from the official results. The leading party is the bucket with the most votes, not a seat winner; "Others" sums all other candidates.</p>';
+const NOTE = '';
 
 /** The selected booth (k = 'b') or polling location (k = 'c'). */
 export async function boothBand(st) {
@@ -103,7 +103,6 @@ export async function boothBand(st) {
     ${areaTxt}
     ${resultHTML(el, loc)}
     <div class="bloc"><div class="lab">Booths here</div><div class="bchips">${mates.map((x) => btn(x)).join('')}</div></div>
-    <p class="note">The area is where the people these booths serve live (100 m population cells assigned to the nearest balanced location); a pin can lie outside it. Lighter parts are empty land.</p>
     ${NOTE}</section>`;
 }
 

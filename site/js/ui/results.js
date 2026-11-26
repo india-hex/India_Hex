@@ -166,8 +166,6 @@ async function card(el, level, id) {
     const me = unit({ level: 'ac', id });
     if (me && me.pc !== u.pc) notes.push(`<p class="note">On the seat map this AC is in <button class="rs-link" data-rsel="pc:${u.pc}">${esc(units().pc[u.pc]?.name || '')}</button> PC (the map's PC layer differs here).</p>`);
   }
-  if (seg) notes.push('<p class="note">Segment figures are EVM votes; postal ballots are counted only for the whole PC.</p>');
-  if (el.gaps?.length) notes.push(`<details class="rs-gaps"><summary>Data notes for this election</summary>${el.gaps.map((g) => `<p class="note">${esc(g)}</p>`).join('')}</details>`);
   return `<section class="rs">${head}${win}${cand}${kvs}${party}${ally}${notes.join('')}</section>`;
 }
 
@@ -187,9 +185,8 @@ async function lines(stateKey, level, id) {
     }
     return `<button class="rs-line" data-rsw="${el.key}" title="Show ${esc(el.state_name)} ${esc(label)} on the map"><span class="rs-lk">${esc(label)}</span><span class="rs-lv">${what}</span><span class="rs-go" aria-hidden="true">›</span></button>`;
   }));
-  const as = stateKey === 'ASSAM' && (CFG.results.not_joined || []).length
-    ? `<p class="note">Later Assam elections (${(CFG.results.not_joined || []).map((e) => `${HOUSE[e.house]} ${e.year}`).join(', ')}) were held on the 2023 seats and are not on this map's 1976 seats.</p>` : '';
-  return `<section class="rs rs-compact"><div class="rs-h"><span>Election results</span><span class="rs-st">latest · tap to map</span></div>${rows.join('')}${as}</section>`;
+  const as = '';
+  return `<section class="rs rs-compact"><div class="rs-h"><span>Election results</span><span class="rs-st">latest</span></div>${rows.join('')}${as}</section>`;
 }
 
 /** Results for the selected AC or PC (HTML), or '' for other selections and states without results. */

@@ -276,7 +276,6 @@ function visible() {
 
 const pct = (x, d = 1) => `${(x * 100).toFixed(x * 100 < 10 ? d : 0)}%`;
 const num = (x) => Math.round(x).toLocaleString('en-IN');
-const FP_NOTE = 'Actual model assignment: each cell gives this share of its electors to this location. The outline is a simplified drawing.';
 
 function legend() {
   let el = document.getElementById('fpLegend');
@@ -302,7 +301,7 @@ function legend() {
     <div class="fp-ramp" style="background:linear-gradient(90deg,${VIR.join(',')})"></div>
     <div class="fp-ticks"><span>0</span><span>${mode === 'share' ? 'share of each cell’s electors' : 'electors from each cell'}</span><span>${max}</span></div>
     <div class="fp-mode"><button data-fpmode="share" class="${mode === 'share' ? 'on' : ''}">Share of cell</button><button data-fpmode="electors" class="${mode === 'electors' ? 'on' : ''}">Electors from cell</button></div>
-    <div class="lcaveat">${FP_NOTE} ${num(f.cells)} cells; scale 0 to this location's largest value.</div>`;
+`;
   visible();
 }
 
@@ -320,10 +319,9 @@ function injectCard() {
     const f = fp.f;
     const inDrawn = f.exact > 0 ? f.drawn / f.exact : 1;
     div.innerHTML = `<div class="lab">Actual catchment (model)</div>
-      <p class="fp-text">${FP_NOTE}</p>
       <div class="kvs"><span>Cells <b>${num(f.cells)}</b></span><span>Electors <b>${num(f.exact)}</b></span>
         <span>In the drawn cells <b>${(Math.floor(inDrawn * 1000) / 10).toFixed(1)}%</b></span><span>Largest share <b>${pct(f.maxS)}</b></span></div>
-      ${inDrawn < 0.99 ? `<p class="note">The rest come in shares under ${pct(MIN_SHARE)} from many cells (not drawn).</p>` : ''}`;
+`;
   }
   const anchor = band.querySelector('.bres') || band.querySelector('.meta');
   if (anchor) anchor.after(div); else band.append(div);
@@ -380,7 +378,7 @@ async function openSplit(el, ac, lngLat) {
     const loc = d.split.locs[r.i];
     return `<button class="fp-row${fp && fp.loc === loc ? ' on' : ''}" data-loc="${loc}" title="Show this location's footprint"><span class="nm">${esc(name(loc))}</span><span class="br"><i style="width:${Math.max(2, r.s * 100)}%;background:${NEUTRAL}"></i></span><span class="pc">${pct(r.s)}</span></button>`;
   }).join('')}</div>
-      <p class="note">${pct(kept)} of the cell's electors are in these rows; shares under ${pct(MIN_SHARE)} are not stored. Click a location for its footprint.</p></div>`;
+      <p class="note">${pct(kept)} of the cell's electors are in these rows.</p></div>`;
   }
   // open it where it fits: above the cell, else below, else beside it (clear of the lens bar on top)
   const make = (anchor) => new maplibregl.Popup({ closeButton: true, maxWidth: '320px', className: 'fp-popup', focusAfterOpen: false, anchor, offset: 10 })

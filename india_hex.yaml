@@ -555,7 +555,6 @@ features:
   locate_me: true           # "which constituency am I in"
   coordinates: true         # status bar: scale bar, camera height, coordinates under the pointer
   measure: true             # ruler: path length, and area + perimeter of a closed shape
-  colourblind_ramps: true   # option to swap every ramp for cividis / PuOr
 
 # --------------------------------------------------------------------------------------------
 # Look and feel.

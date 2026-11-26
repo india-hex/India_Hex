@@ -27,11 +27,11 @@ export const RAMPS = {
  * Colours for a lens. A series with its own diverging ramp (vote margins: buor) or from a
  * state-scoped election dataset keeps its palette, in colour-blind mode too (it is safe already).
  */
-export function rampFor(lens, cbSafe) {
+export function rampFor(lens) {
   const s = lens.series;
   if (s && lens.mode !== 'change' && (s.diverging || s.states) && RAMPS[lens.ramp]) return RAMPS[lens.ramp];
-  if (lens.diverging) return cbSafe ? RAMPS.puor : RAMPS.rdbu;
-  return cbSafe ? RAMPS.cividis : RAMPS[lens.ramp] || RAMPS.viridis;
+  if (lens.diverging) return RAMPS.rdbu;
+  return RAMPS[lens.ramp] || RAMPS.viridis;
 }
 
 /** Scale of a categorical lens: one colour per category code (labels for the legend). */

@@ -215,7 +215,7 @@ async function lensBlock(st, lens) {
   const lvl = st.sel ? (lens.categorical && st.sel.level === 'state' ? st.tab || 'ac' : st.sel.level) : st.level;
   const vals = await unitValues(lvl, lens, U());
   if (!vals) return '';
-  const ramp = rampFor(lens, st.cbSafe);
+  const ramp = rampFor(lens);
   let peers; let v = null; let label;
   if (st.sel && lvl !== st.sel.level) {
     v = (await unitValues('state', lens, U()))?.[st.sel.id];
@@ -284,7 +284,7 @@ async function listBlock(st, lens) {
   else if (vals) rows.sort((a, b) => (Number.isFinite(b.v) ? b.v : -Infinity) - (Number.isFinite(a.v) ? a.v : -Infinity));
   else if (level === 'ac' || level === 'pc') rows.sort((a, b) => (a.u.no || 0) - (b.u.no || 0));
   else rows.sort((a, b) => a.u.name.localeCompare(b.u.name));
-  const ramp = rampFor(lens, st.cbSafe);
+  const ramp = rampFor(lens);
   const sc = vals ? scaleFromValues(rows.map((r) => r.v), lens, ramp) : null;
   const max = vals ? Math.max(1e-12, ...rows.map((r) => Math.abs(r.v)).filter(Number.isFinite)) : 1;
   const row = ({ u, v }, i) => {
@@ -414,7 +414,6 @@ async function compareTable(st) {
   }).join('');
   return `<div class="kicker">Side by side</div><h1 class="title small">Pinned places</h1>
     <table class="ctable"><thead><tr><th></th>${head}</tr></thead><tbody>${body}</tbody></table>
-    <p class="note">Highest value per row highlighted. Values are aggregated from H8 cells: sums for counts, means for shares, medians for prices. Election values are the official ECI results.</p>
     <div style="display:flex;gap:16px;margin-top:14px"><button class="textbtn" data-act="csvcompare">Download CSV</button><button class="textbtn" data-act="back">Back to map panel</button></div>`;
 }
 

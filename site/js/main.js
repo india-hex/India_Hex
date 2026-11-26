@@ -89,7 +89,7 @@ if (hash.sel) {
 const S = createStore({
   ...DEFAULTS, lw: lw0, ...hash, ...(hash.lw ? { lw: { ...DEFAULTS.lw, ...hash.lw } } : {}), sel: sel0,
   here: null, measuring: false,
-  opacity: D.opacity ?? 0.72, theme, mask: !!D.dim_outside_selection, labels: true, stateLines: true, hexLines: true, lineScale: 1, cbSafe: false,
+  opacity: D.opacity ?? 0.72, theme, mask: !!D.dim_outside_selection, labels: true, stateLines: true, hexLines: true, lineScale: 1,
   pinned: pins, panel: 'place', tab: 'ac', filter: '', limit: 50, comparePos: 0.5,
 });
 
@@ -225,7 +225,7 @@ function inSelMask(cs, st) {
 }
 
 function hexScale(vals, cs, lens, st, mask) {
-  const ramp = rampFor(lens, st.cbSafe);
+  const ramp = rampFor(lens);
   if (lens.categorical || lens.fixedBreaks) return scaleFromValues(vals, lens, ramp); // same in every scale mode
   if (st.scale === 'india') {
     const b = indiaBreaks(lens, cs.res);
@@ -302,7 +302,7 @@ async function paint(v, lens, st, { scaleFrom } = {}) {
     } else {
       v.setHexes({ cs, fill: cs && mask ? outlineFill(cs, mask) : null, elev: null, threeD: false, lines: true, version: ++ver });
       if (uvals) {
-        const ramp = rampFor(lens, st.cbSafe);
+        const ramp = rampFor(lens);
         const stId = st.sel ? (st.sel.level === 'state' ? st.sel.id : unit(st.sel).st) : -1;
         const pool = U[st.level].filter((u) => st.scale === 'india' || stId < 0 || u.st === stId || st.level === 'state').map((u) => uvals[u.id]);
         sc = shared || scaleFrom || scaleFromValues(pool, lens, ramp);
@@ -430,7 +430,7 @@ function boothTip(kind, f) {
   const head = kind === 'pin'
     ? `<div class="t1">Booth ${esc(p.booth)}</div><div class="t2">${ac ? esc(ac.name) : `AC ${p.ac_no}`} · ${p.n_booths > 1 ? `${p.n_booths} booths here` : 'one booth here'}</div>`
     : `<div class="t1">Polling location${p.pop === 0 ? ' · empty land' : ''}</div><div class="t2">${ac ? esc(ac.name) : `AC ${p.ac_no}`} · area its booths serve</div>`;
-  return `${head}<div class="t3">${val}</div><div class="t2">${esc(el.state_name)} ${esc(el.label)} · EVM votes</div>`;
+  return `${head}<div class="t3">${val}</div><div class="t2">${esc(el.state_name)} ${esc(el.label)}</div>`;
 }
 
 const esc = (x) => String(x ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -936,7 +936,7 @@ S.on(['mask'], (st) => views().forEach((v) => v.setSelection(st.sel ? rt.selFeat
 S.on(['hex'], (st) => views().forEach((v) => v.setHexSelection(st.hex)));
 S.on(['here'], (st) => views().forEach((v) => v.setHere(st.here)));
 S.on(['res', 'scope', 'sel'], () => updateCellsSoon(st0Ready ? 50 : 0));
-S.on(['var', 'year', 'mode', 'from', 'density', 'scale', 'cbSafe', 'hexLines', 'threeD', 'opacity'], (st) => {
+S.on(['var', 'year', 'mode', 'from', 'density', 'scale', 'hexLines', 'threeD', 'opacity'], (st) => {
   const lens = lensOf(st);
   if (st.res !== 'off' && !!rt.unitOnly !== unitOnly(lens)) updateCellsSoon(0); // to or from a unit-only series
   else if (ctx.cs && !lens.none && !resAvailable(lens, ctx.cs.res)) updateCellsSoon(0);

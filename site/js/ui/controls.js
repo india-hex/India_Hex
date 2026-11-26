@@ -95,7 +95,7 @@ export function initControls(ctx) {
       else S.set({ year: yr });
     }
   });
-  initExplorer(ctx); // "Map shows": the variable explorer (tree, table, search, "/")
+  initExplorer(ctx); // "Map shows": the variable explorer (tree, columns, search, "/")
 
   // ---- tools ----
   const f = cfg.features;
@@ -142,7 +142,7 @@ export function initControls(ctx) {
 
   S.on(null, (st, prev, changed) => {
     if (changed.has('res') && st.res !== 'off') ctx.rt.lastRes = st.res;
-    if (['level', 'res', 'scope', 'mask', 'labels', 'stateLines', 'hexLines', 'cbSafe', 'theme', 'sel', 'pins', 'catch', 'bel', 'lines', 'var', 'year', 'fp'].some((k) => changed.has(k))) renderLens();
+    if (['level', 'res', 'scope', 'mask', 'labels', 'stateLines', 'hexLines', 'theme', 'sel', 'pins', 'catch', 'bel', 'lines', 'var', 'year', 'fp'].some((k) => changed.has(k))) renderLens();
     if (['var', 'year', 'mode', 'from', 'density', 'scale'].some((k) => changed.has(k))) { renderBar(); renderTimeline(); }
     if (['basemap', 'overlays'].some((k) => changed.has(k))) renderBases();
     if (['threeD', 'compare', 'measuring'].some((k) => changed.has(k))) renderTools();
@@ -204,7 +204,6 @@ export function renderLens() {
       ${tog('labels', 'Unit names', st.labels)}
       ${tog('stateLines', 'State borders', st.stateLines)}
       ${tog('hexLines', 'Hexagon outlines', st.hexLines)}
-      ${f.colourblind_ramps ? tog('cbSafe', 'Colour-blind-safe colours', st.cbSafe) : ''}
       ${tog('theme', 'Dark interface', st.theme === 'dark')}
       <div class="slider">Boundaries<input type="range" id="lineScale" min="0.3" max="1.8" step="0.05" value="${st.lineScale}" aria-label="Boundary strength"></div>
     </details>`;
@@ -229,18 +228,15 @@ function boothRows(st) {
     const es = els.filter((e) => e.state === k).sort((a, b) => a.year - b.year);
     return `<div class="erow"><span>${esc(es[0].state_name)}</span>${es.map((e) => `<button data-k="bel" data-v="${e.id}" class="${e.id === cur ? 'on' : ''}" title="${esc(e.state_name)} ${esc(e.label)}">${e.house === 'Lok Sabha' ? 'LS' : 'AS'} ${e.year}</button>`).join('')}</div>`;
   }).join('')}</div>`;
-  const names = states.map((k) => els.find((e) => e.state === k).state_name);
-  const where = names.length > 2 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names.join(' and ');
   const anySplit = els.some((e) => e.split);
   const on = pinsOn || mode !== 'off';
   const open = CTX.rt.boothsOpen ?? true;
   return `<details class="stack-row bgroup" id="boothGroup"${open ? ' open' : ''}>
-      <summary class="lab"><span>Booths</span><span class="hint2">${on ? `${esc(bv?.el ? `${bv.el.state_name} ${bv.el.label}` : '')}` : `${esc(where)} · from zoom ${CTX.cfg.booths.minzoom}`}</span></summary>
+      <summary class="lab"><span>Booths</span><span class="hint2">${on && bv?.el ? esc(`${bv.el.state_name} ${bv.el.label}`) : ''}</span></summary>
       <div class="lab row">${tog('pins', 'Booth pins', pinsOn)}</div>
       <div class="lab">Booth catchments</div>
       ${seg('catch', [['off', 'Off'], ['line', 'Outline'], ['fill', 'Fill']], mode, 'sm')}
-      ${anySplit ? `<div class="lab row">${tog('fp', 'Footprint on click', !!st.fp)}</div>
-      <p class="hint3">Click a pin or catchment: every 100 m cell is shaded by the share of its electors that the model assigns to that polling location.</p>` : ''}
+      ${anySplit ? `<div class="lab row">${tog('fp', 'Footprint on click', !!st.fp)}</div>` : ''}
       ${chips}
     </details>`;
 }
@@ -277,8 +273,7 @@ function boothLegend(lens, sc) {
   const sameLead = lens && !lens.none && lens.categorical && lens.id === `${el.prefix}lead`;
   const sw = col.kind === 'lead' && !sameLead
     ? `<div class="cats">${el.lead.map((c) => `<span><i style="background:${c.color}"></i>${esc(c.label)}</span>`).join('')}</div>` : '';
-  const what = [bv.pins ? 'pins' : '', bv.catchMode !== 'off' ? 'catchments' : ''].filter(Boolean).join(' and ');
-  return `<div class="lbooth"><b>Booth ${what}</b> · ${esc(el.state_name)} ${esc(el.label)}${z < minz ? ` · <span class="zh">zoom in to see them</span>` : ''} · ${col.kind === 'lead' ? 'leading party' : 'same colours'}, EVM votes (no postal ballots)${sw}</div>`;
+  return `<div class="lbooth"><b>Booths</b> · ${esc(el.state_name)} ${esc(el.label)}${z < minz ? ` · <span class="zh">zoom in to see them</span>` : ''}${sw}</div>`;
 }
 
 export function legendHTML() {
@@ -287,21 +282,20 @@ export function legendHTML() {
   if (lg.lens.none) return boothLegend(null, null);
   const cov = lg.coverage;
   const { lens } = lg;
-  // election layers: a visible caveat line under the legend, not only in the tooltip
-  const caveat = (lens.caveat ? `<div class="lcaveat">${esc(lens.caveat)}</div>` : '') + boothLegend(lens, lg.sc);
+  const caveat = boothLegend(lens, lg.sc);
   if (cov && lg.scopeName && !cov.n) return `<div class="lnote nodata">${esc(lens.label)} covers ${esc(lg.scopeName)} only: zoom there, or choose it from the state list.</div>${caveat}`;
   if (cov && cov.n && !cov.fin) return `<div class="lnote nodata">No ${esc(lens.label.toLowerCase())} data for these ${cov.n.toLocaleString('en-IN')} cells.</div>${caveat}`;
   const ul = lens.series?.unit_levels;
   if (!lg.sc && ul && !ul.includes(CTX.S.get().level)) return `<div class="lnote nodata">${esc(lens.label)} is mapped for ${ul.map((l) => esc(CTX.cfg.boundaries.levels[l]?.label || l)).join(' and ')} only: switch Boundaries.</div>${caveat}`;
   if (!lg.sc) return '';
   const { sc, scopeLabel } = lg;
-  const part = cov && cov.fin < cov.n ? ` · data for ${cov.fin.toLocaleString('en-IN')} of ${cov.n.toLocaleString('en-IN')} cells` : '';
+  const part = '';
   const na = sc.na ? `<span class="na"><i></i>${esc(sc.na)}</span>` : '';
   const when = lens.year ? (lens.mode === 'change' ? `${periodLabel(lens.from)}–${periodLabel(lens.year)}` : periodLabel(lens.year)) : '';
   if (sc.cat) {
     const full = `${lens.title}.${lens.note ? ` ${lens.note}.` : ''}`;
     return `<div class="cats">${sc.shown.map((i) => `<span><i style="background:${sc.colors[i]}"></i>${esc(sc.labels[i])}</span>`).join('')}${na}</div>
-      <div class="lnote" title="${esc(full)}">${esc(lens.note || '')}${when ? ` · ${when}` : ''}${part}</div>${caveat}`;
+      ${when ? `<div class="lnote" title="${esc(full)}">${esc(when)}</div>` : ''}${caveat}`;
   }
   // D6: scope and method on the note line, the true extremes (0 for counts and shares) at the ends
   const n = (x) => (x == null || !Number.isFinite(x) ? '' : legendNum(x, lens));
@@ -333,7 +327,7 @@ export function legendHTML() {
   return `<div class="ramp">${sc.colors.map((c) => `<i style="background:${c}"></i>`).join('')}</div>
     ${ticks}
     ${na ? `<div class="cats">${na}</div>` : ''}
-    <div class="lnote" title="${esc(full)}">${esc([lens.unitLabel, when, method, sc.fixed ? '' : scope].filter(Boolean).join(' · '))}${part}</div>${caveat}`;
+    <div class="lnote" title="${esc(full)}">${esc([lens.unitLabel, when].filter(Boolean).join(' · '))}${part}</div>${caveat}`;
 }
 
 export function updateLegend() {
