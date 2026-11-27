@@ -76,12 +76,19 @@ ANCHORS = {"BJP": "#E69F00", "NDA": "#E69F00", "BJP_PLUS": "#E69F00", "INC": "#0
 KNOWN = {"JD_S": "#009E73", "LDF": "#D55E00", "CPI_M": "#D55E00", "AAP": "#56B4E9", "SAD": "#882255",
          "BSP": "#332288", "AIUDF": "#117733", "SHS": "#F0E442", "NCP": "#44AA99"}
 PALETTE = ["#CC79A7", "#AA4499", "#DDCC77", "#88CCEE", "#117733", "#44AA99", "#882255", "#332288", "#D55E00",
-           "#56B4E9", "#F0E442", "#009E73", "#999933", "#661100"]
+           "#56B4E9", "#F0E442", "#009E73", "#999933", "#661100",
+           # then Tol's light and vibrant schemes (colour-blind-friendly), so a map spanning several years with many
+           # parties never falls back to the grey of Others
+           "#EE8866", "#77AADD", "#BBCC33", "#FFAABB", "#0077BB", "#EE3377", "#33BBEE", "#009988", "#CC3311",
+           "#AAAA00", "#EEDD88", "#99DDFF", "#44BB99", "#EE7733"]
 # sequential ramp for a share coloured like its party (scales.js RAMPS)
 RAMP_OF = {"#E69F00": "oranges", "#0072B2": "blues", "#999999": "greys", "#666666": "greys", "#56B4E9": "ylgnbu",
            "#88CCEE": "ylgnbu", "#882255": "rdpu", "#CC79A7": "rdpu", "#332288": "purples", "#AA4499": "purples",
            "#661100": "ylorbr", "#F0E442": "ylorbr", "#DDCC77": "ylorbr", "#D55E00": "reds", "#009E73": "bugn",
-           "#44AA99": "bugn", "#117733": "greens", "#999933": "ylgn"}
+           "#44AA99": "bugn", "#117733": "greens", "#999933": "ylgn",
+           "#EE8866": "oranges", "#77AADD": "blues", "#BBCC33": "ylgn", "#FFAABB": "rdpu", "#0077BB": "blues",
+           "#EE3377": "rdpu", "#33BBEE": "ylgnbu", "#009988": "bugn", "#CC3311": "reds", "#AAAA00": "ylgn",
+           "#EEDD88": "ylorbr", "#99DDFF": "ylgnbu", "#44BB99": "bugn", "#EE7733": "oranges"}
 MARGIN_BREAKS = [-20, -10, -5, -2, 2, 5, 10, 20]
 
 
@@ -613,14 +620,19 @@ class Dataset:
             return {"parties": {}, "blocs": {}}
 
     def _bloc_labels(self, els):
-        """{stem: short label}: the store's alliance name for blocs of several parties, else the bloc's code."""
+        """{stem: short label}: the store's alliance name for blocs of several parties, else the bloc's code. An
+        alliance named differently across the elections of one map gets every name, in election order
+        ("Democratic Front / UPA"), so no year shows another year's name."""
         pj = self._parties_json().get("blocs") or {}
-        out = {}
+        names = {}
         for e in els:
             for s, lab, mem in e.kept_blocs():
                 full = ((pj.get(e.key) or {}).get(lab) or {}).get("label") or lab
-                out.setdefault(s, (full.split(" (")[0] if len(mem) > 1 else lab).replace("_PLUS", "+"))
-        return out
+                name = (full.split(" (")[0] if len(mem) > 1 else lab).replace("_PLUS", "+")
+                have = names.setdefault(s, [])
+                if not any(name in h.split(" / ") or h in name.split(" / ") for h in have):
+                    have.append(name)
+        return {s: " / ".join(v) for s, v in names.items()}
 
     def _bloc_lead_colours(self, els, order):
         """{category: colour}, all different: the national anchors, yaml `colours`, parties.json, the colour of a bloc

@@ -375,10 +375,30 @@ def bc_tile_checks(el, meta, bp, cp, pins, occ):
     has_bloc = bool((meta.get("bloc_lead") or {}).get("categories"))
     for kind, df in (("booths", bp), ("catchments", cp)):
         tf = [f["name"] for f in lay[kind]["tile_fields"]]
-        # the size-level ladder: a share is in the tiles exactly when the field dictionary says so
-        for p in (meta.get("parties") or []) + (meta.get("blocs") or []):
+        # the size-level ladder (LAYOUT, decision B6c), per layer: 0 every share; 1 without parties under 5% of the
+        # state's votes and NOTA; 2 also without bloc shares; 3 the four largest parties only; 4 no shares.
+        # `in_tiles` is one flag per share for both layers: true when a layer at level 0 carries it.
+        lvl = lay[kind].get("size_level", 0)
+        minor = (meta.get("tile_size") or {}).get("minor_party_share", 0.05)
+        parties = meta.get("parties") or []
+        top4 = {p["name"] for p in sorted((p for p in parties if p["name"] not in ("oth", "nota")),
+                                          key=lambda p: -p.get("share_statewide", 0))[:4]}
+        for p in parties + (meta.get("blocs") or []):
             f = f"{p['name']}_pm"
-            check((f in tf) == bool(p.get("in_tiles")), f"{el} {kind}: {f} in tile_fields {f in tf}, in_tiles {p.get('in_tiles')}")
+            if not p.get("in_tiles"):
+                check(f not in tf, f"{el} {kind}: {f} in the tiles but in_tiles is false")
+                continue
+            bloc = p in (meta.get("blocs") or [])
+            if lvl == 0:
+                want = True
+            elif lvl in (1, 2):
+                want = (lvl == 1) if bloc else p["name"] != "nota" and (p["name"] == "oth" or p.get("share_statewide", 0) >= minor)
+            elif lvl == 3:
+                want = None if p["name"] == "oth" else (not bloc and p["name"] in top4)
+            else:
+                want = False
+            if want is not None:
+                check((f in tf) == want, f"{el} {kind}: {f} in tile_fields {f in tf}, expected {want} at size level {lvl}")
         if has_bloc:
             check("bloc_lead_code" in tf, f"{el} {kind}: no bloc_lead_code in the tile fields of an election with blocs")
         miss = [f for f in tf if TF_COL.get(f, f) not in df.columns]

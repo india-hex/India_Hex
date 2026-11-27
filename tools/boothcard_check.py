@@ -101,7 +101,11 @@ for e in CC["booths"]["elections"]:
             continue
         want = c["label"].replace("Others (no bloc)", "Others")
         got = cats.get(c["id"], cats.get("oth"))
-        check(got is not None and (got["label"] == want or got["id"] == "oth" or got["label"].startswith(want)),
+        norm = lambda s: "".join(ch for ch in s.lower() if ch.isalnum())
+        # the same alliance: its name is one of the map's names for it (an alliance renamed across years carries
+        # all of them, "Democratic Front / UPA"), or the tile gives the bloc's code (LEFT_INC = left_inc)
+        check(got is not None and (got["id"] == "oth" or norm(want) == norm(got["id"])
+                                   or any(p == want or p.startswith(want) for p in got["label"].split(" / "))),
               f"{e['id']}: tile alliance {c['label']} would show as {got and got['label']}")
     print(f"{e['id']}: alliance pins {[(c['label'], cats.get(c['id'], cats.get('oth'))['label']) for c in e['bloc_lead'] if c['id'] != 'tie']}")
 print(f"\n{'ALL PASS' if not fails else f'{len(fails)} FAILURES'}")
