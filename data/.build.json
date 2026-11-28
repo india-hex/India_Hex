@@ -804,7 +804,10 @@
   "6/kl_ge_bdjs_share": "a082628e744f7660",
   "8/mh_ae_booths": "4570b60b964dfb2d",
   "7/mh_ae_booths": "3657c25612ea906c",
-  "6/mh_ae_booths": "bd9e9ac7078cc513"
+  "6/mh_ae_booths": "bd9e9ac7078cc513",
+  "8/mh_ge_booths": "b5875bc2323692bc",
+  "7/mh_ge_booths": "cb3537d29db18f20",
+  "6/mh_ge_booths": "9b60fa20ac80cbaa"
  },
  "q": {
   "8/population": {
@@ -6710,6 +6713,27 @@
    "scale": 1,
    "offset": 0,
    "na": 65534
+  },
+  "8/mh_ge_booths": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0,
+   "na": 65534
+  },
+  "7/mh_ge_booths": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0,
+   "na": 65534
+  },
+  "6/mh_ge_booths": {
+   "dtype": "u16",
+   "t": "linear",
+   "scale": 1,
+   "offset": 0,
+   "na": 65534
   }
  },
  "agg": {
@@ -6983,7 +7007,8 @@
   "kl_ge_kec_share": "a6f38683f4c9fe9f",
   "kl_ge_bsp_share": "5303c33fe1be9f10",
   "kl_ge_bdjs_share": "7b233cc5a8a002ed",
-  "mh_ae_booths": "ff20b69e8f8f4a47"
+  "mh_ae_booths": "ff20b69e8f8f4a47",
+  "mh_ge_booths": "ba00a30cb9467dbb"
  },
  "index": {
   "8": "b24207f04a238585",
@@ -37756,6 +37781,54 @@
     0.0,
     0.076
    ]
+  },
+  "6/mh_ge_booths_2019.bin": {
+   "sig": "9b60fa20ac80cbaa",
+   "m": "d6c/count",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    5.0,
+    6.0,
+    7.0,
+    9.0,
+    13.0
+   ],
+   "r": [
+    0.0,
+    143.0,
+    1
+   ]
+  },
+  "7/mh_ge_booths_2019.bin": {
+   "sig": "cb3537d29db18f20",
+   "m": "d6c/count",
+   "b": [
+    1.0,
+    2.0,
+    3.0,
+    4.0
+   ],
+   "r": [
+    0.0,
+    25.0,
+    1
+   ]
+  },
+  "8/mh_ge_booths_2019.bin": {
+   "sig": "b5875bc2323692bc",
+   "m": "d6c/count",
+   "b": [
+    1.0,
+    2.0,
+    4.0
+   ],
+   "r": [
+    0.0,
+    7.0,
+    1
+   ]
   }
  },
  "units": "2381ea97154fa307",
@@ -42325,6 +42398,296 @@
    56,
    57,
    58
+  ],
+  "mh_ge_booths/8": [
+   459,
+   461,
+   463,
+   471,
+   473,
+   474,
+   475,
+   477,
+   485,
+   487,
+   488,
+   491,
+   499,
+   500,
+   501,
+   502,
+   503,
+   504,
+   505,
+   1349,
+   1350,
+   1382,
+   1384,
+   1388,
+   1389,
+   1390,
+   1391,
+   1392,
+   1393,
+   1394,
+   1603,
+   1604,
+   1605,
+   1606,
+   1607,
+   1608,
+   1609,
+   1610,
+   1611,
+   1612,
+   1613,
+   1614,
+   1615,
+   1616,
+   1617,
+   1618,
+   1619,
+   1620,
+   1621,
+   1622,
+   1623,
+   1624,
+   1625,
+   1626,
+   1627,
+   1628,
+   1629,
+   1630,
+   1632,
+   1633,
+   1634,
+   1638,
+   1639,
+   1640,
+   1641,
+   1645,
+   1646,
+   1647,
+   1648,
+   1649,
+   1650,
+   1651,
+   1652,
+   1653,
+   1654,
+   1655,
+   1656,
+   1657,
+   1658,
+   1659,
+   1660,
+   1661,
+   1662,
+   1663,
+   1664,
+   1665,
+   1666,
+   1667,
+   1668,
+   1669,
+   1670,
+   1671,
+   1672,
+   1673,
+   1674,
+   1675,
+   1676,
+   1677,
+   1678,
+   1679,
+   1680,
+   1681,
+   1682,
+   1683,
+   1684,
+   1685,
+   1686,
+   1687,
+   1688,
+   1689,
+   1690,
+   1691,
+   1692,
+   1693,
+   1694,
+   1695,
+   1696,
+   1697,
+   1698,
+   1699,
+   1700,
+   1701,
+   1702,
+   1703,
+   1704,
+   1705,
+   1706,
+   1711,
+   1712,
+   1714,
+   1715,
+   1716,
+   1718,
+   1719,
+   1720,
+   1721,
+   1722,
+   1723,
+   1724,
+   1725,
+   1726,
+   1727,
+   1728,
+   1729,
+   1730,
+   1731,
+   1732,
+   1733,
+   1734,
+   1735,
+   1736,
+   1737,
+   1738,
+   1739,
+   1740,
+   1741,
+   1742,
+   1743,
+   1744,
+   1745,
+   1746,
+   1747,
+   1748,
+   1749,
+   1750,
+   1751,
+   1752,
+   1753,
+   1754,
+   1755,
+   1757,
+   1760,
+   1761,
+   1763,
+   1764,
+   1765,
+   1766,
+   1767,
+   1768,
+   1769,
+   1770,
+   1771,
+   1772,
+   1773,
+   1774,
+   1775,
+   1776,
+   1777,
+   1778,
+   1779,
+   1780,
+   1781,
+   1782,
+   1783,
+   1784,
+   1785,
+   1787,
+   1788,
+   1789,
+   1790,
+   1841,
+   1847,
+   1849,
+   1850,
+   1854,
+   1855,
+   1856,
+   1857,
+   1860,
+   1861,
+   1862,
+   1863,
+   1864,
+   1865,
+   1866,
+   1867,
+   1903,
+   1904,
+   1905,
+   1906,
+   1907,
+   1909,
+   1911,
+   1912,
+   1913,
+   1931,
+   1932,
+   1933,
+   1934,
+   1938,
+   1939
+  ],
+  "mh_ge_booths/7": [
+   76,
+   78,
+   80,
+   82,
+   221,
+   228,
+   229,
+   266,
+   267,
+   268,
+   269,
+   270,
+   271,
+   272,
+   273,
+   274,
+   275,
+   276,
+   277,
+   278,
+   279,
+   280,
+   281,
+   282,
+   283,
+   284,
+   285,
+   286,
+   287,
+   288,
+   289,
+   290,
+   291,
+   292,
+   293,
+   301,
+   302,
+   303,
+   304,
+   310,
+   311,
+   314,
+   315
+  ],
+  "mh_ge_booths/6": [
+   15,
+   41,
+   43,
+   51,
+   52,
+   53,
+   54,
+   56,
+   57,
+   58
   ]
  },
  "booths": {
@@ -42342,7 +42705,8 @@
   "kl_ae2016": "5721c4974fc41db6",
   "wb_ae2026": "49cad36cbc242e42",
   "wb_ge2024": "cb2dc0d796b1c11e",
-  "mh_ae2019": "af4e5b44b7680b60"
+  "mh_ae2019": "af4e5b44b7680b60",
+  "mh_ge2019": "6b21ed9f52c25eab"
  },
  "booth_split": {
   "ka_ae2018": "e549f832c7ba3750",
@@ -42359,11 +42723,12 @@
   "kl_ae2016": "a0fed8a1ec6089e2",
   "wb_ae2026": "a7b8edbaf1516925",
   "wb_ge2024": "e7d1b9e780e49dc3",
-  "mh_ae2019": "98d75d8bd3dff1b1"
+  "mh_ae2019": "98d75d8bd3dff1b1",
+  "mh_ge2019": "610ad85a1e6c58da"
  },
  "results": {
   "mh_ae2009": {
-   "sig": "d774883b51c67391",
+   "sig": "03d729041cd496d5",
    "series": [
     {
      "id": "r_mh_ae2009_win",
@@ -43008,7 +43373,7 @@
    ]
   },
   "mh_ae2014": {
-   "sig": "97fb4756cbdf1b32",
+   "sig": "eca87e6811f7de4e",
    "series": [
     {
      "id": "r_mh_ae2014_win",
@@ -43527,7 +43892,7 @@
    ]
   },
   "mh_ae2019": {
-   "sig": "141f4f747da0ac67",
+   "sig": "82dae3e3d5d1ddfe",
    "series": [
     {
      "id": "r_mh_ae2019_win",
@@ -44093,7 +44458,7 @@
    ]
   },
   "mh_ae2024": {
-   "sig": "a12662a6ef24b2f7",
+   "sig": "8be46c2a57767aae",
    "series": [
     {
      "id": "r_mh_ae2024_win",
@@ -44769,7 +45134,7 @@
    ]
   },
   "mh_ge2009": {
-   "sig": "32a2abe9a15de6e6",
+   "sig": "f23b5d6877e4da0e",
    "series": [
     {
      "id": "r_mh_ge2009_win",
@@ -45351,7 +45716,7 @@
    ]
   },
   "mh_ge2014": {
-   "sig": "14049c32b88726d7",
+   "sig": "9f6bbca696af6cbc",
    "series": [
     {
      "id": "r_mh_ge2014_win",
@@ -45917,7 +46282,7 @@
    ]
   },
   "mh_ge2019": {
-   "sig": "b4f2d3aa41c60f12",
+   "sig": "33581e64e2aafba4",
    "series": [
     {
      "id": "r_mh_ge2019_win",
@@ -46609,7 +46974,7 @@
    ]
   },
   "mh_ge2024": {
-   "sig": "eee1dd04e2dc36bb",
+   "sig": "9f1975988f8b4bbb",
    "series": [
     {
      "id": "r_mh_ge2024_win",
@@ -47238,7 +47603,7 @@
    ]
   },
   "as_ae2011": {
-   "sig": "d43171a962544907",
+   "sig": "d89120916dbf7278",
    "series": [
     {
      "id": "r_as_ae2011_win",
@@ -47740,7 +48105,7 @@
    "blocs": []
   },
   "as_ae2016": {
-   "sig": "ca09c23af00b7de2",
+   "sig": "7a79adb03534a2e6",
    "series": [
     {
      "id": "r_as_ae2016_win",
@@ -48353,7 +48718,7 @@
    ]
   },
   "as_ae2021": {
-   "sig": "f7965104b4778999",
+   "sig": "3e15f8b48f716398",
    "series": [
     {
      "id": "r_as_ae2021_win",
@@ -48974,7 +49339,7 @@
    ]
   },
   "as_ge2009": {
-   "sig": "c70ec7ef1e68b30f",
+   "sig": "3b988e5b7df1d1cb",
    "series": [
     {
      "id": "r_as_ge2009_win",
@@ -49587,7 +49952,7 @@
    ]
   },
   "as_ge2014": {
-   "sig": "29a03ba8aaf57952",
+   "sig": "63acce7b944ea202",
    "series": [
     {
      "id": "r_as_ge2014_win",
@@ -50027,7 +50392,7 @@
    ]
   },
   "as_ge2019": {
-   "sig": "de4067be010c6ed2",
+   "sig": "bb84d8025597d7d0",
    "series": [
     {
      "id": "r_as_ge2019_win",
@@ -50530,7 +50895,7 @@
    ]
   },
   "ka_ae2008": {
-   "sig": "27c86299c13d5e72",
+   "sig": "8f12bc295125186e",
    "series": [
     {
      "id": "r_ka_ae2008_win",
@@ -50906,7 +51271,7 @@
    "blocs": []
   },
   "ka_ae2013": {
-   "sig": "0d060e1c6084ded8",
+   "sig": "74bde636b46d9310",
    "series": [
     {
      "id": "r_ka_ae2013_win",
@@ -51361,7 +51726,7 @@
    "blocs": []
   },
   "ka_ae2018": {
-   "sig": "eb12514dd752011a",
+   "sig": "ca9d65a2a17ebe52",
    "series": [
     {
      "id": "r_ka_ae2018_win",
@@ -51793,7 +52158,7 @@
    ]
   },
   "ka_ae2023": {
-   "sig": "017603eae3dfe624",
+   "sig": "b1592f1465e61b6a",
    "series": [
     {
      "id": "r_ka_ae2023_win",
@@ -52169,7 +52534,7 @@
    "blocs": []
   },
   "ka_ge2009": {
-   "sig": "65832649df36d114",
+   "sig": "6b3b00e2aa6293fb",
    "series": [
     {
      "id": "r_ka_ge2009_win",
@@ -52537,7 +52902,7 @@
    "blocs": []
   },
   "ka_ge2014": {
-   "sig": "bc2faa8aa89f59ad",
+   "sig": "162a804125b8ea97",
    "series": [
     {
      "id": "r_ka_ge2014_win",
@@ -52905,7 +53270,7 @@
    "blocs": []
   },
   "ka_ge2019": {
-   "sig": "1fa48a908d952d30",
+   "sig": "850757f14628592d",
    "series": [
     {
      "id": "r_ka_ge2019_win",
@@ -53337,7 +53702,7 @@
    ]
   },
   "ka_ge2024": {
-   "sig": "8544dd9e36c35cce",
+   "sig": "6789dc9c1b966e75",
    "series": [
     {
      "id": "r_ka_ge2024_win",
@@ -53761,7 +54126,7 @@
    ]
   },
   "tn_ae2011": {
-   "sig": "3afe144f2d3b4900",
+   "sig": "fff0ccc5f65944ee",
    "series": [
     {
      "id": "r_tn_ae2011_win",
@@ -54390,7 +54755,7 @@
    ]
   },
   "tn_ae2016": {
-   "sig": "f27ff493a06c68a2",
+   "sig": "138742382b399799",
    "series": [
     {
      "id": "r_tn_ae2016_win",
@@ -54932,7 +55297,7 @@
    ]
   },
   "tn_ae2021": {
-   "sig": "98be2617302ac3c0",
+   "sig": "2d30a48d96d1550e",
    "series": [
     {
      "id": "r_tn_ae2021_win",
@@ -55443,7 +55808,7 @@
    ]
   },
   "tn_ae2026": {
-   "sig": "ef8b87c7a6b93df8",
+   "sig": "77310577fc9b28c5",
    "series": [
     {
      "id": "r_tn_ae2026_win",
@@ -55946,7 +56311,7 @@
    ]
   },
   "tn_ge2009": {
-   "sig": "e756bc7a75e9cb3d",
+   "sig": "d168498596e25a43",
    "series": [
     {
      "id": "r_tn_ge2009_win",
@@ -56575,7 +56940,7 @@
    ]
   },
   "tn_ge2014": {
-   "sig": "8d256921df615a52",
+   "sig": "c5c5130c175338cd",
    "series": [
     {
      "id": "r_tn_ge2014_win",
@@ -57133,7 +57498,7 @@
    ]
   },
   "tn_ge2019": {
-   "sig": "b890fa1507d315f8",
+   "sig": "578a4219ee17bf9b",
    "series": [
     {
      "id": "r_tn_ge2019_win",
@@ -57715,7 +58080,7 @@
    ]
   },
   "tn_ge2024": {
-   "sig": "b7c273bd5ca3cc90",
+   "sig": "17dc02697d7e094b",
    "series": [
     {
      "id": "r_tn_ge2024_win",
@@ -58415,7 +58780,7 @@
    ]
   },
   "wb_ae2011": {
-   "sig": "ca36189a764a1359",
+   "sig": "8224c21db1da3f1c",
    "series": [
     {
      "id": "r_wb_ae2011_win",
@@ -58926,7 +59291,7 @@
    ]
   },
   "wb_ae2016": {
-   "sig": "660f051f38884372",
+   "sig": "462e22a8d80dd111",
    "series": [
     {
      "id": "r_wb_ae2016_win",
@@ -59492,7 +59857,7 @@
    ]
   },
   "wb_ae2021": {
-   "sig": "f0b68f198e8cfc6c",
+   "sig": "8c8b4bf071dbb0a0",
    "series": [
     {
      "id": "r_wb_ae2021_win",
@@ -59971,7 +60336,7 @@
    ]
   },
   "wb_ae2026": {
-   "sig": "5fb6bb4d603986a8",
+   "sig": "d9746c90290c59af",
    "series": [
     {
      "id": "r_wb_ae2026_win",
@@ -60395,7 +60760,7 @@
    ]
   },
   "wb_ge2009": {
-   "sig": "84a54351591e7cf5",
+   "sig": "4985192f9260fdc8",
    "series": [
     {
      "id": "r_wb_ge2009_win",
@@ -60969,7 +61334,7 @@
    ]
   },
   "wb_ge2014": {
-   "sig": "fed810ca0fd85f0b",
+   "sig": "6f807cee42fb59e5",
    "series": [
     {
      "id": "r_wb_ge2014_win",
@@ -61416,7 +61781,7 @@
    "blocs": []
   },
   "wb_ge2019": {
-   "sig": "315428f5515e170e",
+   "sig": "e546346ef625dda7",
    "series": [
     {
      "id": "r_wb_ge2019_win",
@@ -61839,7 +62204,7 @@
    "blocs": []
   },
   "wb_ge2024": {
-   "sig": "94b8bee943cb65ee",
+   "sig": "4c1190720bc20faa",
    "series": [
     {
      "id": "r_wb_ge2024_win",
@@ -62271,7 +62636,7 @@
    ]
   },
   "kl_ae2011": {
-   "sig": "e32b444900406786",
+   "sig": "f5cc5fa347546b8a",
    "series": [
     {
      "id": "r_kl_ae2011_win",
@@ -62892,7 +63257,7 @@
    ]
   },
   "kl_ae2016": {
-   "sig": "face7a425ef5ac23",
+   "sig": "9a4bd7fb0806e51b",
    "series": [
     {
      "id": "r_kl_ae2016_win",
@@ -63576,7 +63941,7 @@
    ]
   },
   "kl_ae2021": {
-   "sig": "7666547cc6b8e1eb",
+   "sig": "3e148a1df578e855",
    "series": [
     {
      "id": "r_kl_ae2021_win",
@@ -64252,7 +64617,7 @@
    ]
   },
   "kl_ae2026": {
-   "sig": "2163cf9a047aacbb",
+   "sig": "c1c05ec6b6ea385d",
    "series": [
     {
      "id": "r_kl_ae2026_win",
@@ -64944,7 +65309,7 @@
    ]
   },
   "kl_ge2009": {
-   "sig": "890810c5f3867886",
+   "sig": "6fa413c2a4ef1f28",
    "series": [
     {
      "id": "r_kl_ge2009_win",
@@ -65557,7 +65922,7 @@
    ]
   },
   "kl_ge2014": {
-   "sig": "aa92d9cc3ed8bef0",
+   "sig": "84d175560a3add30",
    "series": [
     {
      "id": "r_kl_ge2014_win",
@@ -66139,7 +66504,7 @@
    ]
   },
   "kl_ge2019": {
-   "sig": "c2c776a5eeb93028",
+   "sig": "de26f7ec54ca97ed",
    "series": [
     {
      "id": "r_kl_ge2019_win",
@@ -66807,7 +67172,7 @@
    ]
   },
   "kl_ge2024": {
-   "sig": "13723a12dbb44f12",
+   "sig": "57afe1113892bead",
    "series": [
     {
      "id": "r_kl_ge2024_win",
@@ -67491,7 +67856,7 @@
    ]
   },
   "pb_ae2012": {
-   "sig": "1db10af09222602c",
+   "sig": "00297bd08af04c34",
    "series": [
     {
      "id": "r_pb_ae2012_win",
@@ -68033,7 +68398,7 @@
    ]
   },
   "pb_ae2017": {
-   "sig": "d67e7449b5de826c",
+   "sig": "e5573edae6e4cf91",
    "series": [
     {
      "id": "r_pb_ae2017_win",
@@ -68583,7 +68948,7 @@
    ]
   },
   "pb_ae2022": {
-   "sig": "737cda2e03bf42a3",
+   "sig": "ec2200757dd102db",
    "series": [
     {
      "id": "r_pb_ae2022_win",
@@ -69125,7 +69490,7 @@
    ]
   },
   "pb_ge2009": {
-   "sig": "20d622dd4f376942",
+   "sig": "616ac666f711b922",
    "series": [
     {
      "id": "r_pb_ge2009_win",
@@ -69604,7 +69969,7 @@
    ]
   },
   "pb_ge2014": {
-   "sig": "c0735f332be29460",
+   "sig": "fb704ac95e90af30",
    "series": [
     {
      "id": "r_pb_ge2014_win",
@@ -70099,7 +70464,7 @@
    ]
   },
   "pb_ge2019": {
-   "sig": "4b68f222112f43ae",
+   "sig": "5e02bb5bce08aa20",
    "series": [
     {
      "id": "r_pb_ge2019_win",
@@ -70657,7 +71022,7 @@
    ]
   },
   "pb_ge2024": {
-   "sig": "17ddc1b5f96254b3",
+   "sig": "0856a7b9b17521c0",
    "series": [
     {
      "id": "r_pb_ge2024_win",
@@ -71096,7 +71461,7 @@
    "blocs": []
   },
   "br_ae2025": {
-   "sig": "09f17848b972f5a9",
+   "sig": "d6324e154835efe1",
    "series": [
     {
      "id": "r_br_ae2025_win",
@@ -71678,7 +72043,7 @@
    ]
   },
   "as_ae2006": {
-   "sig": "9be7307d0a33aa11",
+   "sig": "3d4544fddc80ac87",
    "series": [
     {
      "id": "r_as_ae2006_win",
@@ -72124,8 +72489,1021 @@
    ],
    "blocs": []
   },
+  "as_ge1977": {
+   "sig": "db1896444b863c80",
+   "series": [
+    {
+     "id": "r_as_ge1977_win",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winner",
+     "unit": "",
+     "note": "PCs: the party of the elected candidate",
+     "ramp": "cat",
+     "format": "cat",
+     "agg": "lead",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "categorical",
+     "categories": [
+      {
+       "id": "INC",
+       "label": "INC",
+       "color": "#0072B2",
+       "years": [
+        1977
+       ]
+      },
+      {
+       "id": "BLD",
+       "label": "BLD",
+       "color": "#AA4499",
+       "years": [
+        1977
+       ]
+      },
+      {
+       "id": "IND",
+       "label": "Independents",
+       "color": "#999999",
+       "years": [
+        1977
+       ]
+      }
+     ],
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "as_ge1977"
+    },
+    {
+     "id": "r_as_ge1977_margin",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winning margin",
+     "unit": "pp",
+     "note": "Percentage points of valid votes incl. NOTA, winner over runner-up. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "viridis",
+     "format": "dec1",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u16",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": [
+      2,
+      5,
+      10,
+      15,
+      20,
+      30
+     ],
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "as_ge1977"
+    },
+    {
+     "id": "r_as_ge1977_inc",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1977"
+    },
+    {
+     "id": "r_as_ge1977_bld",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "BLD vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "rdpu",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1977"
+    },
+    {
+     "id": "r_as_ge1977_others",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Others vote share (incl. NOTA)",
+     "unit": "",
+     "note": "Everyone except INC, BLD. Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "greys",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1977"
+    }
+   ],
+   "state": "ASSAM",
+   "states": [
+    "ASSAM"
+   ],
+   "state_name": "Assam",
+   "main": [
+    "INC",
+    "BLD"
+   ],
+   "blocs": []
+  },
+  "as_ge1980": {
+   "sig": "f15153ad970e70d0",
+   "series": [
+    {
+     "id": "r_as_ge1980_win",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winner",
+     "unit": "",
+     "note": "PCs: the party of the elected candidate",
+     "ramp": "cat",
+     "format": "cat",
+     "agg": "lead",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "categorical",
+     "categories": [
+      {
+       "id": "INC(I)",
+       "label": "INC(I)",
+       "color": "#DDCC77",
+       "years": [
+        1980
+       ]
+      }
+     ],
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "as_ge1980"
+    },
+    {
+     "id": "r_as_ge1980_margin",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winning margin",
+     "unit": "pp",
+     "note": "Percentage points of valid votes incl. NOTA, winner over runner-up. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "viridis",
+     "format": "dec1",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u16",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": [
+      2,
+      5,
+      10,
+      15,
+      20,
+      30
+     ],
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "as_ge1980"
+    },
+    {
+     "id": "r_as_ge1980_inci",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC(I) vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "ylorbr",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1980"
+    },
+    {
+     "id": "r_as_ge1980_incu",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC(U) vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "purples",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1980"
+    },
+    {
+     "id": "r_as_ge1980_cpim",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "CPI(M) vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "ylorrd",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1980"
+    },
+    {
+     "id": "r_as_ge1980_jnp",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "JNP vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1980"
+    },
+    {
+     "id": "r_as_ge1980_others",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Others vote share (incl. NOTA)",
+     "unit": "",
+     "note": "Everyone except INC(I), INC(U), CPI(M), JNP. Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "greys",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1980"
+    }
+   ],
+   "state": "ASSAM",
+   "states": [
+    "ASSAM"
+   ],
+   "state_name": "Assam",
+   "main": [
+    "INC(I)",
+    "INC(U)",
+    "CPI(M)",
+    "JNP"
+   ],
+   "blocs": []
+  },
+  "as_ge1985": {
+   "sig": "e6cf0c6712269ee1",
+   "series": [
+    {
+     "id": "r_as_ge1985_win",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1985 results",
+     "file": "",
+     "cols": {
+      "1985": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winner",
+     "unit": "",
+     "note": "PCs: the party of the elected candidate",
+     "ramp": "cat",
+     "format": "cat",
+     "agg": "lead",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1985 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "categorical",
+     "categories": [
+      {
+       "id": "IND",
+       "label": "Independents",
+       "color": "#999999",
+       "years": [
+        1985
+       ]
+      },
+      {
+       "id": "INC",
+       "label": "INC",
+       "color": "#0072B2",
+       "years": [
+        1985
+       ]
+      },
+      {
+       "id": "ICS",
+       "label": "ICS",
+       "color": "#88CCEE",
+       "years": [
+        1985
+       ]
+      },
+      {
+       "id": "PTC",
+       "label": "PTC",
+       "color": "#882255",
+       "years": [
+        1985
+       ]
+      }
+     ],
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "as_ge1985"
+    },
+    {
+     "id": "r_as_ge1985_margin",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1985 results",
+     "file": "",
+     "cols": {
+      "1985": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winning margin",
+     "unit": "pp",
+     "note": "Percentage points of valid votes incl. NOTA, winner over runner-up. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "viridis",
+     "format": "dec1",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u16",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1985 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": [
+      2,
+      5,
+      10,
+      15,
+      20,
+      30
+     ],
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "as_ge1985"
+    },
+    {
+     "id": "r_as_ge1985_inc",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1985 results",
+     "file": "",
+     "cols": {
+      "1985": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1985 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1985"
+    },
+    {
+     "id": "r_as_ge1985_ics",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1985 results",
+     "file": "",
+     "cols": {
+      "1985": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "ICS vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1985 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1985"
+    },
+    {
+     "id": "r_as_ge1985_others",
+     "dataset": "results",
+     "group": "Assam Lok Sabha 1985 results",
+     "file": "",
+     "cols": {
+      "1985": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Others vote share (incl. NOTA)",
+     "unit": "",
+     "note": "Everyone except INC, ICS. Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "greys",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "ASSAM"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Assam",
+      "Lok Sabha",
+      "1985 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "as_ge1985"
+    }
+   ],
+   "state": "ASSAM",
+   "states": [
+    "ASSAM"
+   ],
+   "state_name": "Assam",
+   "main": [
+    "INC",
+    "ICS"
+   ],
+   "blocs": []
+  },
   "as_ge1991": {
-   "sig": "cf31129995e3285e",
+   "sig": "9f070155f62ecb7d",
    "series": [
     {
      "id": "r_as_ge1991_win",
@@ -72613,7 +73991,7 @@
    "blocs": []
   },
   "as_ge1996": {
-   "sig": "1f016b5f69d3d9d4",
+   "sig": "8d2be314072f9266",
    "series": [
     {
      "id": "r_as_ge1996_win",
@@ -72995,7 +74373,7 @@
    "blocs": []
   },
   "as_ge1998": {
-   "sig": "8e33a491b741fc03",
+   "sig": "aaf41ed785ac794e",
    "series": [
     {
      "id": "r_as_ge1998_win",
@@ -73369,7 +74747,7 @@
    "blocs": []
   },
   "as_ge1999": {
-   "sig": "1606b575940fd5d9",
+   "sig": "0921b18a0fe40f5f",
    "series": [
     {
      "id": "r_as_ge1999_win",
@@ -73735,7 +75113,7 @@
    "blocs": []
   },
   "as_ge2004": {
-   "sig": "79eff51f2b8bc4b1",
+   "sig": "2cda0507f2b16b2e",
    "series": [
     {
      "id": "r_as_ge2004_win",
@@ -74119,7 +75497,7 @@
    "blocs": []
   },
   "br_ae2010": {
-   "sig": "6edc04acdbdba6bc",
+   "sig": "9f1cc9868925b726",
    "series": [
     {
      "id": "r_br_ae2010_win",
@@ -74740,7 +76118,7 @@
    ]
   },
   "br_ae2015": {
-   "sig": "df1a343da315fabd",
+   "sig": "e2bf134c3f65e3cc",
    "series": [
     {
      "id": "r_br_ae2015_win",
@@ -75306,7 +76684,7 @@
    ]
   },
   "br_ae2020": {
-   "sig": "ffcfed9b3d315d82",
+   "sig": "806ec8643b0a3e55",
    "series": [
     {
      "id": "r_br_ae2020_win",
@@ -75951,7 +77329,7 @@
    ]
   },
   "br_ge2009": {
-   "sig": "efb08aebe62f47d9",
+   "sig": "26e8f5007b000c86",
    "series": [
     {
      "id": "r_br_ge2009_win",
@@ -76588,7 +77966,7 @@
    ]
   },
   "br_ge2014": {
-   "sig": "4761fa40dcc1256f",
+   "sig": "d4ffb7a365d8f1ba",
    "series": [
     {
      "id": "r_br_ge2014_win",
@@ -77272,7 +78650,7 @@
    ]
   },
   "br_ge2019": {
-   "sig": "3c40718923245e72",
+   "sig": "37e94b430896221f",
    "series": [
     {
      "id": "r_br_ge2019_win",
@@ -77885,7 +79263,7 @@
    ]
   },
   "br_ge2024": {
-   "sig": "d78d450afb3282ab",
+   "sig": "3916f4cc42f2d04a",
    "series": [
     {
      "id": "r_br_ge2024_win",
@@ -78522,7 +79900,7 @@
    ]
   },
   "up_ae2012": {
-   "sig": "b45ae3b579a31cba",
+   "sig": "4c9a1d2d8f1cc1ab",
    "series": [
     {
      "id": "r_up_ae2012_win",
@@ -79096,7 +80474,7 @@
    ]
   },
   "up_ae2017": {
-   "sig": "1d194d3abfbb195f",
+   "sig": "fb7a09a20e8e3770",
    "series": [
     {
      "id": "r_up_ae2017_win",
@@ -79670,7 +81048,7 @@
    ]
   },
   "up_ae2022": {
-   "sig": "41007829bf221454",
+   "sig": "980a545d4411685b",
    "series": [
     {
      "id": "r_up_ae2022_win",
@@ -80181,7 +81559,7 @@
    ]
   },
   "up_ge2009": {
-   "sig": "c2ac6465d351ab99",
+   "sig": "d9763e2d06b5e4b0",
    "series": [
     {
      "id": "r_up_ge2009_win",
@@ -80692,7 +82070,7 @@
    ]
   },
   "up_ge2014": {
-   "sig": "7666b8c3ca4033fe",
+   "sig": "23d45778b7bdf609",
    "series": [
     {
      "id": "r_up_ge2014_win",
@@ -81242,7 +82620,7 @@
    ]
   },
   "up_ge2019": {
-   "sig": "c03d3711c9b46a89",
+   "sig": "fb47f3a5e00977a5",
    "series": [
     {
      "id": "r_up_ge2019_win",
@@ -81808,7 +83186,7 @@
    ]
   },
   "up_ge2024": {
-   "sig": "319851342a40c31d",
+   "sig": "ece4a61daccf614b",
    "series": [
     {
      "id": "r_up_ge2024_win",
@@ -82374,7 +83752,7 @@
    ]
   },
   "gj_ae2012": {
-   "sig": "81ba6236e61e954b",
+   "sig": "71e929562d8476db",
    "series": [
     {
      "id": "r_gj_ae2012_win",
@@ -82743,7 +84121,7 @@
    ]
   },
   "gj_ae2017": {
-   "sig": "5817ef88f6a89749",
+   "sig": "7416943bbf68c17b",
    "series": [
     {
      "id": "r_gj_ae2017_win",
@@ -83120,7 +84498,7 @@
    ]
   },
   "gj_ae2022": {
-   "sig": "e10275e501dede79",
+   "sig": "52e2094a20e0d089",
    "series": [
     {
      "id": "r_gj_ae2022_win",
@@ -83560,7 +84938,7 @@
    ]
   },
   "gj_ge2009": {
-   "sig": "c7ce0aa7c394bea6",
+   "sig": "13bb10bd793ed58f",
    "series": [
     {
      "id": "r_gj_ge2009_win",
@@ -83873,7 +85251,7 @@
    "blocs": []
   },
   "gj_ge2014": {
-   "sig": "6a63e05d9aa15e70",
+   "sig": "23a90b965b86761c",
    "series": [
     {
      "id": "r_gj_ge2014_win",
@@ -84234,7 +85612,7 @@
    ]
   },
   "gj_ge2019": {
-   "sig": "1df8a99f584b0e0c",
+   "sig": "14f7232a7cfb832f",
    "series": [
     {
      "id": "r_gj_ge2019_win",
@@ -84539,7 +85917,7 @@
    "blocs": []
   },
   "gj_ge2024": {
-   "sig": "84e99ce5f52fcb0c",
+   "sig": "5709dac119615ee6",
    "series": [
     {
      "id": "r_gj_ge2024_win",
@@ -84908,7 +86286,7 @@
    ]
   },
   "od_ae2009": {
-   "sig": "0549d0311ebfb9ec",
+   "sig": "398bd54989607630",
    "series": [
     {
      "id": "r_od_ae2009_win",
@@ -85356,7 +86734,7 @@
    ]
   },
   "od_ae2014": {
-   "sig": "935499a5a7ab6717",
+   "sig": "d3f002390976e838",
    "series": [
     {
      "id": "r_od_ae2014_win",
@@ -85732,7 +87110,7 @@
    "blocs": []
   },
   "od_ae2019": {
-   "sig": "62915024aeaa9165",
+   "sig": "4f0d92a93f72f539",
    "series": [
     {
      "id": "r_od_ae2019_win",
@@ -86164,7 +87542,7 @@
    ]
   },
   "od_ae2024": {
-   "sig": "edf6b4b49e8e5692",
+   "sig": "0aaf1db99097ebbb",
    "series": [
     {
      "id": "r_od_ae2024_win",
@@ -86604,7 +87982,7 @@
    ]
   },
   "od_ge2009": {
-   "sig": "f6281d6edd63b56b",
+   "sig": "f0d534ee8fbac9c2",
    "series": [
     {
      "id": "r_od_ge2009_win",
@@ -87044,7 +88422,7 @@
    ]
   },
   "od_ge2014": {
-   "sig": "1bdcc719e1d88eba",
+   "sig": "5a2efd4a2fb20933",
    "series": [
     {
      "id": "r_od_ge2014_win",
@@ -87412,7 +88790,7 @@
    "blocs": []
   },
   "od_ge2019": {
-   "sig": "1ee5c3d7336091ae",
+   "sig": "9e90186e69571b1a",
    "series": [
     {
      "id": "r_od_ge2019_win",
@@ -87836,7 +89214,7 @@
    ]
   },
   "od_ge2024": {
-   "sig": "2f513245fc8bbc5d",
+   "sig": "370e86d3d715bf19",
    "series": [
     {
      "id": "r_od_ge2024_win",
@@ -88260,7 +89638,7 @@
    ]
   },
   "ap_ae2009": {
-   "sig": "2986753e5650d41d",
+   "sig": "753f5e9e644059e6",
    "series": [
     {
      "id": "r_ap_ae2009_win",
@@ -88732,7 +90110,7 @@
    ]
   },
   "ap_ae2014": {
-   "sig": "489deb8056940189",
+   "sig": "67a0e5980b442493",
    "series": [
     {
      "id": "r_ap_ae2014_win",
@@ -89308,7 +90686,7 @@
    ]
   },
   "ap_ae2019": {
-   "sig": "994fb46507005c26",
+   "sig": "9ad1564c7d4f3980",
    "series": [
     {
      "id": "r_ap_ae2019_win",
@@ -89732,7 +91110,7 @@
    ]
   },
   "ap_ae2024": {
-   "sig": "b51b6a7e39c5a544",
+   "sig": "89d8f3179aa240b2",
    "series": [
     {
      "id": "r_ap_ae2024_win",
@@ -90164,7 +91542,7 @@
    ]
   },
   "ap_ge2009": {
-   "sig": "839f365305b6f0b6",
+   "sig": "03c9d1dbcd91a8b3",
    "series": [
     {
      "id": "r_ap_ge2009_win",
@@ -90676,7 +92054,7 @@
    ]
   },
   "ap_ge2014": {
-   "sig": "3b8da2b9c0433e8b",
+   "sig": "c46feefe6b77d604",
    "series": [
     {
      "id": "r_ap_ge2014_win",
@@ -91300,7 +92678,7 @@
    ]
   },
   "ap_ge2019": {
-   "sig": "6dc490356c0fd4cb",
+   "sig": "e1c3974a89786b43",
    "series": [
     {
      "id": "r_ap_ge2019_win",
@@ -91724,7 +93102,7 @@
    ]
   },
   "ap_ge2024": {
-   "sig": "88bd722347c4afbc",
+   "sig": "7508d00338b93a24",
    "series": [
     {
      "id": "r_ap_ge2024_win",
@@ -92156,7 +93534,7 @@
    ]
   },
   "ts_ae2018": {
-   "sig": "ec5f5370acb05df1",
+   "sig": "7a9c14ba62a36116",
    "series": [
     {
      "id": "r_ts_ae2018_win",
@@ -92596,7 +93974,7 @@
    ]
   },
   "ts_ae2023": {
-   "sig": "52968516b091ccaa",
+   "sig": "5592bc339e78c1bd",
    "series": [
     {
      "id": "r_ts_ae2023_win",
@@ -93100,7 +94478,7 @@
    ]
   },
   "ts_ge2019": {
-   "sig": "9676ce6a852994e4",
+   "sig": "a368582262c1f965",
    "series": [
     {
      "id": "r_ts_ge2019_win",
@@ -93483,7 +94861,7 @@
    "blocs": []
   },
   "ts_ge2024": {
-   "sig": "08b3cee62b3c52ca",
+   "sig": "eba3ad76436a39a5",
    "series": [
     {
      "id": "r_ts_ge2024_win",
@@ -93866,7 +95244,7 @@
    "blocs": []
   },
   "hr_ae2009": {
-   "sig": "cfde55c84e947ac0",
+   "sig": "fc6b717c6ea02989",
    "series": [
     {
      "id": "r_hr_ae2009_win",
@@ -94424,7 +95802,7 @@
    ]
   },
   "hr_ae2014": {
-   "sig": "f691f6de9163a8cd",
+   "sig": "4acf7bfae0193d38",
    "series": [
     {
      "id": "r_hr_ae2014_win",
@@ -94864,7 +96242,7 @@
    ]
   },
   "hr_ae2019": {
-   "sig": "1b912d21f78e4119",
+   "sig": "480540fa3b1d4423",
    "series": [
     {
      "id": "r_hr_ae2019_win",
@@ -95248,7 +96626,7 @@
    "blocs": []
   },
   "hr_ae2024": {
-   "sig": "e82f1b4890643457",
+   "sig": "f6d5d09995f5aca4",
    "series": [
     {
      "id": "r_hr_ae2024_win",
@@ -95680,7 +97058,7 @@
    ]
   },
   "hr_ge2009": {
-   "sig": "b7b54df401c5aca1",
+   "sig": "ae217fd98185adbd",
    "series": [
     {
      "id": "r_hr_ge2009_win",
@@ -96230,7 +97608,7 @@
    ]
   },
   "hr_ge2014": {
-   "sig": "2fe15cba59e75766",
+   "sig": "8f5c95922b992594",
    "series": [
     {
      "id": "r_hr_ge2014_win",
@@ -96717,7 +98095,7 @@
    ]
   },
   "hr_ge2019": {
-   "sig": "bfc361cc14a6bb14",
+   "sig": "a2bc3b7aec8ef893",
    "series": [
     {
      "id": "r_hr_ge2019_win",
@@ -97086,7 +98464,7 @@
    ]
   },
   "hr_ge2024": {
-   "sig": "ea363b9508085b4d",
+   "sig": "a7ce40c8f597e31a",
    "series": [
     {
      "id": "r_hr_ge2024_win",
@@ -97455,7 +98833,7 @@
    ]
   },
   "hp_ae2012": {
-   "sig": "5715145002a805d0",
+   "sig": "5865d857b1ce690b",
    "series": [
     {
      "id": "r_hp_ae2012_win",
@@ -97776,7 +99154,7 @@
    "blocs": []
   },
   "hp_ae2017": {
-   "sig": "64b8fbe79f65673b",
+   "sig": "5b5426547f49604d",
    "series": [
     {
      "id": "r_hp_ae2017_win",
@@ -98089,7 +99467,7 @@
    "blocs": []
   },
   "hp_ae2022": {
-   "sig": "5de6b9c4c33ca148",
+   "sig": "e2f92e426319fc1b",
    "series": [
     {
      "id": "r_hp_ae2022_win",
@@ -98402,7 +99780,7 @@
    "blocs": []
   },
   "hp_ge2009": {
-   "sig": "302d08275692b0dc",
+   "sig": "01d72a6677009915",
    "series": [
     {
      "id": "r_hp_ge2009_win",
@@ -98707,7 +100085,7 @@
    "blocs": []
   },
   "hp_ge2014": {
-   "sig": "c71082f005adbb94",
+   "sig": "7f79ad72266db1e1",
    "series": [
     {
      "id": "r_hp_ge2014_win",
@@ -99012,7 +100390,7 @@
    "blocs": []
   },
   "hp_ge2019": {
-   "sig": "319c4e8434a4f369",
+   "sig": "60b1d39692069d51",
    "series": [
     {
      "id": "r_hp_ge2019_win",
@@ -99309,7 +100687,7 @@
    "blocs": []
   },
   "hp_ge2024": {
-   "sig": "0843ec2d7491fb0e",
+   "sig": "5c0c9be6f2b86515",
    "series": [
     {
      "id": "r_hp_ge2024_win",
@@ -99614,7 +100992,7 @@
    "blocs": []
   },
   "ga_ae2012": {
-   "sig": "43ad112f0505f320",
+   "sig": "46a6575ae2cd85cd",
    "series": [
     {
      "id": "r_ga_ae2012_win",
@@ -100109,7 +101487,7 @@
    ]
   },
   "ga_ae2017": {
-   "sig": "5ca26ba7f4d71484",
+   "sig": "609641fbeb74cf41",
    "series": [
     {
      "id": "r_ga_ae2017_win",
@@ -100612,7 +101990,7 @@
    ]
   },
   "ga_ae2022": {
-   "sig": "12a0368886d7fe7a",
+   "sig": "25d1d9146c1cc221",
    "series": [
     {
      "id": "r_ga_ae2022_win",
@@ -101264,7 +102642,7 @@
    ]
   },
   "ga_ge2009": {
-   "sig": "ebe009e5043f6052",
+   "sig": "65a24102a3983f7c",
    "series": [
     {
      "id": "r_ga_ge2009_win",
@@ -101688,7 +103066,7 @@
    ]
   },
   "ga_ge2014": {
-   "sig": "301a49a4ecc697d1",
+   "sig": "57556430e9bfeb3f",
    "series": [
     {
      "id": "r_ga_ge2014_win",
@@ -101993,7 +103371,7 @@
    "blocs": []
   },
   "ga_ge2019": {
-   "sig": "c820b477b5f0cf8b",
+   "sig": "981807e9121d15f0",
    "series": [
     {
      "id": "r_ga_ge2019_win",
@@ -102298,7 +103676,7 @@
    "blocs": []
   },
   "ga_ge2024": {
-   "sig": "15655937a6f352bc",
+   "sig": "11409a8fb1ee3042",
    "series": [
     {
      "id": "r_ga_ge2024_win",
@@ -102658,7 +104036,7 @@
    "blocs": []
   },
   "rj_ae2008": {
-   "sig": "09120d62faf8eeb7",
+   "sig": "87adfc1d551e5569",
    "series": [
     {
      "id": "r_rj_ae2008_win",
@@ -103050,7 +104428,7 @@
    "blocs": []
   },
   "rj_ae2013": {
-   "sig": "49ee51d23309bf7b",
+   "sig": "1f6b8c89ef4d8c16",
    "series": [
     {
      "id": "r_rj_ae2013_win",
@@ -103387,7 +104765,7 @@
    "blocs": []
   },
   "rj_ae2018": {
-   "sig": "2f9281d81eda04d9",
+   "sig": "0cdf2cb7d9ab13b1",
    "series": [
     {
      "id": "r_rj_ae2018_win",
@@ -103780,7 +105158,7 @@
    ]
   },
   "rj_ae2023": {
-   "sig": "b4e692ee8b637c11",
+   "sig": "977da48b596a9be3",
    "series": [
     {
      "id": "r_rj_ae2023_win",
@@ -104165,7 +105543,7 @@
    ]
   },
   "rj_ge2009": {
-   "sig": "a3e3128ce568242e",
+   "sig": "fec596fb57bb1752",
    "series": [
     {
      "id": "r_rj_ge2009_win",
@@ -104486,7 +105864,7 @@
    "blocs": []
   },
   "rj_ge2014": {
-   "sig": "fe7760ebf4e24d7f",
+   "sig": "1d82f6e5263529a0",
    "series": [
     {
      "id": "r_rj_ge2014_win",
@@ -104807,7 +106185,7 @@
    "blocs": []
   },
   "rj_ge2019": {
-   "sig": "455d8b8ed5e9774f",
+   "sig": "02d8f7480845f462",
    "series": [
     {
      "id": "r_rj_ge2019_win",
@@ -105184,7 +106562,7 @@
    ]
   },
   "rj_ge2024": {
-   "sig": "fea75580d90c4f65",
+   "sig": "8573c7f8d287e4c1",
    "series": [
     {
      "id": "r_rj_ge2024_win",
@@ -105577,7 +106955,7 @@
    ]
   },
   "mp_ae2008": {
-   "sig": "838bf0d8ab20f595",
+   "sig": "3325d02f0de1f668",
    "series": [
     {
      "id": "r_mp_ae2008_win",
@@ -105969,7 +107347,7 @@
    "blocs": []
   },
   "mp_ae2013": {
-   "sig": "659e43a7599e95db",
+   "sig": "b813001a03198ae7",
    "series": [
     {
      "id": "r_mp_ae2013_win",
@@ -106345,7 +107723,7 @@
    "blocs": []
   },
   "mp_ae2018": {
-   "sig": "b3e6673019faa09c",
+   "sig": "13620015a355b6d6",
    "series": [
     {
      "id": "r_mp_ae2018_win",
@@ -106777,7 +108155,7 @@
    ]
   },
   "mp_ae2023": {
-   "sig": "2c8062f7cc914359",
+   "sig": "66f2ad691a0cfd0c",
    "series": [
     {
      "id": "r_mp_ae2023_win",
@@ -107090,7 +108468,7 @@
    "blocs": []
   },
   "mp_ge2009": {
-   "sig": "85c2629c9a148b07",
+   "sig": "d14c82e9a67fe6bc",
    "series": [
     {
      "id": "r_mp_ge2009_win",
@@ -107466,7 +108844,7 @@
    "blocs": []
   },
   "mp_ge2014": {
-   "sig": "a2d960af7cb5c435",
+   "sig": "e1431cbc786314c8",
    "series": [
     {
      "id": "r_mp_ge2014_win",
@@ -107779,7 +109157,7 @@
    "blocs": []
   },
   "mp_ge2019": {
-   "sig": "fbc859e17197af8a",
+   "sig": "db35b35e679b533c",
    "series": [
     {
      "id": "r_mp_ge2019_win",
@@ -108084,7 +109462,7 @@
    "blocs": []
   },
   "mp_ge2024": {
-   "sig": "7d0fc7a90db840db",
+   "sig": "c5055b3420082609",
    "series": [
     {
      "id": "r_mp_ge2024_win",
@@ -108389,7 +109767,7 @@
    "blocs": []
   },
   "cg_ae2008": {
-   "sig": "60484d64eec43b68",
+   "sig": "0860477523a62087",
    "series": [
     {
      "id": "r_cg_ae2008_win",
@@ -108813,7 +110191,7 @@
    ]
   },
   "cg_ae2013": {
-   "sig": "3eaeb2e0eb75c3ed",
+   "sig": "8bb59cee7f476e78",
    "series": [
     {
      "id": "r_cg_ae2013_win",
@@ -109126,7 +110504,7 @@
    "blocs": []
   },
   "cg_ae2018": {
-   "sig": "710f1ac6b09cf6c0",
+   "sig": "9dfd3a90f40cf6cc",
    "series": [
     {
      "id": "r_cg_ae2018_win",
@@ -109558,7 +110936,7 @@
    ]
   },
   "cg_ae2023": {
-   "sig": "8ca3fbd4290f6747",
+   "sig": "dfa5ae827d23ce54",
    "series": [
     {
      "id": "r_cg_ae2023_win",
@@ -109871,7 +111249,7 @@
    "blocs": []
   },
   "cg_ge2009": {
-   "sig": "1a4593cef7333a71",
+   "sig": "8c210c99f0a18802",
    "series": [
     {
      "id": "r_cg_ge2009_win",
@@ -110192,7 +111570,7 @@
    "blocs": []
   },
   "cg_ge2014": {
-   "sig": "b266b2349559e3e2",
+   "sig": "1335e1f2db93a3d4",
    "series": [
     {
      "id": "r_cg_ge2014_win",
@@ -110497,7 +111875,7 @@
    "blocs": []
   },
   "cg_ge2019": {
-   "sig": "8ed8d977670ae649",
+   "sig": "60922fe231206d15",
    "series": [
     {
      "id": "r_cg_ge2019_win",
@@ -110802,7 +112180,7 @@
    "blocs": []
   },
   "cg_ge2024": {
-   "sig": "958effd771c60079",
+   "sig": "3af4e109559bdc3f",
    "series": [
     {
      "id": "r_cg_ge2024_win",
@@ -111107,7 +112485,7 @@
    "blocs": []
   },
   "ml_ae2013": {
-   "sig": "f8e7f25a787bc57f",
+   "sig": "be7e4d6ee81c60dd",
    "series": [
     {
      "id": "r_ml_ae2013_win",
@@ -111491,7 +112869,7 @@
    "blocs": []
   },
   "ml_ae2018": {
-   "sig": "c837e595972897e3",
+   "sig": "2b41ae51f0ed0b68",
    "series": [
     {
      "id": "r_ml_ae2018_win",
@@ -112104,7 +113482,7 @@
    ]
   },
   "ml_ae2023": {
-   "sig": "7f547ae77e3b3e1a",
+   "sig": "044af7fcaecc952c",
    "series": [
     {
      "id": "r_ml_ae2023_win",
@@ -112661,7 +114039,7 @@
    "blocs": []
   },
   "ml_ge2009": {
-   "sig": "a27c00591f70442c",
+   "sig": "727b212f4fc14279",
    "series": [
     {
      "id": "r_ml_ge2009_win",
@@ -113092,7 +114470,7 @@
    "blocs": []
   },
   "ml_ge2014": {
-   "sig": "5599fcaba0570be8",
+   "sig": "6863a4dbc5e68c76",
    "series": [
     {
      "id": "r_ml_ge2014_win",
@@ -113531,7 +114909,7 @@
    "blocs": []
   },
   "ml_ge2019": {
-   "sig": "175d0b457bd45de7",
+   "sig": "0a980af0f84f1620",
    "series": [
     {
      "id": "r_ml_ge2019_win",
@@ -113954,7 +115332,7 @@
    "blocs": []
   },
   "ml_ge2024": {
-   "sig": "14cbf4720f02931f",
+   "sig": "d4b4a3c2a89c235a",
    "series": [
     {
      "id": "r_ml_ge2024_win",
@@ -114322,7 +115700,7 @@
    "blocs": []
   },
   "mz_ae2008": {
-   "sig": "c1b67a8531b0a49b",
+   "sig": "b92b3ce5becb9519",
    "series": [
     {
      "id": "r_mz_ae2008_win",
@@ -114856,7 +116234,7 @@
    ]
   },
   "mz_ae2013": {
-   "sig": "129ea01a22214bc1",
+   "sig": "2e766752b08b563a",
    "series": [
     {
      "id": "r_mz_ae2013_win",
@@ -115335,7 +116713,7 @@
    ]
   },
   "mz_ae2018": {
-   "sig": "e3cbf76afea0ff87",
+   "sig": "57f1e186a30053c5",
    "series": [
     {
      "id": "r_mz_ae2018_win",
@@ -115711,7 +117089,7 @@
    "blocs": []
   },
   "mz_ae2023": {
-   "sig": "b973166cc0371fd0",
+   "sig": "ce7be2e6e7f1bbc5",
    "series": [
     {
      "id": "r_mz_ae2023_win",
@@ -116134,7 +117512,7 @@
    "blocs": []
   },
   "mz_ge2009": {
-   "sig": "25ea1e3869535c96",
+   "sig": "05dabadc2ddc4e23",
    "series": [
     {
      "id": "r_mz_ge2009_win",
@@ -116376,7 +117754,7 @@
    "blocs": []
   },
   "mz_ge2014": {
-   "sig": "aec337115a02bf69",
+   "sig": "82a3493b16a8f565",
    "series": [
     {
      "id": "r_mz_ge2014_win",
@@ -116626,7 +118004,7 @@
    "blocs": []
   },
   "mz_ge2019": {
-   "sig": "1a8fdd21ea1863c0",
+   "sig": "982fbe16ebe52dcc",
    "series": [
     {
      "id": "r_mz_ge2019_win",
@@ -116931,7 +118309,7 @@
    "blocs": []
   },
   "mz_ge2024": {
-   "sig": "b99d01b7aaf36421",
+   "sig": "7f428bf9f838fcc2",
    "series": [
     {
      "id": "r_mz_ge2024_win",
@@ -117346,7 +118724,7 @@
    "blocs": []
   },
   "tr_ae2013": {
-   "sig": "d2768638536ef207",
+   "sig": "59229eb4316e61a6",
    "series": [
     {
      "id": "r_tr_ae2013_win",
@@ -117825,7 +119203,7 @@
    ]
   },
   "tr_ae2018": {
-   "sig": "a68fef951adcb092",
+   "sig": "f796139231aadd08",
    "series": [
     {
      "id": "r_tr_ae2018_win",
@@ -118304,7 +119682,7 @@
    ]
   },
   "tr_ae2023": {
-   "sig": "c22595f2f5341728",
+   "sig": "36e8415201ea4cbe",
    "series": [
     {
      "id": "r_tr_ae2023_win",
@@ -118854,7 +120232,7 @@
    ]
   },
   "tr_ge2009": {
-   "sig": "2592593687a854fd",
+   "sig": "49c30c3f6e53a8d9",
    "series": [
     {
      "id": "r_tr_ge2009_win",
@@ -119151,7 +120529,7 @@
    "blocs": []
   },
   "tr_ge2014": {
-   "sig": "c580492b416b05e9",
+   "sig": "3df80a5ce483cbed",
    "series": [
     {
      "id": "r_tr_ge2014_win",
@@ -119558,7 +120936,7 @@
    "blocs": []
   },
   "tr_ge2019": {
-   "sig": "237e91c52bdd3db6",
+   "sig": "3a9af42d07cda096",
    "series": [
     {
      "id": "r_tr_ge2019_win",
@@ -119918,7 +121296,7 @@
    "blocs": []
   },
   "tr_ge2024": {
-   "sig": "42ff9b8418e3d60b",
+   "sig": "6c0dc4f579437559",
    "series": [
     {
      "id": "r_tr_ge2024_win",
@@ -120334,7 +121712,7 @@
    ]
   },
   "py_ae2011": {
-   "sig": "2e152fb2635eb395",
+   "sig": "6148a0c5912ed01f",
    "series": [
     {
      "id": "r_py_ae2011_win",
@@ -120876,7 +122254,7 @@
    ]
   },
   "py_ae2016": {
-   "sig": "2b9f16695ebcf512",
+   "sig": "a29e45fc0a98925d",
    "series": [
     {
      "id": "r_py_ae2016_win",
@@ -121363,7 +122741,7 @@
    ]
   },
   "py_ae2021": {
-   "sig": "c55af56b315c80b8",
+   "sig": "1861e0da72732b08",
    "series": [
     {
      "id": "r_py_ae2021_win",
@@ -121913,7 +123291,7 @@
    ]
   },
   "py_ae2026": {
-   "sig": "9fd2f029d10b2a6a",
+   "sig": "195fa9742a07af82",
    "series": [
     {
      "id": "r_py_ae2026_win",
@@ -122573,7 +123951,7 @@
    ]
   },
   "py_ge2009": {
-   "sig": "bc70ca6521913f0f",
+   "sig": "6502e191830a9cf2",
    "series": [
     {
      "id": "r_py_ge2009_win",
@@ -122933,7 +124311,7 @@
    "blocs": []
   },
   "py_ge2014": {
-   "sig": "a03103cc5e697995",
+   "sig": "6f4a1c026b36f50d",
    "series": [
     {
      "id": "r_py_ge2014_win",
@@ -123364,7 +124742,7 @@
    "blocs": []
   },
   "py_ge2019": {
-   "sig": "8eb3f60156b45ab1",
+   "sig": "58c0bb56e2280aa7",
    "series": [
     {
      "id": "r_py_ge2019_win",
@@ -123669,7 +125047,7 @@
    "blocs": []
   },
   "py_ge2024": {
-   "sig": "ecf13dac935d4757",
+   "sig": "6378d143dd3d68bb",
    "series": [
     {
      "id": "r_py_ge2024_win",
@@ -123974,7 +125352,7 @@
    "blocs": []
   },
   "jk_ae2008": {
-   "sig": "a9c0375b793945d8",
+   "sig": "0abfc63702a341ec",
    "series": [
     {
      "id": "r_jk_ae2008_win",
@@ -124437,7 +125815,7 @@
    "blocs": []
   },
   "jk_ae2014": {
-   "sig": "edd6ac1977e146bd",
+   "sig": "8e244bb217a681ee",
    "series": [
     {
      "id": "r_jk_ae2014_win",
@@ -124891,8 +126269,1103 @@
    ],
    "blocs": []
   },
+  "jk_ge1977": {
+   "sig": "1548ae8080f166ea",
+   "series": [
+    {
+     "id": "r_jk_ge1977_win",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winner",
+     "unit": "",
+     "note": "PCs: the party of the elected candidate",
+     "ramp": "cat",
+     "format": "cat",
+     "agg": "lead",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "categorical",
+     "categories": [
+      {
+       "id": "INC",
+       "label": "INC",
+       "color": "#0072B2",
+       "years": [
+        1977
+       ]
+      },
+      {
+       "id": "JKN",
+       "label": "JKN",
+       "color": "#80b8d8",
+       "years": [
+        1977
+       ]
+      },
+      {
+       "id": "IND",
+       "label": "Independents",
+       "color": "#999999",
+       "years": [
+        1977
+       ]
+      }
+     ],
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "jk_ge1977"
+    },
+    {
+     "id": "r_jk_ge1977_margin",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winning margin",
+     "unit": "pp",
+     "note": "Percentage points of valid votes incl. NOTA, winner over runner-up. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "viridis",
+     "format": "dec1",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u16",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": [
+      2,
+      5,
+      10,
+      15,
+      20,
+      30
+     ],
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "jk_ge1977"
+    },
+    {
+     "id": "r_jk_ge1977_jkn",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "JKN vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1977"
+    },
+    {
+     "id": "r_jk_ge1977_inc",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1977"
+    },
+    {
+     "id": "r_jk_ge1977_bld",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "BLD vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "bugn",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1977"
+    },
+    {
+     "id": "r_jk_ge1977_others",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1977 results",
+     "file": "",
+     "cols": {
+      "1977": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Others vote share (incl. NOTA)",
+     "unit": "",
+     "note": "Everyone except JKN, INC, BLD. Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "greys",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1977 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1977"
+    }
+   ],
+   "state": "JAMMU & KASHMIR",
+   "states": [
+    "JAMMU & KASHMIR",
+    "LADAKH"
+   ],
+   "state_name": "Jammu & Kashmir",
+   "main": [
+    "JKN",
+    "INC",
+    "BLD"
+   ],
+   "blocs": []
+  },
+  "jk_ge1980": {
+   "sig": "70b4413d9d3f7c92",
+   "series": [
+    {
+     "id": "r_jk_ge1980_win",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winner",
+     "unit": "",
+     "note": "PCs: the party of the elected candidate",
+     "ramp": "cat",
+     "format": "cat",
+     "agg": "lead",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "categorical",
+     "categories": [
+      {
+       "id": "JKN",
+       "label": "JKN",
+       "color": "#0072B2",
+       "years": [
+        1980
+       ]
+      },
+      {
+       "id": "IND",
+       "label": "Independents",
+       "color": "#999999",
+       "years": [
+        1980
+       ]
+      },
+      {
+       "id": "INC(U)",
+       "label": "INC(U)",
+       "color": "#882255",
+       "years": [
+        1980
+       ]
+      },
+      {
+       "id": "INC(I)",
+       "label": "INC(I)",
+       "color": "#88CCEE",
+       "years": [
+        1980
+       ]
+      }
+     ],
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "jk_ge1980"
+    },
+    {
+     "id": "r_jk_ge1980_margin",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winning margin",
+     "unit": "pp",
+     "note": "Percentage points of valid votes incl. NOTA, winner over runner-up. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "viridis",
+     "format": "dec1",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u16",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": [
+      2,
+      5,
+      10,
+      15,
+      20,
+      30
+     ],
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "jk_ge1980"
+    },
+    {
+     "id": "r_jk_ge1980_jkn",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "JKN vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1980"
+    },
+    {
+     "id": "r_jk_ge1980_inci",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC(I) vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1980"
+    },
+    {
+     "id": "r_jk_ge1980_incu",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC(U) vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "rdpu",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1980"
+    },
+    {
+     "id": "r_jk_ge1980_jnp",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "JNP vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "ylgn",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1980"
+    },
+    {
+     "id": "r_jk_ge1980_others",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1980 results",
+     "file": "",
+     "cols": {
+      "1980": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Others vote share (incl. NOTA)",
+     "unit": "",
+     "note": "Everyone except JKN, INC(I), INC(U), JNP. Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "greys",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1980 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1980"
+    }
+   ],
+   "state": "JAMMU & KASHMIR",
+   "states": [
+    "JAMMU & KASHMIR",
+    "LADAKH"
+   ],
+   "state_name": "Jammu & Kashmir",
+   "main": [
+    "JKN",
+    "INC(I)",
+    "INC(U)",
+    "JNP"
+   ],
+   "blocs": []
+  },
+  "jk_ge1984": {
+   "sig": "0c940435c785c85c",
+   "series": [
+    {
+     "id": "r_jk_ge1984_win",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1984 results",
+     "file": "",
+     "cols": {
+      "1984": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winner",
+     "unit": "",
+     "note": "PCs: the party of the elected candidate",
+     "ramp": "cat",
+     "format": "cat",
+     "agg": "lead",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1984 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "categorical",
+     "categories": [
+      {
+       "id": "JKN",
+       "label": "JKN",
+       "color": "#0072B2",
+       "years": [
+        1984
+       ]
+      },
+      {
+       "id": "INC",
+       "label": "INC",
+       "color": "#80b8d8",
+       "years": [
+        1984
+       ]
+      }
+     ],
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "jk_ge1984"
+    },
+    {
+     "id": "r_jk_ge1984_margin",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1984 results",
+     "file": "",
+     "cols": {
+      "1984": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Winning margin",
+     "unit": "pp",
+     "note": "Percentage points of valid votes incl. NOTA, winner over runner-up. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "viridis",
+     "format": "dec1",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u16",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1984 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": [
+      2,
+      5,
+      10,
+      15,
+      20,
+      30
+     ],
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc"
+     ],
+     "results": "jk_ge1984"
+    },
+    {
+     "id": "r_jk_ge1984_jkn",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1984 results",
+     "file": "",
+     "cols": {
+      "1984": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "JKN vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1984 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1984"
+    },
+    {
+     "id": "r_jk_ge1984_inc",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1984 results",
+     "file": "",
+     "cols": {
+      "1984": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "INC vote share",
+     "unit": "",
+     "note": "Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "blues",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1984 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1984"
+    },
+    {
+     "id": "r_jk_ge1984_others",
+     "dataset": "results",
+     "group": "Jammu & Kashmir Lok Sabha 1984 results",
+     "file": "",
+     "cols": {
+      "1984": null
+     },
+     "pivot": null,
+     "period": null,
+     "fill_missing": null,
+     "label": "Others vote share (incl. NOTA)",
+     "unit": "",
+     "note": "Everyone except JKN, INC. Share of valid votes incl. NOTA. ECI results. PCs only (no assembly-segment figures for this election)",
+     "ramp": "greys",
+     "format": "pct",
+     "agg": "wmean",
+     "density": false,
+     "dtype": "u8",
+     "default_year": null,
+     "res_years": {},
+     "root": null,
+     "prefix": "",
+     "states": [
+      "JAMMU & KASHMIR",
+      "LADAKH"
+     ],
+     "sparse": false,
+     "units_table": null,
+     "caveat": "",
+     "na_label": "",
+     "menu": [
+      "Elections",
+      "Jammu & Kashmir",
+      "Lok Sabha",
+      "1984 results"
+     ],
+     "shard": null,
+     "na_cells": null,
+     "weight": null,
+     "official_col": null,
+     "type": "numeric",
+     "categories": null,
+     "breaks": null,
+     "diverging": false,
+     "scale": "",
+     "featured": false,
+     "unit_levels": [
+      "pc",
+      "state"
+     ],
+     "results": "jk_ge1984"
+    }
+   ],
+   "state": "JAMMU & KASHMIR",
+   "states": [
+    "JAMMU & KASHMIR",
+    "LADAKH"
+   ],
+   "state_name": "Jammu & Kashmir",
+   "main": [
+    "JKN",
+    "INC"
+   ],
+   "blocs": []
+  },
   "jk_ge1989": {
-   "sig": "aad73e72474caccb",
+   "sig": "1c83961b37db2e25",
    "series": [
     {
      "id": "r_jk_ge1989_win",
@@ -125311,7 +127784,7 @@
    "blocs": []
   },
   "jk_ge1996": {
-   "sig": "57d10d6006d618de",
+   "sig": "24becf2fc68f39cb",
    "series": [
     {
      "id": "r_jk_ge1996_win",
@@ -125730,7 +128203,7 @@
    "blocs": []
   },
   "jk_ge1998": {
-   "sig": "ad1bfa2ddfac6357",
+   "sig": "6160386556e764ee",
    "series": [
     {
      "id": "r_jk_ge1998_win",
@@ -126095,7 +128568,7 @@
    "blocs": []
   },
   "jk_ge1999": {
-   "sig": "31db064586a1fbed",
+   "sig": "c36d580092c7001b",
    "series": [
     {
      "id": "r_jk_ge1999_win",
@@ -126452,7 +128925,7 @@
    "blocs": []
   },
   "jk_ge2009": {
-   "sig": "29b99306970bb4c1",
+   "sig": "39da0cc4dcd3c850",
    "series": [
     {
      "id": "r_jk_ge2009_win",
@@ -126964,7 +129437,7 @@
    ]
   },
   "jk_ge2014": {
-   "sig": "63c0a3b8338ca032",
+   "sig": "8f23d02246b06cc2",
    "series": [
     {
      "id": "r_jk_ge2014_win",
@@ -127476,7 +129949,7 @@
    ]
   },
   "jk_ge2019": {
-   "sig": "1fa65123da15e85d",
+   "sig": "755860efaf515073",
    "series": [
     {
      "id": "r_jk_ge2019_win",
@@ -127932,7 +130405,7 @@
    ]
   },
   "dl_ae2008": {
-   "sig": "1a89dc18e88b910b",
+   "sig": "6683e702bd537772",
    "series": [
     {
      "id": "r_dl_ae2008_win",
@@ -128300,7 +130773,7 @@
    "blocs": []
   },
   "dl_ae2013": {
-   "sig": "278b1b7c2eec3897",
+   "sig": "9eaf458a125f4425",
    "series": [
     {
      "id": "r_dl_ae2013_win",
@@ -128787,7 +131260,7 @@
    ]
   },
   "dl_ae2015": {
-   "sig": "421048ce9ce10bad",
+   "sig": "c5d872360dd4b223",
    "series": [
     {
      "id": "r_dl_ae2015_win",
@@ -129203,7 +131676,7 @@
    ]
   },
   "dl_ae2020": {
-   "sig": "901b37d3be57ddc4",
+   "sig": "344f1acfe88f79cb",
    "series": [
     {
      "id": "r_dl_ae2020_win",
@@ -129564,7 +132037,7 @@
    ]
   },
   "dl_ae2025": {
-   "sig": "650a2c8c5e937c9b",
+   "sig": "cb9839ae67f3c6e5",
    "series": [
     {
      "id": "r_dl_ae2025_win",
@@ -129980,7 +132453,7 @@
    ]
   },
   "dl_ge2009": {
-   "sig": "f7a7f4edf2aefcd7",
+   "sig": "8970e3f456e16999",
    "series": [
     {
      "id": "r_dl_ge2009_win",
@@ -130340,7 +132813,7 @@
    "blocs": []
   },
   "dl_ge2014": {
-   "sig": "4f6d11efbf983bea",
+   "sig": "fc535a219efc5a1c",
    "series": [
     {
      "id": "r_dl_ge2014_win",
@@ -130700,7 +133173,7 @@
    "blocs": []
   },
   "dl_ge2019": {
-   "sig": "cd03ce077d30bdb9",
+   "sig": "20bd96faa2b7039d",
    "series": [
     {
      "id": "r_dl_ge2019_win",
@@ -131060,7 +133533,7 @@
    "blocs": []
   },
   "dl_ge2024": {
-   "sig": "43b7006daf4ef604",
+   "sig": "12ae3b0ec83166af",
    "series": [
     {
      "id": "r_dl_ge2024_win",
@@ -131484,7 +133957,7 @@
    ]
   },
   "uk_ae2012": {
-   "sig": "779feb7e00986705",
+   "sig": "93c2f424ed0d8a51",
    "series": [
     {
      "id": "r_uk_ae2012_win",
@@ -131868,7 +134341,7 @@
    "blocs": []
   },
   "uk_ae2017": {
-   "sig": "c8c9cbcc7b1559a6",
+   "sig": "b1288d45e05820d3",
    "series": [
     {
      "id": "r_uk_ae2017_win",
@@ -132236,7 +134709,7 @@
    "blocs": []
   },
   "uk_ae2022": {
-   "sig": "29acb80e01adcbf0",
+   "sig": "64e457bcd55134cd",
    "series": [
     {
      "id": "r_uk_ae2022_win",
@@ -132549,7 +135022,7 @@
    "blocs": []
   },
   "uk_ge2009": {
-   "sig": "e8582c3a7c9c6ccf",
+   "sig": "c48f8299fc808ce9",
    "series": [
     {
      "id": "r_uk_ge2009_win",
@@ -132909,7 +135382,7 @@
    "blocs": []
   },
   "uk_ge2014": {
-   "sig": "0968e0b95573630f",
+   "sig": "4090584879418c30",
    "series": [
     {
      "id": "r_uk_ge2014_win",
@@ -133214,7 +135687,7 @@
    "blocs": []
   },
   "uk_ge2019": {
-   "sig": "32472ccbbae83d50",
+   "sig": "8edac40b2ea57013",
    "series": [
     {
      "id": "r_uk_ge2019_win",
@@ -133519,7 +135992,7 @@
    "blocs": []
   },
   "uk_ge2024": {
-   "sig": "fd8e7f80ad0889a3",
+   "sig": "e686498e6f95cd70",
    "series": [
     {
      "id": "r_uk_ge2024_win",
@@ -133834,6 +136307,7 @@
  },
  "results_colours": {
   "MAHARASHTRA": {
+   "NCPSP": "#882255",
    "MNS": "#999933",
    "SWP": "#CC6677",
    "PWPI": "#AA4499",
@@ -133848,8 +136322,10 @@
    "STBP": "#882255",
    "MSHP": "#999933",
    "GGP": "#CC6677",
+   "RYSP": "#882255",
    "LKSGM": "#DDCC77",
    "PRCP": "#88CCEE",
+   "RSVA": "#AA4499",
    "BAHUMP": "#999933",
    "APoI": "#CC6677",
    "KTSTP": "#AA4499",
@@ -134158,34 +136634,50 @@
    "LP": "#882255",
    "HMR": "#999933",
    "MLKTWDP": "#CC6677",
-   "BPI": "#AA4499",
-   "NCPSP": "#882255",
-   "RYSP": "#882255",
-   "RSVA": "#AA4499"
+   "BPI": "#AA4499"
   },
   "ASSAM": {
    "AGP": "#882255",
    "BPF": "#332288",
    "UPPL": "#999933",
+   "BLD": "#AA4499",
    "ASDC": "#CC6677",
    "CPI(ML)(L)": "#117733",
    "UMFA": "#117733",
    "AGP(P)": "#AA4499",
+   "JD": "#CC6677",
+   "NAGP": "#117733",
+   "ICS": "#88CCEE",
    "URMCA": "#CC6677",
+   "AIIC(T)": "#AA4499",
+   "INC(I)": "#DDCC77",
+   "JNP": "#88CCEE",
+   "PTC": "#882255",
    "SUCI": "#DDCC77",
    "TNGP": "#88CCEE",
+   "UMF": "#DDCC77",
+   "INC(U)": "#332288",
    "RWS": "#882255",
+   "ICS(SCS)": "#88CCEE",
+   "PDF": "#882255",
+   "URC": "#332288",
    "VPI": "#332288",
    "NPEP": "#999933",
+   "ADC": "#999933",
    "BGANP": "#CC6677",
    "SAP": "#AA4499",
+   "SLP": "#CC6677",
+   "PTCA": "#117733",
    "AIFB": "#DDCC77",
    "JMM": "#88CCEE",
    "LKS": "#882255",
    "RCPI(R)": "#332288",
    "JP": "#88CCEE",
    "LJNSP": "#999933",
+   "UTNLF": "#AA4499",
+   "LKD": "#999933",
    "AJM": "#CC6677",
+   "RCI": "#CC6677",
    "HND": "#117733",
    "PUJP": "#AA4499",
    "NBNP": "#DDCC77",
@@ -134194,10 +136686,12 @@
    "TNRMPI": "#332288",
    "AIMF": "#999933",
    "RPI": "#CC6677",
+   "IPF": "#DDCC77",
    "RSPS": "#117733",
    "LDP": "#AA4499",
    "RDSC": "#DDCC77",
    "RDMP": "#88CCEE",
+   "SUC": "#117733",
    "BVM": "#882255",
    "PLTIJSTP": "#332288",
    "ADRP": "#999933",
@@ -134205,11 +136699,15 @@
    "LB": "#117733",
    "MUL": "#AA4499",
    "BLSP": "#DDCC77",
+   "DDP": "#882255",
+   "AJBP": "#332288",
    "RAJPA": "#88CCEE",
    "RUC": "#882255",
    "SWABP": "#332288",
    "NRCONG": "#999933",
+   "AJD": "#999933",
    "RPPRINAT": "#117733",
+   "UBNLF": "#CC6677",
    "RVNP": "#AA4499",
    "BHARP": "#DDCC77",
    "RSSC": "#88CCEE",
@@ -134226,29 +136724,12 @@
    "JCPB": "#CC6677",
    "RPP": "#117733",
    "AICP": "#AA4499",
+   "AMB": "#117733",
    "HSKP": "#DDCC77",
    "NNP": "#88CCEE",
    "FDLP": "#882255",
    "LS": "#332288",
-   "ABHM": "#999933",
-   "JD": "#CC6677",
-   "NAGP": "#117733",
-   "AIIC(T)": "#AA4499",
-   "UMF": "#DDCC77",
-   "ICS(SCS)": "#88CCEE",
-   "PDF": "#882255",
-   "URC": "#332288",
-   "ADC": "#999933",
-   "SLP": "#CC6677",
-   "PTCA": "#117733",
-   "UTNLF": "#AA4499",
-   "IPF": "#DDCC77",
-   "ICS": "#88CCEE",
-   "DDP": "#882255",
-   "AJBP": "#332288",
-   "AJD": "#999933",
-   "UBNLF": "#CC6677",
-   "AMB": "#117733"
+   "ABHM": "#999933"
   },
   "KARNATAKA": {
    "KJP": "#882255",
@@ -134428,7 +136909,9 @@
    "BJSC": "#88CCEE"
   },
   "TAMIL NADU": {
+   "VCK": "#882255",
    "MDMK": "#117733",
+   "IUML": "#44AA99",
    "KNMK": "#D55E00",
    "PT": "#56B4E9",
    "TMC(M)": "#117733",
@@ -134489,6 +136972,7 @@
    "NGPP": "#999933",
    "SAP": "#CC6677",
    "TMTHK": "#117733",
+   "AISMK": "#332288",
    "AHIMSASP": "#DDCC77",
    "INL": "#88CCEE",
    "TK": "#882255",
@@ -134642,16 +137126,14 @@
    "RUC": "#999933",
    "AIWUP": "#CC6677",
    "BMFP": "#117733",
-   "JASD": "#AA4499",
-   "VCK": "#882255",
-   "IUML": "#44AA99",
-   "AISMK": "#332288"
+   "JASD": "#AA4499"
   },
   "WEST BENGAL": {
    "AIFB": "#D55E00",
    "RSP": "#D55E00",
    "ISF": "#D55E00",
    "SUCI": "#117733",
+   "GJM": "#882255",
    "AJUP": "#DDCC77",
    "JMM": "#88CCEE",
    "DSP(P)": "#D55E00",
@@ -134659,6 +137141,7 @@
    "JDP": "#CC6677",
    "JKP(N)": "#117733",
    "AMB": "#AA4499",
+   "BGPM": "#882255",
    "BMUP": "#88CCEE",
    "SDPI": "#882255",
    "PDS": "#999933",
@@ -134688,6 +137171,7 @@
    "IPFB": "#AA4499",
    "GRAC": "#DDCC77",
    "BHNP": "#88CCEE",
+   "AJSU": "#CC6677",
    "JESM": "#999933",
    "AKBJHP": "#CC6677",
    "JUNP": "#117733",
@@ -134779,28 +137263,33 @@
    "RSPI": "#DDCC77",
    "SJP(R)": "#88CCEE",
    "BMF": "#882255",
-   "INF": "#999933",
-   "GJM": "#882255",
-   "BGPM": "#882255",
-   "AJSU": "#CC6677"
+   "INF": "#999933"
   },
   "KERALA": {
+   "IUML": "#CC6677",
    "KC(M)": "#D55E00",
    "RSP": "#D55E00",
+   "BDJS": "#AA4499",
    "KEC": "#D55E00",
    "SDPI": "#DDCC77",
    "TWENTY20": "#88CCEE",
+   "SJD": "#882255",
+   "KC(J)": "#44AA99",
    "INL": "#D55E00",
+   "CMP": "#999933",
    "KC(B)": "#D55E00",
+   "JSS": "#CC6677",
    "NSC": "#D55E00",
    "LJD": "#D55E00",
    "C(S)": "#D55E00",
    "WPI": "#999933",
    "NCPSP": "#D55E00",
+   "RMPI": "#AA4499",
    "KC(AMG)": "#D55E00",
    "ISJD": "#D55E00",
    "SUCI": "#882255",
    "PDP": "#44AA99",
+   "RSP(B)": "#882255",
    "RSP(L)": "#D55E00",
    "JKC": "#D55E00",
    "RSPK(B)": "#DDCC77",
@@ -134847,19 +137336,15 @@
    "ABHM": "#AA4499",
    "RVNP": "#DDCC77",
    "SP(I)": "#88CCEE",
-   "FIP": "#882255",
-   "IUML": "#CC6677",
-   "BDJS": "#AA4499",
-   "SJD": "#882255",
-   "KC(J)": "#44AA99",
-   "CMP": "#999933",
-   "JSS": "#CC6677",
-   "RMPI": "#AA4499",
-   "RSP(B)": "#882255"
+   "FIP": "#882255"
   },
   "PUNJAB": {
    "SAD(M)": "#882255",
+   "PEP": "#44AA99",
+   "NPP_PB": "#999933",
    "LBP": "#CC6677",
+   "SAD(S)": "#117733",
+   "PLC": "#AA4499",
    "CPI(ML)(L)": "#DDCC77",
    "RMPI": "#88CCEE",
    "BSP(A)": "#882255",
@@ -135003,23 +137488,24 @@
    "HND": "#999933",
    "RJSNP": "#CC6677",
    "BIRK": "#117733",
-   "ABHSLP": "#AA4499",
-   "PEP": "#44AA99",
-   "NPP_PB": "#999933",
-   "SAD(S)": "#117733",
-   "PLC": "#AA4499"
+   "ABHSLP": "#AA4499"
   },
   "BIHAR": {
    "CPI(ML)(L)": "#882255",
+   "LJPRV": "#44AA99",
    "BLSP": "#999933",
+   "HAMS": "#CC6677",
+   "VSIP": "#117733",
    "AIMIM": "#AA4499",
    "JAPL": "#DDCC77",
+   "RSHTLKM": "#DDCC77",
    "JMM": "#882255",
    "BMUP": "#44AA99",
    "LTSD": "#999933",
    "RJBP": "#CC6677",
    "PPID": "#117733",
    "SUCI": "#AA4499",
+   "IIP": "#88CCEE",
    "JDR": "#88CCEE",
    "AAAP": "#882255",
    "TPLRSP": "#44AA99",
@@ -135444,15 +137930,11 @@
    "PRAJAP": "#117733",
    "NYP": "#AA4499",
    "NYKP": "#DDCC77",
-   "BRJSTP": "#88CCEE",
-   "LJPRV": "#44AA99",
-   "HAMS": "#CC6677",
-   "VSIP": "#117733",
-   "RSHTLKM": "#DDCC77",
-   "IIP": "#88CCEE"
+   "BRJSTP": "#88CCEE"
   },
   "UTTAR PRADESH": {
    "RLD": "#882255",
+   "ADAL": "#44AA99",
    "SBSP": "#999933",
    "PECP": "#CC6677",
    "AD": "#117733",
@@ -136225,8 +138707,7 @@
    "NLIP": "#CC6677",
    "MASPA": "#117733",
    "RAIP": "#AA4499",
-   "RABAP": "#DDCC77",
-   "ADAL": "#44AA99"
+   "RABAP": "#DDCC77"
   },
   "GUJARAT": {
    "GPP": "#882255",
@@ -137032,6 +139513,7 @@
    "LTSP": "#882255",
    "HaLP": "#44AA99",
    "HALP": "#999933",
+   "HJCPV": "#CC6677",
    "SMBHP": "#117733",
    "HRJNSVKP": "#AA4499",
    "SUCI": "#DDCC77",
@@ -137210,8 +139692,7 @@
    "RAM": "#CC6677",
    "BJNJGD": "#117733",
    "RPPRINAT": "#AA4499",
-   "RSTWDIBHRT": "#DDCC77",
-   "HJCPV": "#CC6677"
+   "RSTWDIBHRT": "#DDCC77"
   },
   "HIMACHAL PRADESH": {
    "HLP": "#882255",
@@ -137253,6 +139734,7 @@
    "GFP": "#44AA99",
    "GVP": "#999933",
    "UGDP": "#CC6677",
+   "GSM": "#117733",
    "UGP": "#AA4499",
    "GSRP": "#DDCC77",
    "SJP(R)": "#88CCEE",
@@ -137269,8 +139751,7 @@
    "AIMF": "#999933",
    "SAJPCS": "#CC6677",
    "NGRF": "#117733",
-   "APOI": "#AA4499",
-   "GSM": "#117733"
+   "APOI": "#AA4499"
   },
   "RAJASTHAN": {
    "RLTP": "#882255",
@@ -137300,6 +139781,7 @@
    "ABCD(A)": "#882255",
    "SDPI": "#44AA99",
    "VM": "#999933",
+   "LJD": "#CC6677",
    "JMBP": "#117733",
    "APOI": "#AA4499",
    "HJP": "#DDCC77",
@@ -137472,8 +139954,7 @@
    "RaJPa": "#AA4499",
    "LOKJANP": "#DDCC77",
    "RGD": "#88CCEE",
-   "TOP": "#882255",
-   "LJD": "#CC6677"
+   "TOP": "#882255"
   },
   "MADHYA PRADESH": {
    "GGP": "#882255",
@@ -137529,6 +140010,7 @@
    "RDMP": "#999933",
    "SDPI": "#CC6677",
    "PHRC": "#117733",
+   "LJD": "#AA4499",
    "JND": "#DDCC77",
    "AMS": "#88CCEE",
    "LKSP": "#882255",
@@ -137750,8 +140232,7 @@
    "SAJPCS": "#882255",
    "JAMP": "#44AA99",
    "DAVP": "#999933",
-   "AHBCD": "#CC6677",
-   "LJD": "#AA4499"
+   "AHBCD": "#CC6677"
   },
   "CHHATTISGARH": {
    "GGP": "#882255",
@@ -137892,10 +140373,10 @@
    "ZPM": "#882255",
    "ZNP": "#44AA99",
    "PRISMP": "#332288",
+   "MDF": "#D55E00",
    "NPEP": "#999933",
    "LB": "#CC6677",
-   "JMBP": "#117733",
-   "MDF": "#D55E00"
+   "JMBP": "#117733"
   },
   "TRIPURA": {
    "TMP": "#882255",
@@ -137918,6 +140399,7 @@
    "RPI": "#88CCEE"
   },
   "PUDUCHERRY": {
+   "LJK": "#882255",
    "NYMK": "#AA4499",
    "VCK": "#332288",
    "SUCI": "#D55E00",
@@ -137946,14 +140428,19 @@
    "DMMK": "#56B4E9",
    "RTSMJD": "#999933",
    "AMM": "#CC6677",
-   "PRJNTIP": "#117733",
-   "LJK": "#882255"
+   "PRJNTIP": "#117733"
   },
   "JAMMU & KASHMIR": {
    "JKPDP": "#882255",
    "JKNPP": "#44AA99",
    "JPC": "#999933",
+   "JD": "#DDCC77",
+   "INC(I)": "#88CCEE",
+   "JPP": "#88CCEE",
+   "INC(U)": "#882255",
    "JKDPN": "#CC6677",
+   "BLD": "#44AA99",
+   "JNP": "#999933",
    "PDF": "#117733",
    "JKANC": "#AA4499",
    "JKPDF": "#DDCC77",
@@ -137964,11 +140451,16 @@
    "BCDP": "#999933",
    "AJKMP": "#CC6677",
    "BHBP": "#117733",
+   "AIIC(T)": "#882255",
+   "NPAP": "#44AA99",
    "JP": "#44AA99",
    "RKSP": "#AA4499",
    "DGPP": "#88CCEE",
    "RPI": "#44AA99",
    "GaAP": "#882255",
+   "JNP(JP)": "#999933",
+   "BKKGP": "#CC6677",
+   "SJP(R)": "#117733",
    "SAP": "#999933",
    "JSM(P)": "#CC6677",
    "AKAKRP": "#117733",
@@ -137979,6 +140471,7 @@
    "ANC": "#44AA99",
    "NRCP": "#999933",
    "PRISM": "#CC6677",
+   "LS": "#AA4499",
    "MaNPa": "#117733",
    "RSP": "#AA4499",
    "JMBP": "#DDCC77",
@@ -137986,44 +140479,39 @@
    "BBP": "#882255",
    "HJP": "#999933",
    "HND": "#CC6677",
+   "LKD": "#CC6677",
    "RLD": "#CC6677",
    "BMUP": "#117733",
    "BCP": "#AA4499",
+   "CPI(ML)(L)": "#DDCC77",
+   "ABJS": "#88CCEE",
    "IJP": "#DDCC77",
+   "ABMSD": "#882255",
+   "PBI": "#44AA99",
    "RAJPA": "#88CCEE",
+   "AJKPPF": "#999933",
    "APP": "#882255",
    "BSKRP": "#44AA99",
    "NLHP": "#999933",
+   "AIIC(S)": "#CC6677",
+   "SPI": "#117733",
    "ABML(S)": "#117733",
    "RaJPa": "#AA4499",
+   "SPSP": "#AA4499",
    "NDP": "#DDCC77",
    "UCP": "#88CCEE",
    "KRD": "#882255",
+   "BRPP": "#DDCC77",
+   "JKP": "#117733",
    "PSPL": "#44AA99",
    "JKPPS": "#999933",
    "HKRD": "#CC6677",
    "ABHM": "#117733",
-   "IPCP": "#AA4499",
-   "JD": "#DDCC77",
-   "JPP": "#88CCEE",
-   "AIIC(T)": "#882255",
-   "NPAP": "#44AA99",
-   "JNP(JP)": "#999933",
-   "BKKGP": "#CC6677",
-   "SJP(R)": "#117733",
-   "LS": "#AA4499",
-   "CPI(ML)(L)": "#DDCC77",
-   "ABJS": "#88CCEE",
-   "ABMSD": "#882255",
-   "PBI": "#44AA99",
-   "AJKPPF": "#999933",
-   "AIIC(S)": "#CC6677",
-   "SPI": "#117733",
-   "SPSP": "#AA4499",
-   "BRPP": "#DDCC77"
+   "IPCP": "#AA4499"
   },
   "DELHI": {
    "AIMIM": "#882255",
+   "LJPRV": "#44AA99",
    "SAD(M)": "#999933",
    "PECP": "#CC6677",
    "AAPP": "#117733",
@@ -138326,8 +140814,7 @@
    "SAMBHP": "#AA4499",
    "AINRS": "#DDCC77",
    "BLPGL": "#88CCEE",
-   "VIJAYBHA": "#882255",
-   "LJPRV": "#44AA99"
+   "VIJAYBHA": "#882255"
   },
   "UTTARAKHAND": {
    "UKKD": "#882255",
