@@ -68,6 +68,18 @@ def keys(sm):
     return ({int(r["ac_no"]): ID["ac"][r["ac_key"]] for r in rows}, {int(r["pc_no"]): ID["pc"][r["pc_key"]] for r in rows}, amap)
 
 
+_pc_only = {}
+
+
+def pc_only(e):
+    """A Lok Sabha election whose store has PC rows only (no assembly-segment figures), read from the store."""
+    k = e["key"]
+    if k not in _pc_only:
+        n = duckdb.sql(f"SELECT count(*) FROM '{STORE / k / 'units.parquet'}' WHERE level = 'ac'").fetchone()[0]
+        _pc_only[k] = e["house"] == "LS" and n == 0
+    return _pc_only[k]
+
+
 def unit_vals(sid, level):
     f = json.loads((DATA / "units" / "v" / sid / f"{level}.json").read_text())
     if f["v"][0] is None:
@@ -89,6 +101,9 @@ for e in elections:
     acid, pcid, amap = keys(e["seat_map"])
     for level, ids in (("ac", acid), ("pc", pcid)):
         f = json.loads((DATA / "results" / k / f"{level}.json").read_text(encoding="utf-8"))
+        if level == "ac" and pc_only(e):   # PC results only in the store: an empty AC file
+            check(f["u"] == {} and f.get("pc_only") == 1, f"{k}: PC-only election with AC rows published")
+            continue
         got = {int(i): u["no"] for i, u in f["u"].items()}
         check(got == {v: n for n, v in ids.items()}, f"{k} {level}: unit ids differ from the key table ({len(got)} vs {len(ids)})")
         if level == "ac":   # 3: AC -> PC is the seat map's
@@ -116,7 +131,15 @@ for e in elections:
     el = by_key[k]
     maps = {m["s"]: m for m in el["maps"]}
     acid, pcid, _ = keys(e["seat_map"])
+    if pc_only(e):   # no segment figures: no map has AC or district values, and none offers those levels
+        for m in el["maps"]:
+            for lvl in ("ac", "district"):
+                vv = unit_vals(f"r_{k}_{m['s']}", lvl)
+                check(not vv or all(x is None for x in vv), f"{k} {m['s']}: {lvl} values in a PC-only election")
+            check("ac" not in R["levels"][m["lv"]], f"{k} {m['s']}: offered at AC level in a PC-only election")
     for level, ids, n in (("ac", acid, 20), ("pc", pcid, 10)):
+        if level == "ac" and pc_only(e):
+            continue
         f = json.loads((DATA / "results" / k / f"{level}.json").read_text(encoding="utf-8"))
         uu = con.sql(f"SELECT * FROM '{STORE / k / 'units.parquet'}' WHERE level='{level}'").df().set_index("unit_no")
         cc = con.sql(f"SELECT * FROM '{STORE / k / 'candidates.parquet'}' WHERE level='{level}' AND NOT is_nota").df()
@@ -133,7 +156,7 @@ for e in elections:
                 continue
             check(u.get("w") == r.winner_party and u.get("r") == (None if pd.isna(r.runner_party) else r.runner_party), f"{tag}: winner/runner {u.get('w')}/{u.get('r')} vs {r.winner_party}/{r.runner_party}")
             check(u.get("m") == (None if pd.isna(r.margin_votes) else r.margin_votes) and abs(u.get("mp", -1) - r.margin_pct) < 0.006, f"{tag}: margin {u.get('m')} {u.get('mp')} vs {r.margin_votes} {r.margin_pct}")
-            check([x[2] for x in u["c"][:3]] == [int(v) for v in g.votes.head(3)], f"{tag}: top-3 votes {[x[2] for x in u['c'][:3]]} vs {list(g.votes.head(3))}")
+            check([x[2] for x in u["c"][:3]] == [None if pd.isna(v) else int(v) for v in g.votes.head(3)], f"{tag}: top-3 votes {[x[2] for x in u['c'][:3]]} vs {list(g.votes.head(3))}")
             if level == "ac" or e["house"] == "LS":
                 check([x[0] for x in u["c"][:3]] == list(g.candidate.head(3)), f"{tag}: top-3 names differ")
             if not pd.isna(r.turnout_pct):

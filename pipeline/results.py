@@ -79,6 +79,8 @@ class Store:
         self._keys = {}
         self._ok = {}
         self._auto = None
+        self.keep = {}       # {India Hex state key: {party: colour}}: the last build's assignment, kept
+        self.assigned = {}   # this build's assignment, saved for the next one
 
     def joinable(self, e):
         """True when every AC and PC of the election's seat map has a checked India Hex key. Maps with no key table
@@ -119,8 +121,11 @@ class Store:
 
     def auto_colours(self, e):
         """{party: colour} for parties with no set colour, shared by every election of the election's states (states
-        joined by a multi-state seat map, e.g. undivided Andhra Pradesh, share one list). The most-voted party gets the
-        first free colour; colours of the states' set-colour parties are skipped while enough remain."""
+        joined by a multi-state seat map, e.g. undivided Andhra Pradesh, share one list). A party keeps the colour it
+        had in the last build (`keep`), so new or older elections arriving do not recolour live maps; a party new to
+        the states takes the least-used free colour, most-voted first (from nothing: the most-voted party gets the
+        first free colour, and so on round the palette). Colours of the states' set-colour parties are skipped while
+        enough remain."""
         if self._auto is None:
             parent = {}
 
@@ -137,12 +142,14 @@ class Store:
                 for s in sts[1:]:
                     parent[find(s)] = find(sts[0])
                 st_of[e2["key"]] = sts[0]
-            groups = {}
+            groups, members = {}, {}
             for e2 in els:
                 groups.setdefault(find(st_of[e2["key"]]), []).append(e2["key"])
+            for s in parent:
+                members.setdefault(find(s), []).append(s)
             parties = self.parties["parties"]
             self._auto = {}
-            for keys in groups.values():
+            for root, keys in groups.items():
                 files = [(self.root / k / "candidates.parquet").as_posix() for k in keys]
                 rows = duckdb.sql(f"SELECT party, sum(votes) AS v FROM read_parquet({files!r}, union_by_name=true) "
                                   "WHERE party IS NOT NULL GROUP BY party ORDER BY v DESC NULLS LAST, party").fetchall()
@@ -152,7 +159,20 @@ class Store:
                     free = AUTO
                 plain = [p for p, _ in rows if not ((parties.get(p) or {}).get("colour") or PALETTE.get(p))
                          and p.upper() not in NO_COLOUR]
-                cols = {p: free[i % len(free)] for i, p in enumerate(plain)}
+                kept = {}
+                for s in sorted(members[root]):
+                    for p, c in (self.keep.get(s) or {}).items():
+                        kept.setdefault(p, c)
+                cols = {p: kept[p] for p in plain if kept.get(p) in AUTO}
+                for p in plain:
+                    if p not in cols:
+                        use = {c: 0 for c in free}
+                        for c in cols.values():
+                            if c in use:
+                                use[c] += 1
+                        cols[p] = min(free, key=lambda c: (use[c], free.index(c)))
+                for s in members[root]:
+                    self.assigned[s] = cols
                 for k in keys:
                     self._auto[k] = cols
         return self._auto.get(e["key"], {})
@@ -268,6 +288,14 @@ def build_election(store, e, units, out_dir):
         C = _cands(con, cp, level)
         by_unit = {n: g for n, g in C.groupby("unit_no")}
         ids = ac_id if level == "ac" else pc_id
+        if level == "ac" and e["house"] == "LS" and not len(U) and not len(C):
+            # a Lok Sabha election with PC results only (ECI printed no assembly-segment figures before 2004):
+            # no AC rows, an empty AC card file; its maps are PC and state only
+            vals[level] = {}
+            (out_dir / "ac.json").write_text(json.dumps({"v": 1, "key": key, "level": "ac", "lead": True, "agg": False,
+                                                        "seat_map": sm, "pc_only": 1, "u": {}}, separators=(",", ":")),
+                                             encoding="utf-8")
+            continue
         missing = sorted(set(U.unit_no) - set(ids))
         if missing:
             raise ValueError(f"{key} {level}: unit numbers without an India Hex key: {missing[:10]}")
@@ -358,10 +386,14 @@ def map_series(e, built, units):
     group = f"{name} {hname} {year} results"
     menu = ["Elections", name, hname, f"{year} results"]
     seg = house == "LS"
+    pc_only = seg and not vals["ac"]   # PC results only: no segment figures, so no AC or district values
     base = dict(dataset="results", group=group, file="", cols={year: None}, states=[s["key"] for s in built["states"]], menu=menu,
                 results=key)
-    note_src = ("ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result" if seg
+    note_src = ("ECI results. PCs only (no assembly-segment figures for this election)" if pc_only else
+                "ECI results. ACs: lead in the assembly segment (EVM votes); PCs: the official result" if seg
                 else "ECI results. PCs: sums of their ACs")
+    seat_lv = ["pc"] if pc_only else ["ac", "pc"]
+    all_lv = ["pc", "state"] if pc_only else ["ac", "pc", "district", "state"]
     out = []
 
     def levels_of(get, lvls=("ac", "pc", "district", "state")):
@@ -393,41 +425,42 @@ def map_series(e, built, units):
         cats.append({"id": "others", "label": "Others", "color": GREY, "years": [year]})
     _distinct(cats)
     code = {c["id"]: i for i, c in enumerate(cats)}
-    win = Series(id=f"r_{key}_win", label="Winner" if not seg else "Winner (AC: segment lead)", type="categorical",
+    win = Series(id=f"r_{key}_win", label="Winner" if not seg or pc_only else "Winner (AC: segment lead)", type="categorical",
                  categories=cats, format="cat", agg="lead", dtype="u8", ramp="cat",
-                 note=("PCs: the party of the elected candidate; ACs: the party leading the assembly segment (EVM votes)" if seg
+                 note=("PCs: the party of the elected candidate" if pc_only else
+                       "PCs: the party of the elected candidate; ACs: the party leading the assembly segment (EVM votes)" if seg
                        else "ACs: the party of the elected candidate; PCs: the party with most votes over its ACs"),
-                 unit_levels=["ac", "pc"], **base)
-    out.append((win, levels_of(lambda r: code.get(r["w"], code.get("others")) if r["w"] else None, ("ac", "pc"))))
-    mar = Series(id=f"r_{key}_margin", label="Winning margin" if not seg else "Winning margin (AC: segment lead)",
+                 unit_levels=seat_lv, **base)
+    out.append((win, levels_of(lambda r: code.get(r["w"], code.get("others")) if r["w"] else None, seat_lv)))
+    mar = Series(id=f"r_{key}_margin", label="Winning margin" if not seg or pc_only else "Winning margin (AC: segment lead)",
                  unit="pp", format="dec1", agg="wmean", ramp="viridis", breaks=MARGIN_BREAKS,
                  note=f"Percentage points of valid votes incl. NOTA, winner over runner-up. {note_src}",
-                 unit_levels=["ac", "pc"], **base)
-    out.append((mar, levels_of(lambda r: r["mp"], ("ac", "pc"))))
+                 unit_levels=seat_lv, **base)
+    out.append((mar, levels_of(lambda r: r["mp"], seat_lv)))
     # vote shares: parties, then alliances, with >= 5% statewide; Others is everything else incl. NOTA
     main = [p for p, v in sorted(whole["p"].items(), key=lambda x: -x[1]) if p not in ("IND", "NOTA") and v / whole["tv"] >= MAIN_SHARE]
     blocs = [b for b, v in sorted(whole["b"].items(), key=lambda x: -x[1])
              if v / whole["tv"] >= MAIN_SHARE and b in built["allies"]]
     ids = set()
-    lv_note = f"Share of valid votes incl. NOTA. {note_src}; districts: sums of their ACs (approximate)"
+    lv_note = f"Share of valid votes incl. NOTA. {note_src}" + ("" if pc_only else "; districts: sums of their ACs (approximate)")
     for p in main:
         sid = f"r_{key}_{_slug(p)}"
         while sid in ids:
             sid += "x"
         ids.add(sid)
         s = Series(id=sid, label=f"{p} vote share", format="pct", agg="wmean", dtype="u8", ramp=RAMP.get(colour(p), "purples"),
-                   note=lv_note, unit_levels=["ac", "pc", "district", "state"], **base)
-        out.append((s, levels_of(lambda r, p=p: _r(r["p"].get(p, 0) / r["tv"]) if r["tv"] else None)))
+                   note=lv_note, unit_levels=all_lv, **base)
+        out.append((s, levels_of(lambda r, p=p: _r(r["p"].get(p, 0) / r["tv"]) if r["tv"] else None, all_lv)))
     for b in blocs:
         label, col = built["allies"][b]
         sid = f"r_{key}_bloc_{_slug(b)}"
         short = label.split(" (")[0]
         s = Series(id=sid, label=f"{short} vote share", format="pct", agg="wmean", dtype="u8", ramp=RAMP.get(col, "purples"),
-                   note=f"{label}. {lv_note}", unit_levels=["ac", "pc", "district", "state"], **base)
-        out.append((s, levels_of(lambda r, b=b: _r(r["b"].get(b, 0) / r["tv"]) if r["tv"] else None)))
+                   note=f"{label}. {lv_note}", unit_levels=all_lv, **base)
+        out.append((s, levels_of(lambda r, b=b: _r(r["b"].get(b, 0) / r["tv"]) if r["tv"] else None, all_lv)))
     oth = Series(id=f"r_{key}_others", label="Others vote share (incl. NOTA)", format="pct", agg="wmean", dtype="u8",
-                 ramp="greys", note=f"Everyone except {', '.join(main)}. {lv_note}", unit_levels=["ac", "pc", "district", "state"], **base)
-    out.append((oth, levels_of(lambda r: _r(1 - sum(r["p"].get(p, 0) for p in main) / r["tv"]) if r["tv"] else None)))
+                 ramp="greys", note=f"Everyone except {', '.join(main)}. {lv_note}", unit_levels=all_lv, **base)
+    out.append((oth, levels_of(lambda r: _r(1 - sum(r["p"].get(p, 0) for p in main) / r["tv"]) if r["tv"] else None, all_lv)))
     return out, main, blocs
 
 
@@ -469,6 +502,7 @@ def build(cfg, st, units, units_sig):
     if not spec:
         return []
     store = Store(spec)
+    store.keep = st.get("results_colours") or {}
     prev = st.get("results") or {}
     done = {}
     series = []
@@ -514,6 +548,8 @@ def build(cfg, st, units, units_sig):
     if removed:
         log(f"results: removed {removed} stale files")
     st["results"] = done
+    if store.assigned:
+        st["results_colours"] = store.assigned
     return series
 
 
